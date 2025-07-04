@@ -3,69 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Line Matcher</title>
+  <title>Line Match Checker</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f4f4f4;
       padding: 20px;
+      margin: 0;
+      background: #f0f0f0;
     }
     .container {
       max-width: 600px;
       margin: auto;
-      background: #fff;
+      background: white;
       padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     textarea, button {
       width: 100%;
-      padding: 12px;
-      margin-top: 10px;
       font-size: 16px;
+      padding: 10px;
+      margin-top: 10px;
       box-sizing: border-box;
     }
-    textarea {
-      min-height: 120px;
-    }
     button {
-      background-color: #4CAF50;
+      background: #4CAF50;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
     }
     button:hover {
-      background-color: #45a049;
+      background: #388E3C;
     }
     .results {
       margin-top: 20px;
       background: #e8f5e9;
-      border-left: 5px solid #4CAF50;
+      border-left: 4px solid #4CAF50;
       padding: 10px;
       border-radius: 6px;
     }
     .result-item {
-      margin-bottom: 5px;
+      margin-bottom: 6px;
     }
     @media (max-width: 600px) {
       .container {
         padding: 15px;
-      }
-      textarea, button {
-        font-size: 15px;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Line Checker</h2>
-    <p>Enter lines below. Matching lines with numbers or letters will appear below.</p>
-    <textarea id="inputBox" placeholder="Paste or type your lines here..."></textarea>
+    <h2>Match Finder</h2>
+    <p>Enter multiple lines. It'll show lines that contain any letter or number.</p>
+
+    <textarea id="inputBox" placeholder="Enter lines here..."></textarea>
     <button onclick="checkLines()">Submit</button>
-    <div class="results" id="results" style="display: none;">
+
+    <div id="results" class="results" style="display:none;">
       <h4>Matched Lines:</h4>
       <div id="matchedLines"></div>
     </div>
@@ -76,8 +72,8 @@
       const input = document.getElementById("inputBox").value;
       const lines = input.split('\n');
 
-      // Match any line that has letters OR numbers
-      const matched = lines.filter(line => /\w/.test(line));
+      // Match lines that contain at least one digit or letter
+      const matched = lines.filter(line => /[a-zA-Z0-9]/.test(line));
 
       const resultsDiv = document.getElementById("results");
       const matchedLinesDiv = document.getElementById("matchedLines");
