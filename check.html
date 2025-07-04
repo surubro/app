@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Line Match Checker</title>
+  <title>Repeated Word/Number Finder</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
+      background: #f5f5f5;
       margin: 0;
-      background: #f0f0f0;
     }
     .container {
-      max-width: 600px;
+      max-width: 700px;
       margin: auto;
-      background: white;
+      background: #fff;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -22,7 +22,7 @@
     textarea, button {
       width: 100%;
       font-size: 16px;
-      padding: 10px;
+      padding: 12px;
       margin-top: 10px;
       box-sizing: border-box;
     }
@@ -55,35 +55,60 @@
 </head>
 <body>
   <div class="container">
-    <h2>Match Finder</h2>
-    <p>Enter multiple lines. It'll show lines that contain any letter or number.</p>
-
-    <textarea id="inputBox" placeholder="Enter lines here..."></textarea>
-    <button onclick="checkLines()">Submit</button>
+    <h2>Find Lines with Repeated Words or Numbers</h2>
+    <textarea id="inputBox" placeholder="Paste multiple lines here..."></textarea>
+    <button onclick="findMatches()">Submit</button>
 
     <div id="results" class="results" style="display:none;">
+      <div id="matchWords"></div>
       <h4>Matched Lines:</h4>
       <div id="matchedLines"></div>
     </div>
   </div>
 
   <script>
-    function checkLines() {
-      const input = document.getElementById("inputBox").value;
-      const lines = input.split('\n');
+    function findMatches() {
+      const text = document.getElementById("inputBox").value;
+      const lines = text.split('\n');
+      const wordMap = {};
+      const wordToLines = {};
 
-      // Match lines that contain at least one digit or letter
-      const matched = lines.filter(line => /[a-zA-Z0-9]/.test(line));
+      // Collect word frequencies and which lines they appear in
+      lines.forEach((line, index) => {
+        const words = line.toLowerCase().match(/\b[\w]+\b/g);
+        if (!words) return;
+        words.forEach(word => {
+          wordMap[word] = (wordMap[word] || 0) + 1;
+          if (!wordToLines[word]) wordToLines[word] = new Set();
+          wordToLines[word].add(index);
+        });
+      });
 
+      // Find repeated words (appeared more than once)
+      const repeatedWords = Object.keys(wordMap).filter(w => wordMap[w] > 1);
+
+      // Find lines that contain repeated words
+      const matchedLineIndices = new Set();
+      repeatedWords.forEach(word => {
+        wordToLines[word].forEach(idx => matchedLineIndices.add(idx));
+      });
+
+      // Prepare results
+      const matchedLines = Array.from(matchedLineIndices).sort().map(i => lines[i]);
+
+      // Display
       const resultsDiv = document.getElementById("results");
+      const matchWordsDiv = document.getElementById("matchWords");
       const matchedLinesDiv = document.getElementById("matchedLines");
 
-      if (matched.length > 0) {
-        matchedLinesDiv.innerHTML = matched.map(line => `<div class="result-item">${line}</div>`).join('');
-        resultsDiv.style.display = "block";
+      if (repeatedWords.length > 0) {
+        matchWordsDiv.innerHTML = `<strong>Matched Word(s):</strong> ${repeatedWords.join(', ')}`;
+        matchedLinesDiv.innerHTML = matchedLines.map(line => `<div class="result-item">${line}</div>`).join('');
+        resultsDiv.style.display = 'block';
       } else {
-        matchedLinesDiv.innerHTML = `<div class="result-item">No matching lines found.</div>`;
-        resultsDiv.style.display = "block";
+        matchWordsDiv.innerHTML = `<strong>No repeated words or numbers found.</strong>`;
+        matchedLinesDiv.innerHTML = '';
+        resultsDiv.style.display = 'block';
       }
     }
   </script>
