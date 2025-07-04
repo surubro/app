@@ -1,1 +1,114 @@
-check 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Machine Match Checker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      margin: 0;
+      background: #f4f4f4;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    textarea, button {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .results {
+      margin-top: 20px;
+      padding: 10px;
+      background: #e8f5e9;
+      border-left: 5px solid #4CAF50;
+      border-radius: 6px;
+    }
+
+    .result-item {
+      margin-bottom: 5px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+
+      textarea, button {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Machine or Keyword Checker</h2>
+    <p>Enter lines below. It will show lines that contain matching machine numbers or keywords.</p>
+
+    <textarea id="inputBox" placeholder="Paste or type your lines here..."></textarea>
+    <button onclick="checkLines()">Submit</button>
+
+    <div class="results" id="results" style="display: none;">
+      <h4>Matched Lines:</h4>
+      <div id="matchedLines"></div>
+    </div>
+  </div>
+
+  <script>
+    function checkLines() {
+      const input = document.getElementById("inputBox").value;
+      const lines = input.split('\n');
+
+      const matchKeywords = ["machine", "machining", "M123", "MC456", "CNC"]; // Add more keywords as needed
+      const matched = [];
+
+      lines.forEach(line => {
+        const lowerLine = line.toLowerCase();
+        if (matchKeywords.some(keyword => lowerLine.includes(keyword.toLowerCase()))) {
+          matched.push(line);
+        }
+      });
+
+      const resultsDiv = document.getElementById("results");
+      const matchedLinesDiv = document.getElementById("matchedLines");
+
+      if (matched.length > 0) {
+        matchedLinesDiv.innerHTML = matched.map(line => `<div class="result-item">${line}</div>`).join('');
+        resultsDiv.style.display = "block";
+      } else {
+        matchedLinesDiv.innerHTML = `<div class="result-item">No matching lines found.</div>`;
+        resultsDiv.style.display = "block";
+      }
+    }
+  </script>
+</body>
+</html>
