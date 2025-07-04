@@ -1,39 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Machine Match Checker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Line Matcher</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
       margin: 0;
       background: #f4f4f4;
+      padding: 20px;
     }
-
     .container {
       max-width: 600px;
       margin: auto;
-      background: white;
+      background: #fff;
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-
     textarea, button {
       width: 100%;
-      box-sizing: border-box;
       padding: 12px;
-      font-size: 16px;
       margin-top: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
     }
-
     textarea {
-      resize: vertical;
       min-height: 120px;
     }
-
     button {
       background-color: #4CAF50;
       color: white;
@@ -41,28 +36,23 @@
       border-radius: 6px;
       cursor: pointer;
     }
-
     button:hover {
       background-color: #45a049;
     }
-
     .results {
       margin-top: 20px;
-      padding: 10px;
       background: #e8f5e9;
       border-left: 5px solid #4CAF50;
+      padding: 10px;
       border-radius: 6px;
     }
-
     .result-item {
       margin-bottom: 5px;
     }
-
     @media (max-width: 600px) {
       .container {
         padding: 15px;
       }
-
       textarea, button {
         font-size: 15px;
       }
@@ -71,12 +61,10 @@
 </head>
 <body>
   <div class="container">
-    <h2>Machine or Keyword Checker</h2>
-    <p>Enter lines below. It will show lines that contain matching machine numbers or keywords.</p>
-
+    <h2>Line Checker</h2>
+    <p>Enter lines below. Matching lines with numbers or letters will appear below.</p>
     <textarea id="inputBox" placeholder="Paste or type your lines here..."></textarea>
     <button onclick="checkLines()">Submit</button>
-
     <div class="results" id="results" style="display: none;">
       <h4>Matched Lines:</h4>
       <div id="matchedLines"></div>
@@ -88,15 +76,8 @@
       const input = document.getElementById("inputBox").value;
       const lines = input.split('\n');
 
-      const matchKeywords = ["machine", "machining", "M123", "MC456", "CNC"]; // Add more keywords as needed
-      const matched = [];
-
-      lines.forEach(line => {
-        const lowerLine = line.toLowerCase();
-        if (matchKeywords.some(keyword => lowerLine.includes(keyword.toLowerCase()))) {
-          matched.push(line);
-        }
-      });
+      // Match any line that has letters OR numbers
+      const matched = lines.filter(line => /\w/.test(line));
 
       const resultsDiv = document.getElementById("results");
       const matchedLinesDiv = document.getElementById("matchedLines");
