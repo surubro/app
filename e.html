@@ -1,94 +1,133 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Finance Summary</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 30px;
-        }
+  <meta charset="UTF-8">
+  <title>Finance Summary</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
 
-        #output {
-            margin-top: 20px;
-        }
+    .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
 
-        input[type="text"] {
-            width: 400px;
-            padding: 8px;
-        }
+    .chart-container {
+      width: 45%;
+    }
 
-        button {
-            padding: 8px 15px;
-            margin-left: 10px;
-        }
+    .table-container {
+      width: 45%;
+    }
 
-        ul {
-            margin-top: 15px;
-        }
-    </style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
 <body>
 
-    <h1>Finance Summary</h1>
+  <h1>Finance Summary</h1>
 
-    <!-- Custom URL Input and Fetch Button -->
-    <input type="text" id="urlInput" placeholder="Enter URL to fetch data">
-    <button onclick="fetchData()">Fetch</button>
+  <div class="container">
+    <div class="chart-container">
+      <h2>Where Money is Spent</h2>
+      <canvas id="spendingChart" width="400" height="400"></canvas>
+    </div>
 
-    <div id="output"></div>
+    <div class="table-container">
+      <h2>Spending Details</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Amount (INR)</th>
+          </tr>
+        </thead>
+        <tbody id="spendingTableBody">
+          <!-- Data rows will be populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-    <script>
-        function fetchData() {
-            const url = document.getElementById('urlInput').value;
+  <script>
+    // Spending data
+    const spendingData = [
+      { item: "Groceries", amount: 4000 },
+      { item: "Rent", amount: 10000 },
+      { item: "Utilities", amount: 1500 },
+      { item: "Transport", amount: 1200 },
+      { item: "Savings", amount: 3000 }
+    ];
 
-            if (!url) {
-                alert("Please enter a valid URL.");
-                return;
-            }
+    // Extract labels and data
+    const labels = spendingData.map(entry => entry.item);
+    const values = spendingData.map(entry => entry.amount);
 
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    displayItems(data);
-                })
-                .catch(error => {
-                    document.getElementById('output').innerText = "Error: " + error;
-                });
+    // Populate table rows
+    const tableBody = document.getElementById("spendingTableBody");
+    spendingData.forEach(entry => {
+      const row = document.createElement("tr");
+
+      const itemCell = document.createElement("td");
+      itemCell.textContent = entry.item;
+
+      const amountCell = document.createElement("td");
+      amountCell.textContent = "₹" + entry.amount.toLocaleString();
+
+      row.appendChild(itemCell);
+      row.appendChild(amountCell);
+      tableBody.appendChild(row);
+    });
+
+    // Render pie chart
+    const ctx = document.getElementById('spendingChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Spending',
+          data: values,
+          backgroundColor: [
+            '#FF6384', '#36A2EB', '#FFCE56', '#8AC0E9', '#81C784'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right'
+          },
+          title: {
+            display: false
+          }
         }
-
-        function displayItems(data) {
-            const outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = '';
-
-            if (!Array.isArray(data) || data.length === 0) {
-                outputDiv.textContent = 'No data found.';
-                return;
-            }
-
-            // Filter items where money was spent (amount < 0)
-            const spentItems = data.filter(item => item.amount < 0);
-
-            if (spentItems.length === 0) {
-                outputDiv.textContent = 'No spending transactions found.';
-                return;
-            }
-
-            const list = document.createElement('ul');
-
-            spentItems.forEach(item => {
-                const listItem = document.createElement('li');
-                listItem.textContent = item.name; // Show item name
-                list.appendChild(listItem);
-            });
-
-            outputDiv.appendChild(list);
-        }
-    </script>
+      }
+    });
+  </script>
 
 </body>
 </html>
