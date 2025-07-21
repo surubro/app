@@ -1,6 +1,6 @@
 {
   "Necessity": [
-    { "item": "Rent", "amount": 1000 },
+    { "item": "electricity", "amount": 750 },
     { "item": "Groceries", "amount": 0 },
     { "item": "Electricity Bill", "amount": 0 },
     { "item": "Water Bill", "amount": 0 },
@@ -66,8 +66,8 @@
     { "item": "Ticket Cancellation", "amount": 0 }
   ],
   "Savings": [
-    { "item": "Fixed Deposit", "amount": 300 },
-    { "item": "Recurring Deposit", "amount": 0 },
+    { "item": "super money ", "amount": 600 },
+    { "item": "cash", "amount": 300 },
     { "item": "Mutual Funds", "amount": 0 },
     { "item": "Public Provident Fund", "amount": 0 },
     { "item": "Crypto Investment", "amount": 0 },
