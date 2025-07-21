@@ -1,209 +1,94 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>Finance Summary</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
+    <title>Finance Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+        }
 
-    h1 {
-      margin-bottom: 10px;
-    }
+        #output {
+            margin-top: 20px;
+        }
 
-    #sheet-tabs {
-      margin-bottom: 20px;
-    }
+        input[type="text"] {
+            width: 400px;
+            padding: 8px;
+        }
 
-    .sheet-tab {
-      display: inline-block;
-      padding: 8px 16px;
-      background-color: #f0f0f0;
-      border: 1px solid #ccc;
-      cursor: pointer;
-      margin-right: 5px;
-    }
+        button {
+            padding: 8px 15px;
+            margin-left: 10px;
+        }
 
-    .sheet-tab.active {
-      background-color: #d0d0d0;
-      font-weight: bold;
-    }
-
-    .sheet {
-      display: none;
-    }
-
-    .sheet.active {
-      display: block;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 40px;
-    }
-
-    table, th, td {
-      border: 1px solid #ccc;
-    }
-
-    th, td {
-      padding: 8px;
-      text-align: left;
-    }
-
-    .item-list {
-      margin: 10px 0 20px 0;
-    }
-
-    .item-list li {
-      list-style-type: disc;
-      margin-left: 20px;
-    }
-
-    #json-loader {
-      margin-top: 40px;
-    }
-
-    #json-url {
-      width: 400px;
-      padding: 6px;
-    }
-
-    #json-output {
-      margin-top: 15px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      background-color: #f8f8f8;
-      white-space: pre-wrap;
-      font-family: monospace;
-    }
-  </style>
+        ul {
+            margin-top: 15px;
+        }
+    </style>
 </head>
 <body>
 
-  <h1>Finance Summary</h1>
+    <h1>Finance Summary</h1>
 
-  <div id="sheet-tabs"></div>
-  <div id="sheet-views"></div>
+    <!-- Custom URL Input and Fetch Button -->
+    <input type="text" id="urlInput" placeholder="Enter URL to fetch data">
+    <button onclick="fetchData()">Fetch</button>
 
-  <div id="json-loader">
-    <h2>Load Custom JSON</h2>
-    <input type="text" id="json-url" placeholder="Paste JSON URL here" />
-    <button onclick="loadCustomJSON()">Load JSON</button>
-    <pre id="json-output"></pre>
-  </div>
+    <div id="output"></div>
 
-  <script>
-    // Define sheets manually like in ex.html
-    const workbook = [
-      {
-        id: "BalanceSheet",
-        name: "Balance Sheet",
-        columns: ["Account", "Amount"],
-        data: [
-          ["Cash", 1000],
-          ["Equity", 1500],
-          ["Loans", -500]
-        ]
-      },
-      {
-        id: "IncomeStatement",
-        name: "Income Statement",
-        columns: ["Category", "Q1", "Q2"],
-        data: [
-          ["Revenue", 5000, 7000],
-          ["Expenses", 3000, 3500],
-          ["Profit", 2000, 3500]
-        ]
-      }
-    ];
+    <script>
+        function fetchData() {
+            const url = document.getElementById('urlInput').value;
 
-    const sheetTabs = document.getElementById("sheet-tabs");
-    const sheetViews = document.getElementById("sheet-views");
+            if (!url) {
+                alert("Please enter a valid URL.");
+                return;
+            }
 
-    workbook.forEach((sheet, index) => {
-      // Create tab
-      const tab = document.createElement("div");
-      tab.className = "sheet-tab" + (index === 0 ? " active" : "");
-      tab.textContent = sheet.name;
-      tab.dataset.target = sheet.id;
-      tab.onclick = () => {
-        document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove("active"));
-        document.querySelectorAll('.sheet').forEach(s => s.classList.remove("active"));
-        tab.classList.add("active");
-        document.getElementById(sheet.id).classList.add("active");
-      };
-      sheetTabs.appendChild(tab);
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayItems(data);
+                })
+                .catch(error => {
+                    document.getElementById('output').innerText = "Error: " + error;
+                });
+        }
 
-      // Create sheet view
-      const sheetDiv = document.createElement("div");
-      sheetDiv.className = "sheet" + (index === 0 ? " active" : "");
-      sheetDiv.id = sheet.id;
+        function displayItems(data) {
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '';
 
-      // Item (header) list
-      const ul = document.createElement("ul");
-      ul.className = "item-list";
-      sheet.columns.forEach(col => {
-        const li = document.createElement("li");
-        li.textContent = col;
-        ul.appendChild(li);
-      });
-      sheetDiv.appendChild(ul);
+            if (!Array.isArray(data) || data.length === 0) {
+                outputDiv.textContent = 'No data found.';
+                return;
+            }
 
-      // Table
-      const table = document.createElement("table");
-      const thead = document.createElement("thead");
-      const headRow = document.createElement("tr");
-      sheet.columns.forEach(col => {
-        const th = document.createElement("th");
-        th.textContent = col;
-        headRow.appendChild(th);
-      });
-      thead.appendChild(headRow);
-      table.appendChild(thead);
+            // Filter items where money was spent (amount < 0)
+            const spentItems = data.filter(item => item.amount < 0);
 
-      const tbody = document.createElement("tbody");
-      sheet.data.forEach(row => {
-        const tr = document.createElement("tr");
-        row.forEach(cell => {
-          const td = document.createElement("td");
-          td.textContent = cell;
-          tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
-      });
-      table.appendChild(tbody);
-      sheetDiv.appendChild(table);
+            if (spentItems.length === 0) {
+                outputDiv.textContent = 'No spending transactions found.';
+                return;
+            }
 
-      sheetViews.appendChild(sheetDiv);
-    });
+            const list = document.createElement('ul');
 
-    function loadCustomJSON() {
-      const url = document.getElementById('json-url').value.trim();
-      const output = document.getElementById('json-output');
-      output.textContent = "Loading...";
+            spentItems.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.textContent = item.name; // Show item name
+                list.appendChild(listItem);
+            });
 
-      if (!url) {
-        alert("Please enter a JSON URL.");
-        output.textContent = "";
-        return;
-      }
+            outputDiv.appendChild(list);
+        }
+    </script>
 
-      fetch(url)
-        .then(res => {
-          if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-          return res.json();
-        })
-        .then(data => {
-          output.textContent = JSON.stringify(data, null, 2);
-        })
-        .catch(err => {
-          output.textContent = `Error: ${err.message}`;
-        });
-    }
-  </script>
 </body>
 </html>
