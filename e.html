@@ -17,7 +17,7 @@
     }
 
     .chart-container {
-      width: 45%;
+      width: 50%;
     }
 
     .table-container {
@@ -40,8 +40,10 @@
       background-color: #f2f2f2;
     }
 
-    h2 {
-      margin-bottom: 10px;
+    #total {
+      margin-bottom: 20px;
+      font-weight: bold;
+      font-size: 1.1em;
     }
   </style>
 </head>
@@ -49,14 +51,13 @@
 
   <h1>Finance Summary</h1>
 
+  <div id="total">Loading total...</div>
+
   <div class="container">
     <div class="chart-container">
-      <h2>Where Money is Spent</h2>
-      <canvas id="spendingChart" width="400" height="400"></canvas>
+      <canvas id="pieChart"></canvas>
     </div>
-
     <div class="table-container">
-      <h2>Spending Details</h2>
       <table>
         <thead>
           <tr>
@@ -64,69 +65,89 @@
             <th>Amount (INR)</th>
           </tr>
         </thead>
-        <tbody id="spendingTableBody">
-          <!-- Data rows will be populated by JS -->
-        </tbody>
+        <tbody id="dataTable"></tbody>
       </table>
     </div>
   </div>
 
   <script>
-    // Spending data
-    const spendingData = [
-      { item: "Groceries", amount: 4000 },
-      { item: "Rent", amount: 10000 },
-      { item: "Utilities", amount: 1500 },
-      { item: "Transport", amount: 1200 },
-      { item: "Savings", amount: 3000 }
-    ];
+    const dataUrl = 'https://raw.githubusercontent.com/surubro/app/refs/heads/main/finance_data.json';
 
-    // Extract labels and data
-    const labels = spendingData.map(entry => entry.item);
-    const values = spendingData.map(entry => entry.amount);
-
-    // Populate table rows
-    const tableBody = document.getElementById("spendingTableBody");
-    spendingData.forEach(entry => {
-      const row = document.createElement("tr");
-
-      const itemCell = document.createElement("td");
-      itemCell.textContent = entry.item;
-
-      const amountCell = document.createElement("td");
-      amountCell.textContent = "₹" + entry.amount.toLocaleString();
-
-      row.appendChild(itemCell);
-      row.appendChild(amountCell);
-      tableBody.appendChild(row);
-    });
-
-    // Render pie chart
-    const ctx = document.getElementById('spendingChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Spending',
-          data: values,
-          backgroundColor: [
-            '#FF6384', '#36A2EB', '#FFCE56', '#8AC0E9', '#81C784'
-          ]
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'right'
-          },
-          title: {
-            display: false
-          }
+    fetch(dataUrl)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
         }
-      }
-    });
+        return response.json();
+      })
+      .then(data => {
+        // Group by item, compute totals
+        const categoryMap = {};
+        let totalSpent = 0;
+
+        data.forEach(entry => {
+          const item = entry.item;
+          const amount = parseFloat(entry.amount ?? 0);
+          if (!categoryMap[item]) {
+            categoryMap[item] = 0;
+          }
+          categoryMap[item] += amount;
+          totalSpent += amount;
+        });
+
+        // Update total spent
+        document.getElementById('total').textContent = `Total Spent: ₹${totalSpent.toLocaleString()}`;
+
+        // Prepare data for chart and table
+        const items = Object.keys(categoryMap);
+        const amounts = Object.values(categoryMap);
+
+        // Populate table
+        const tableBody = document.getElementById('dataTable');
+        items.forEach((item, index) => {
+          const row = document.createElement('tr');
+          const tdItem = document.createElement('td');
+          tdItem.textContent = item;
+          const tdAmount = document.createElement('td');
+          tdAmount.textContent = `₹${amounts[index].toLocaleString()}`;
+          row.appendChild(tdItem);
+          row.appendChild(tdAmount);
+          tableBody.appendChild(row);
+        });
+
+        // Draw pie chart
+        const ctx = document.getElementById('pieChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: items,
+            datasets: [{
+              label: 'Expenses',
+              data: amounts,
+              backgroundColor: [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'right'
+              },
+              title: {
+                display: true,
+                text: 'Spending by Category'
+              }
+            }
+          }
+        });
+
+      })
+      .catch(error => {
+        document.getElementById('total').textContent = "Error loading data.";
+        console.error("Fetch error:", error);
+      });
   </script>
 
 </body>
