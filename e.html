@@ -1,217 +1,209 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Finance Summary Viewer</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
+  <meta charset="utf-8">
+  <title>Finance Summary</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
 
-        h1, h2 {
-            color: #333;
-        }
+    h1 {
+      margin-bottom: 10px;
+    }
 
-        #sheet-list {
-            margin-bottom: 20px;
-        }
+    #sheet-tabs {
+      margin-bottom: 20px;
+    }
 
-        .sheet-button {
-            margin-right: 10px;
-            padding: 6px 12px;
-            cursor: pointer;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-        }
+    .sheet-tab {
+      display: inline-block;
+      padding: 8px 16px;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      margin-right: 5px;
+    }
 
-        .sheet-button:hover {
-            background-color: #ddd;
-        }
+    .sheet-tab.active {
+      background-color: #d0d0d0;
+      font-weight: bold;
+    }
 
-        .sheet {
-            display: none;
-            margin-bottom: 40px;
-        }
+    .sheet {
+      display: none;
+    }
 
-        .sheet.active {
-            display: block;
-        }
+    .sheet.active {
+      display: block;
+    }
 
-        .item-header {
-            font-weight: bold;
-            margin-top: 10px;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 40px;
+    }
 
-        .item-list {
-            margin-bottom: 15px;
-            margin-left: 20px;
-        }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
 
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 10px;
-        }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
 
-        table, th, td {
-            border: 1px solid #ccc;
-        }
+    .item-list {
+      margin: 10px 0 20px 0;
+    }
 
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
+    .item-list li {
+      list-style-type: disc;
+      margin-left: 20px;
+    }
 
-        /* JSON section */
-        #json-output {
-            background: #f9f9f9;
-            padding: 10px;
-            border: 1px solid #ccc;
-            margin-top: 15px;
-            white-space: pre-wrap;
-            font-family: monospace;
-        }
+    #json-loader {
+      margin-top: 40px;
+    }
 
-        input[type="text"] {
-            width: 400px;
-            padding: 6px;
-            margin-right: 5px;
-        }
+    #json-url {
+      width: 400px;
+      padding: 6px;
+    }
 
-        button {
-            padding: 6px 12px;
-        }
-    </style>
+    #json-output {
+      margin-top: 15px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f8f8f8;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+  </style>
 </head>
 <body>
 
-    <h1>Finance Summary Viewer</h1>
+  <h1>Finance Summary</h1>
 
-    <h2>Sheet Selector</h2>
-    <div id="sheet-list"></div>
+  <div id="sheet-tabs"></div>
+  <div id="sheet-views"></div>
 
-    <div id="sheets-container">
-        <!-- Existing sheets from ex.html should be pasted here -->
-        
-        <!-- Example structure -->
-        <div class="sheet" id="BalanceSheet">
-            <table>
-                <thead>
-                    <tr><th>Account</th><th>Amount</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>Cash</td><td>1000</td></tr>
-                    <tr><td>Equity</td><td>1500</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="sheet" id="IncomeStatement">
-            <table>
-                <thead>
-                    <tr><th>Category</th><th>Q1</th><th>Q2</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>Revenue</td><td>5000</td><td>7000</td></tr>
-                    <tr><td>Expenses</td><td>3000</td><td>3500</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- More sheets can be added similarly -->
-    </div>
-
+  <div id="json-loader">
     <h2>Load Custom JSON</h2>
-    <div>
-        <input type="text" id="json-url" placeholder="Paste JSON URL here">
-        <button onclick="loadCustomJSON()">Load JSON</button>
-    </div>
+    <input type="text" id="json-url" placeholder="Paste JSON URL here" />
+    <button onclick="loadCustomJSON()">Load JSON</button>
     <pre id="json-output"></pre>
+  </div>
 
-    <script>
-        // Sheet processing logic
-        const allSheets = document.querySelectorAll('.sheet');
-        const sheetListDiv = document.getElementById('sheet-list');
-        const sheetsContainer = document.getElementById('sheets-container');
+  <script>
+    // Define sheets manually like in ex.html
+    const workbook = [
+      {
+        id: "BalanceSheet",
+        name: "Balance Sheet",
+        columns: ["Account", "Amount"],
+        data: [
+          ["Cash", 1000],
+          ["Equity", 1500],
+          ["Loans", -500]
+        ]
+      },
+      {
+        id: "IncomeStatement",
+        name: "Income Statement",
+        columns: ["Category", "Q1", "Q2"],
+        data: [
+          ["Revenue", 5000, 7000],
+          ["Expenses", 3000, 3500],
+          ["Profit", 2000, 3500]
+        ]
+      }
+    ];
 
-        allSheets.forEach((sheetDiv, index) => {
-            const sheetName = sheetDiv.id || `Sheet ${index + 1}`;
-            sheetDiv.classList.add('sheet');
+    const sheetTabs = document.getElementById("sheet-tabs");
+    const sheetViews = document.getElementById("sheet-views");
 
-            // Add sheet selector button
-            const btn = document.createElement('button');
-            btn.textContent = sheetName;
-            btn.className = 'sheet-button';
-            btn.onclick = () => {
-                document.querySelectorAll('.sheet').forEach(s => s.classList.remove('active'));
-                sheetDiv.classList.add('active');
-            };
-            sheetListDiv.appendChild(btn);
+    workbook.forEach((sheet, index) => {
+      // Create tab
+      const tab = document.createElement("div");
+      tab.className = "sheet-tab" + (index === 0 ? " active" : "");
+      tab.textContent = sheet.name;
+      tab.dataset.target = sheet.id;
+      tab.onclick = () => {
+        document.querySelectorAll('.sheet-tab').forEach(t => t.classList.remove("active"));
+        document.querySelectorAll('.sheet').forEach(s => s.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById(sheet.id).classList.add("active");
+      };
+      sheetTabs.appendChild(tab);
 
-            // Parse header column names
-            const table = sheetDiv.querySelector('table');
-            let headers = [];
-            if (table) {
-                const thead = table.querySelector('thead');
-                if (thead) {
-                    headers = Array.from(thead.querySelectorAll('th')).map(th => th.textContent.trim());
-                } else {
-                    const firstRow = table.querySelector('tr');
-                    if (firstRow) {
-                        headers = Array.from(firstRow.querySelectorAll('td, th'))
-                            .map(cell => cell.textContent.trim());
-                    }
-                }
+      // Create sheet view
+      const sheetDiv = document.createElement("div");
+      sheetDiv.className = "sheet" + (index === 0 ? " active" : "");
+      sheetDiv.id = sheet.id;
 
-                // Show headers as item list
-                const headerDiv = document.createElement('div');
-                headerDiv.className = 'item-header';
-                headerDiv.textContent = 'Items:';
+      // Item (header) list
+      const ul = document.createElement("ul");
+      ul.className = "item-list";
+      sheet.columns.forEach(col => {
+        const li = document.createElement("li");
+        li.textContent = col;
+        ul.appendChild(li);
+      });
+      sheetDiv.appendChild(ul);
 
-                const ul = document.createElement('ul');
-                ul.className = 'item-list';
-                headers.forEach(h => {
-                    const li = document.createElement('li');
-                    li.textContent = h;
-                    ul.appendChild(li);
-                });
+      // Table
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const headRow = document.createElement("tr");
+      sheet.columns.forEach(col => {
+        const th = document.createElement("th");
+        th.textContent = col;
+        headRow.appendChild(th);
+      });
+      thead.appendChild(headRow);
+      table.appendChild(thead);
 
-                sheetDiv.insertBefore(headerDiv, table);
-                sheetDiv.insertBefore(ul, table);
-            }
+      const tbody = document.createElement("tbody");
+      sheet.data.forEach(row => {
+        const tr = document.createElement("tr");
+        row.forEach(cell => {
+          const td = document.createElement("td");
+          td.textContent = cell;
+          tr.appendChild(td);
         });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      sheetDiv.appendChild(table);
 
-        // Activate first sheet by default
-        if (allSheets.length > 0) {
-            allSheets[0].classList.add('active');
-        }
+      sheetViews.appendChild(sheetDiv);
+    });
 
-        // JSON loader
-        function loadCustomJSON() {
-            const url = document.getElementById('json-url').value.trim();
-            const output = document.getElementById('json-output');
-            output.textContent = 'Loading...';
+    function loadCustomJSON() {
+      const url = document.getElementById('json-url').value.trim();
+      const output = document.getElementById('json-output');
+      output.textContent = "Loading...";
 
-            if (!url) {
-                alert('Please enter a valid URL.');
-                output.textContent = '';
-                return;
-            }
+      if (!url) {
+        alert("Please enter a JSON URL.");
+        output.textContent = "";
+        return;
+      }
 
-            fetch(url)
-                .then(res => {
-                    if (!res.ok) {
-                        throw new Error(`Error fetching JSON: ${res.status}`);
-                    }
-                    return res.json();
-                })
-                .then(json => {
-                    output.textContent = JSON.stringify(json, null, 2);
-                })
-                .catch(err => {
-                    output.textContent = `Error: ${err.message}`;
-                });
-        }
-    </script>
+      fetch(url)
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+          return res.json();
+        })
+        .then(data => {
+          output.textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(err => {
+          output.textContent = `Error: ${err.message}`;
+        });
+    }
+  </script>
 </body>
 </html>
