@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Finance Summary Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        #sheet-list {
+            margin-bottom: 20px;
+        }
+
+        .sheet-button {
+            margin-right: 10px;
+            padding: 6px 12px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+        }
+
+        .sheet-button:hover {
+            background-color: #ddd;
+        }
+
+        .sheet {
+            display: none;
+            margin-bottom: 40px;
+        }
+
+        .sheet.active {
+            display: block;
+        }
+
+        .item-header {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .item-list {
+            margin-bottom: 15px;
+            margin-left: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        /* JSON section */
+        #json-output {
+            background: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+
+        input[type="text"] {
+            width: 400px;
+            padding: 6px;
+            margin-right: 5px;
+        }
+
+        button {
+            padding: 6px 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Finance Summary Viewer</h1>
+
+    <h2>Sheet Selector</h2>
+    <div id="sheet-list"></div>
+
+    <div id="sheets-container">
+        <!-- Existing sheets from ex.html should be pasted here -->
+        
+        <!-- Example structure -->
+        <div class="sheet" id="BalanceSheet">
+            <table>
+                <thead>
+                    <tr><th>Account</th><th>Amount</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Cash</td><td>1000</td></tr>
+                    <tr><td>Equity</td><td>1500</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="sheet" id="IncomeStatement">
+            <table>
+                <thead>
+                    <tr><th>Category</th><th>Q1</th><th>Q2</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Revenue</td><td>5000</td><td>7000</td></tr>
+                    <tr><td>Expenses</td><td>3000</td><td>3500</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- More sheets can be added similarly -->
+    </div>
+
+    <h2>Load Custom JSON</h2>
+    <div>
+        <input type="text" id="json-url" placeholder="Paste JSON URL here">
+        <button onclick="loadCustomJSON()">Load JSON</button>
+    </div>
+    <pre id="json-output"></pre>
+
+    <script>
+        // Sheet processing logic
+        const allSheets = document.querySelectorAll('.sheet');
+        const sheetListDiv = document.getElementById('sheet-list');
+        const sheetsContainer = document.getElementById('sheets-container');
+
+        allSheets.forEach((sheetDiv, index) => {
+            const sheetName = sheetDiv.id || `Sheet ${index + 1}`;
+            sheetDiv.classList.add('sheet');
+
+            // Add sheet selector button
+            const btn = document.createElement('button');
+            btn.textContent = sheetName;
+            btn.className = 'sheet-button';
+            btn.onclick = () => {
+                document.querySelectorAll('.sheet').forEach(s => s.classList.remove('active'));
+                sheetDiv.classList.add('active');
+            };
+            sheetListDiv.appendChild(btn);
+
+            // Parse header column names
+            const table = sheetDiv.querySelector('table');
+            let headers = [];
+            if (table) {
+                const thead = table.querySelector('thead');
+                if (thead) {
+                    headers = Array.from(thead.querySelectorAll('th')).map(th => th.textContent.trim());
+                } else {
+                    const firstRow = table.querySelector('tr');
+                    if (firstRow) {
+                        headers = Array.from(firstRow.querySelectorAll('td, th'))
+                            .map(cell => cell.textContent.trim());
+                    }
+                }
+
+                // Show headers as item list
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'item-header';
+                headerDiv.textContent = 'Items:';
+
+                const ul = document.createElement('ul');
+                ul.className = 'item-list';
+                headers.forEach(h => {
+                    const li = document.createElement('li');
+                    li.textContent = h;
+                    ul.appendChild(li);
+                });
+
+                sheetDiv.insertBefore(headerDiv, table);
+                sheetDiv.insertBefore(ul, table);
+            }
+        });
+
+        // Activate first sheet by default
+        if (allSheets.length > 0) {
+            allSheets[0].classList.add('active');
+        }
+
+        // JSON loader
+        function loadCustomJSON() {
+            const url = document.getElementById('json-url').value.trim();
+            const output = document.getElementById('json-output');
+            output.textContent = 'Loading...';
+
+            if (!url) {
+                alert('Please enter a valid URL.');
+                output.textContent = '';
+                return;
+            }
+
+            fetch(url)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`Error fetching JSON: ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then(json => {
+                    output.textContent = JSON.stringify(json, null, 2);
+                })
+                .catch(err => {
+                    output.textContent = `Error: ${err.message}`;
+                });
+        }
+    </script>
+</body>
+</html>
