@@ -2,142 +2,71 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Finance Breakdown</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Finance Summary</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    .container {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 20px;
-    }
-    .chart-container, .table-container {
-      width: 48%;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 8px;
-      border: 1px solid #ccc;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    #total {
-      margin-bottom: 15px;
-      font-weight: bold;
-    }
+    body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f4; }
+    h1 { color: #2c3e50; }
+    .category { margin-bottom: 25px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.05); }
+    .category h2 { margin-bottom: 10px; }
+    .item-list { margin-left: 15px; }
+    .item { margin: 4px 0; }
+    .total { font-size: 1.2em; margin-top: 30px; padding: 10px; border-radius: 5px; }
+    .expense { color: #e74c3c; }
+    .income { color: #2980b9; }
+    .net { font-weight: bold; color: #27ae60; }
   </style>
 </head>
 <body>
 
   <h1>Finance Summary</h1>
-
-  <div id="total">Loading...</div>
-
-  <div class="container">
-    <div class="chart-container">
-      <canvas id="categoryChart"></canvas>
-    </div>
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Category</th>
-            <th>Item</th>
-            <th>Amount</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-  </div>
+  <div id="summary"></div>
 
   <script>
-    // You can also load the JSON from a remote file with fetch
-    const financeData = {
-      "Necessity": [
-        { "item": "Rent", "amount": 1000 },
-        { "item": "Groceries", "amount": 0 }
-        // ... other items omitted for brevity
-      ],
-      "Wants": [
-        { "item": "Movie Tickets", "amount": 200 }
-        // ... other items omitted
-      ],
-      "Travel": [
-        { "item": "Bus Ticket", "amount": 0 }
-      ],
-      "Savings": [
-        { "item": "Fixed Deposit", "amount": 0 }
-      ],
-      "SalaryReceived": [
-        { "item": "Monthly Salary", "amount": 0 }
-      ]
-    };
+    const jsonUrl = "https://raw.githubusercontent.com/your-username/your-repo/main/finance_data.json"; // Replace with your real GitHub raw URL
 
-    const tableBody = document.getElementById("tableBody");
-    const categoryTotals = {};
-    let grandTotal = 0;
+    fetch(jsonUrl)
+      .then(response => response.json())
+      .then(data => {
+        const summaryDiv = document.getElementById("summary");
+        let allExpensesTotal = 0;
+        let totalIncome = 0;
 
-    // Flatten and process each category
-    for (const [category, entries] of Object.entries(financeData)) {
-      entries.forEach(entry => {
-        const amount = parseFloat(entry.amount || 0);
+        for (const category in data) {
+          const items = data[category].filter(entry => entry.amount > 0);
+          if (items.length === 0) continue;
 
-        // Update total for category
-        if (!categoryTotals[category]) categoryTotals[category] = 0;
-        categoryTotals[category] += amount;
+          const categoryTotal = items.reduce((sum, entry) => sum + entry.amount, 0);
 
-        // Add to grand total
-        grandTotal += amount;
+          let itemListHTML = items.map(item =>
+            `<div class="item">${item.name}: ₹${item.amount.toLocaleString()}</div>`
+          ).join("");
 
-        // Populate table
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${category}</td>
-          <td>${entry.item}</td>
-          <td>₹${amount.toLocaleString()}</td>
-        `;
-        tableBody.appendChild(row);
-      });
-    }
+          summaryDiv.innerHTML += `
+            <div class="category">
+              <h2>${category}</h2>
+              <div class="item-list">${itemListHTML}</div>
+              <p><strong>${category} Total:</strong> ₹${categoryTotal.toLocaleString()}</p>
+            </div>
+          `;
 
-    // Display grand total
-    document.getElementById("total").textContent = `Total Spent: ₹${grandTotal.toLocaleString()}`;
-
-    // Build pie chart
-    const ctx = document.getElementById("categoryChart").getContext("2d");
-    new Chart(ctx, {
-      type: "pie",
-      data: {
-        labels: Object.keys(categoryTotals),
-        datasets: [{
-          data: Object.values(categoryTotals),
-          backgroundColor: [
-            "#FF6384", "#36A2EB", "#FFCE56",
-            "#4BC0C0", "#9966FF", "#FF9F40"
-          ]
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: "right"
-          },
-          title: {
-            display: true,
-            text: "Spending by Category"
+          if (category === "SalaryReceived") {
+            totalIncome += categoryTotal;
+          } else {
+            allExpensesTotal += categoryTotal;
           }
         }
-      }
-    });
+
+        summaryDiv.innerHTML += `
+          <div class="total expense">Total Expenses: ₹${allExpensesTotal.toLocaleString()}</div>
+          <div class="total income">Total Income: ₹${totalIncome.toLocaleString()}</div>
+          <div class="total net">Net Balance: ₹${(totalIncome - allExpensesTotal).toLocaleString()}</div>
+        `;
+      })
+      .catch(error => {
+        console.error("Error fetching JSON:", error);
+        document.getElementById("summary").innerHTML =
+          `<p style="color:red;">Error loading data. Please check the URL.</p>`;
+      });
   </script>
 
 </body>
