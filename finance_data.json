@@ -1,6 +1,6 @@
 {
   "Necessity": [
-    { "item": "Rent", "amount": 0 },
+    { "item": "Rent", "amount": 1000 },
     { "item": "Groceries", "amount": 0 },
     { "item": "Electricity Bill", "amount": 0 },
     { "item": "Water Bill", "amount": 0 },
@@ -22,7 +22,7 @@
     { "item": "Sanitary Supplies", "amount": 0 }
   ],
   "Wants": [
-    { "item": "Movie Tickets", "amount": 0 },
+    { "item": "Movie Tickets", "amount": 200 },
     { "item": "New Headphones", "amount": 0 },
     { "item": "Clothing", "amount": 0 },
     { "item": "Dining Out", "amount": 0 },
