@@ -44,7 +44,7 @@
     { "item": "Smartwatch", "amount": 0 }
   ],
   "Travel": [
-    { "item": "Bus Ticket", "amount": 0 },
+    { "item": "Bus Ticket", "amount": 60 },
     { "item": "Flight Booking", "amount": 0 },
     { "item": "Cab Fare", "amount": 0 },
     { "item": "Train Reservation", "amount": 0 },
@@ -66,7 +66,7 @@
     { "item": "Ticket Cancellation", "amount": 0 }
   ],
   "Savings": [
-    { "item": "Fixed Deposit", "amount": 0 },
+    { "item": "Fixed Deposit", "amount": 300 },
     { "item": "Recurring Deposit", "amount": 0 },
     { "item": "Mutual Funds", "amount": 0 },
     { "item": "Public Provident Fund", "amount": 0 },
@@ -88,7 +88,7 @@
     { "item": "Tax Saving Instruments", "amount": 0 }
   ],
   "SalaryReceived": [
-    { "item": "Monthly Salary", "amount": 0 },
+    { "item": "Monthly Salary", "amount": 11685 },
     { "item": "Freelance Work", "amount": 0 },
     { "item": "Bonus", "amount": 0 },
     { "item": "Part-time Job", "amount": 0 },
