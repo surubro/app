@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+async function openLinks() {
+    const response = await fetch("link.txt");
+    const text = await response.text();
+    const links = text.split("\n").map(l => l.trim()).filter(l => l);
+
+    for (const url of links) {
+        window.open(url, "_blank");   // Open each link in new tab
+    }
+}
+
+openLinks();
+</script>
+</body>
+</html>
