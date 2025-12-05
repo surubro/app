@@ -1,18 +1,49 @@
 <!DOCTYPE html>
 <html>
+<head>
+<style>
+button {
+  display: block;
+  width: 90%;
+  margin: 10px auto;
+  padding: 12px;
+  font-size: 18px;
+  border-radius: 10px;
+  border: none;
+  background: #4CAF50;
+  color: white;
+  cursor: pointer;
+}
+button:hover {
+  background: #45a049;
+}
+</style>
+</head>
 <body>
-<script>
-async function openLinks() {
-    const response = await fetch("link.txt");
-    const text = await response.text();
-    const links = text.split("\n").map(l => l.trim()).filter(l => l);
 
-    for (const url of links) {
-        window.open(url, "_blank");   // Open each link in new tab
-    }
+<h2 style="text-align:center;">Click Any Link</h2>
+<div id="links"></div>
+
+<script>
+async function loadLinks() {
+    const fileURL = "https://raw.githubusercontent.com/surubro/app/refs/heads/main/link.txt";
+
+    const response = await fetch(fileURL);
+    const text = await response.text();
+    const lines = text.split("\n").map(x => x.trim()).filter(x => x);
+
+    const container = document.getElementById("links");
+
+    lines.forEach(url => {
+        const btn = document.createElement("button");
+        btn.textContent = url;
+        btn.onclick = () => window.open(url, "_blank");
+        container.appendChild(btn);
+    });
 }
 
-openLinks();
+loadLinks();
 </script>
+
 </body>
 </html>
