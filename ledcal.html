@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>LED Battery Runtime</title>
+<style>
+    body { font-family: Arial; padding: 20px; }
+    input { padding: 8px; margin: 5px; width: 200px; }
+    button { padding: 10px 20px; }
+</style>
+</head>
+<body>
+
+<h2>LED Battery Runtime Calculator</h2>
+
+<label>Supply Voltage (V):</label><br>
+<input type="number" id="vcc" step="0.1"><br>
+
+<label>LED Forward Voltage (V):</label><br>
+<input type="number" id="vf" step="0.1"><br>
+
+<label>Resistor (Ohms):</label><br>
+<input type="number" id="res"><br>
+
+<label>Battery Capacity (mAh):</label><br>
+<input type="number" id="cap"><br>
+
+<button onclick="calc()">Calculate</button>
+
+<h3 id="result"></h3>
+
+<script>
+function calc() {
+    let vcc = parseFloat(document.getElementById("vcc").value);
+    let vf  = parseFloat(document.getElementById("vf").value);
+    let res = parseFloat(document.getElementById("res").value);
+    let cap = parseFloat(document.getElementById("cap").value);
+
+    if (!vcc || !vf || !res || !cap) return alert("Enter values!");
+
+    // LED current (in Amps)
+    let ledA = (vcc - vf) / res;
+
+    // Convert to mA
+    let ledmA = ledA * 1000;
+
+    // Runtime (hours)
+    let hours = cap / ledmA;
+
+    document.getElementById("result").innerHTML =
+        "LED uses: " + ledmA.toFixed(2) + " mA<br>" +
+        "Battery runtime: " + hours.toFixed(2) + " hours";
+}
+</script>
+
+</body>
+</html>
