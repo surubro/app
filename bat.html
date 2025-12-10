@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Battery Runtime Calculator</title>
+<style>
+    body { font-family: Arial; padding: 20px; }
+    input { padding: 8px; margin: 5px; width: 200px; }
+    button { padding: 10px 20px; }
+</style>
+</head>
+<body>
+
+<h2>Battery Runtime Calculator</h2>
+
+<label>Battery Capacity (mAh):</label><br>
+<input type="number" id="capacity"><br>
+
+<label>Device Consumption (mA):</label><br>
+<input type="number" id="current"><br>
+
+<button onclick="calc()">Calculate</button>
+
+<h3 id="result"></h3>
+
+<script>
+function calc() {
+    let cap = parseFloat(document.getElementById("capacity").value);
+    let cur = parseFloat(document.getElementById("current").value);
+
+    if (!cap || !cur) return alert("Enter values!");
+
+    let hours = cap / cur;
+    let minutes = hours * 60;
+
+    document.getElementById("result").innerHTML =
+        "Runtime: " + hours.toFixed(2) + " hours (" +
+        minutes.toFixed(0) + " minutes)";
+}
+</script>
+
+</body>
+</html>
