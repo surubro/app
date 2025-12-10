@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Budget Calculator</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#10b981;--danger:#ef4444;--glass: rgba(255,255,255,0.03)}
+    *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    body{margin:0;background:linear-gradient(180deg,#071022 0%,#071a2b 100%);color:#e6eef6;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
+    .wrap{width:100%;max-width:980px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:18px;box-shadow:0 6px 20px rgba(2,6,23,0.6);}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:16px}
+    .controls{display:flex;gap:8px;flex-wrap:wrap}
+    input[type=number], input[type=text]{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    .row{display:flex;gap:8px;align-items:center}
+    .categories{margin-top:12px}
+    .category{display:flex;gap:8px;align-items:center;padding:8px;background:var(--glass);border-radius:8px;margin-bottom:8px}
+    .category input{padding:8px}
+    .small{width:84px}
+    .percent{width:90px}
+    .name{flex:1}
+    button{border:0;padding:10px 12px;border-radius:8px;background:var(--accent);color:#022;cursor:pointer}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+    button.danger{background:var(--danger);color:#fff}
+    .summary{padding:12px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02))}
+    .summary .line{display:flex;justify-content:space-between;margin-bottom:8px}
+    .footer{margin-top:12px;text-align:center;font-size:13px;color:var(--muted)}
+    .tools{display:flex;gap:8px}
+    @media(max-width:880px){.grid{grid-template-columns:1fr;}.small{width:72px}.percent{width:82px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Budget Calculator</h1>
+      <div style="color:var(--muted);font-size:13px">Quick, simple and exportable</div>
+    </header>
+
+    <div class="card">
+      <div class="grid">
+        <div>
+          <div class="row" style="gap:12px;margin-bottom:8px">
+            <div style="flex:1">
+              <label style="font-size:13px;color:var(--muted)">Monthly income</label>
+              <input id="income" type="number" placeholder="Enter total income" value="50000" min="0">
+            </div>
+            <div style="width:160px">
+              <label style="font-size:13px;color:var(--muted)">Currency</label>
+              <input id="currency" type="text" value="₹" maxlength="3">
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h3 style="margin:6px 0 12px 0;font-size:15px">Categories</h3>
+            <div class="controls">
+              <button id="addCat">+ Add category</button>
+              <button id="autoFill" class="ghost">Auto-fill % (suggest)</button>
+            </div>
+          </div>
+
+          <div id="categories" class="categories">
+            <!-- categories injected here -->
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button id="exportCsv">Export CSV</button>
+            <button id="reset" class="ghost">Reset</button>
+            <button id="clearAll" class="danger">Clear</button>
+          </div>
+
+        </div>
+
+        <aside>
+          <div class="summary">
+            <div class="line"><div style="color:var(--muted)">Income</div><div id="showIncome">₹ 0</div></div>
+            <div class="line"><div style="color:var(--muted)">Allocated</div><div id="allocated">₹ 0</div></div>
+            <div class="line"><div style="color:var(--muted)">Remaining</div><div id="remaining">₹ 0</div></div>
+            <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03);margin:10px 0">
+            <div style="font-weight:600;margin-bottom:8px">Breakdown</div>
+            <div id="breakdown" style="max-height:300px;overflow:auto"></div>
+          </div>
+
+          <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+            <input type="checkbox" id="showPercent" checked>
+            <label for="showPercent" style="color:var(--muted);font-size:13px">Show % in breakdown</label>
+          </div>
+
+        </aside>
+      </div>
+
+      <div class="footer">Made with ❤️ — simple budget tool</div>
+    </div>
+  </div>
+
+  <script>
+    // Simple client-side budget calculator
+    const incomeEl = document.getElementById('income');
+    const categoriesEl = document.getElementById('categories');
+    const showIncome = document.getElementById('showIncome');
+    const allocatedEl = document.getElementById('allocated');
+    const remainingEl = document.getElementById('remaining');
+    const breakdownEl = document.getElementById('breakdown');
+    const addBtn = document.getElementById('addCat');
+    const autoFillBtn = document.getElementById('autoFill');
+    const exportCsvBtn = document.getElementById('exportCsv');
+    const resetBtn = document.getElementById('reset');
+    const clearAllBtn = document.getElementById('clearAll');
+    const currencyEl = document.getElementById('currency');
+    const showPercentBox = document.getElementById('showPercent');
+
+    let categories = [
+      {name:'Housing', amount:15000},
+      {name:'Groceries', amount:5000},
+      {name:'Transport', amount:3000},
+      {name:'Savings', amount:10000},
+    ];
+
+    function renderCategories(){
+      categoriesEl.innerHTML = '';
+      categories.forEach((c, i) => {
+        const div = document.createElement('div');
+        div.className = 'category';
+
+        div.innerHTML = `
+          <input class="name" data-i="${i}" value="${escapeHtml(c.name)}" title="Category name">
+          <input class="small amt" data-i="${i}" type="number" min="0" value="${Number(c.amount||0)}" title="Amount">
+          <input class="percent" readonly data-i="${i}" title="Percent">
+          <button class="ghost" data-i="${i}">✏️</button>
+          <button class="danger" data-i-del="${i}">🗑</button>
+        `;
+
+        categoriesEl.appendChild(div);
+      });
+      attachHandlers();
+      recalc();
+    }
+
+    function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+    function attachHandlers(){
+      document.querySelectorAll('.amt').forEach(inp => {
+        inp.addEventListener('input', (e)=>{
+          const i = +e.target.dataset.i; categories[i].amount = Number(e.target.value || 0); recalc();
+        });
+      });
+      document.querySelectorAll('.name').forEach(inp => {
+        inp.addEventListener('change', (e)=>{ const i = +e.target.dataset.i; categories[i].name = e.target.value; renderBreakdown(); });
+      });
+      document.querySelectorAll('[data-i]').forEach(btn => {
+        if(btn.dataset.i && !btn.dataset.iDel){
+          btn.addEventListener('click', ()=>{ const i = +btn.dataset.i; const newName = prompt('Rename category', categories[i].name); if(newName!=null) categories[i].name = newName; renderCategories(); });
+        }
+      });
+      document.querySelectorAll('[data-i-del]').forEach(btn => {
+        btn.addEventListener('click', ()=>{ const i = +btn.dataset.iDel; if(confirm('Delete category "'+categories[i].name+'"?')){ categories.splice(i,1); renderCategories(); } });
+      });
+    }
+
+    function recalc(){
+      const income = Number(incomeEl.value || 0);
+      showIncome.textContent = formatMoney(income);
+      const allocated = categories.reduce((s,c)=>s + (Number(c.amount)||0),0);
+      allocatedEl.textContent = formatMoney(allocated);
+      const remaining = income - allocated;
+      remainingEl.textContent = formatMoney(remaining);
+
+      // update percent fields
+      categories.forEach((c,i)=>{
+        const pct = income>0 ? (Number(c.amount||0) / income) * 100 : 0;
+        const pctEl = document.querySelectorAll('.percent')[i];
+        if(pctEl) pctEl.value = pct.toFixed(1) + '%';
+      });
+      renderBreakdown();
+    }
+
+    function renderBreakdown(){
+      const income = Number(incomeEl.value || 0);
+      breakdownEl.innerHTML = '';
+      categories.forEach(c=>{
+        const row = document.createElement('div');
+        row.style.display='flex';row.style.justifyContent='space-between';row.style.marginBottom='6px';
+        const left = document.createElement('div'); left.textContent = c.name;
+        const right = document.createElement('div');
+        const amt = Number(c.amount||0);
+        right.textContent = formatMoney(amt) + (showPercentBox.checked && income>0 ? ` — ${((amt/income)*100).toFixed(1)}%` : '');
+        row.appendChild(left);row.appendChild(right);breakdownEl.appendChild(row);
+      });
+    }
+
+    function formatMoney(n){ const cur = currencyEl.value||''; return cur + ' ' + Number(n).toLocaleString(); }
+
+    addBtn.addEventListener('click', ()=>{
+      categories.push({name:'New category', amount:0}); renderCategories();
+    });
+
+    autoFillBtn.addEventListener('click', ()=>{
+      // Suggest typical budget percentages and apply to income
+      const income = Number(incomeEl.value || 0);
+      if(!income){ alert('Enter income first'); return; }
+      const suggestions = [
+        ['Housing',30], ['Savings',20], ['Food',10], ['Transport',7], ['Utilities',6], ['Healthcare',5], ['Leisure',5], ['Misc',17]
+      ];
+      categories = suggestions.map(s=>({name:s[0], amount: Math.round(income * s[1]/100)}));
+      renderCategories();
+    });
+
+    incomeEl.addEventListener('input', ()=> recalc());
+    currencyEl.addEventListener('input', ()=> recalc());
+    showPercentBox.addEventListener('change', ()=> renderBreakdown());
+
+    exportCsvBtn.addEventListener('click', ()=>{
+      const rows = [['Category','Amount']];
+      categories.forEach(c=> rows.push([c.name, c.amount]));
+      rows.push(['Income', incomeEl.value]);
+      const csv = rows.map(r=>r.map(cell=>`"${String(cell).replace(/"/g,'""') }"`).join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'budget.csv'; a.click(); URL.revokeObjectURL(a.href);
+    });
+
+    resetBtn.addEventListener('click', ()=>{
+      if(!confirm('Reset to default categories?')) return;
+      categories = [
+        {name:'Housing', amount:15000},
+        {name:'Groceries', amount:5000},
+        {name:'Transport', amount:3000},
+        {name:'Savings', amount:10000},
+      ]; renderCategories();
+    });
+
+    clearAllBtn.addEventListener('click', ()=>{
+      if(!confirm('Clear all categories?')) return; categories = []; renderCategories();
+    });
+
+    // init
+    renderCategories();
+  </script>
+</body>
+</html>
