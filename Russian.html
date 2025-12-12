@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Russian Alphabet (Devanagari)</title>
+<title>Russian Alphabet (Devanagari) Grid</title>
 <style>
     body {
         font-family: Arial, sans-serif;
-        margin: 0; padding: 10px;
+        margin: 0; 
+        padding: 10px;
         background: #f8f9fa;
     }
     h2 {
@@ -15,18 +16,21 @@
         font-size: 20px;
         margin-bottom: 10px;
     }
-    table {
-        width: 100%;
-        border-collapse: collapse;
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
         font-size: 14px;
     }
-    th, td {
+    .grid-item {
+        background: #e9ecef;
         border: 1px solid #ccc;
-        padding: 6px;
+        padding: 8px;
         text-align: center;
     }
-    th {
-        background: #e9ecef;
+    .grid-item span {
+        display: block;
+        font-weight: bold;
     }
 </style>
 </head>
@@ -34,47 +38,45 @@
 
 <h2>Russian Alphabet → Devanagari (Letter Names)</h2>
 
-<table>
-<tr><th>Russian</th><th>Devanagari</th></tr>
+<div class="grid-container">
+    <div class="grid-item"><span>А а</span>अ</div>
+    <div class="grid-item"><span>Б б</span>बे</div>
+    <div class="grid-item"><span>В в</span>वे</div>
+    <div class="grid-item"><span>Г г</span>गे</div>
+    <div class="grid-item"><span>Д д</span>दे</div>
+    <div class="grid-item"><span>Е е</span>ये</div>
+    <div class="grid-item"><span>Ё ё</span>यो</div>
 
-<!-- Vowels -->
-<tr><td>А а</td><td>अ</td></tr>
-<tr><td>Э э</td><td>ए</td></tr>
-<tr><td>Е е</td><td>ये</td></tr>
-<tr><td>Ё ё</td><td>यो</td></tr>
-<tr><td>И и</td><td>ई</td></tr>
-<tr><td>О о</td><td>ओ</td></tr>
-<tr><td>У у</td><td>उ</td></tr>
-<tr><td>Ы ы</td><td>ई</td></tr>
-<tr><td>Ю ю</td><td>यू</td></tr>
-<tr><td>Я я</td><td>या</td></tr>
+    <div class="grid-item"><span>Ж ж</span>झ़े</div>
+    <div class="grid-item"><span>З з</span>ज़े</div>
+    <div class="grid-item"><span>И и</span>ई</div>
+    <div class="grid-item"><span>Й й</span>इ</div>
+    <div class="grid-item"><span>К к</span>के</div>
+    <div class="grid-item"><span>Л л</span>ले</div>
+    <div class="grid-item"><span>М м</span>मे</div>
 
-<!-- Consonants -->
-<tr><td>Б б</td><td>बे</td></tr>
-<tr><td>В в</td><td>वे</td></tr>
-<tr><td>Г г</td><td>गे</td></tr>
-<tr><td>Д д</td><td>दे</td></tr>
-<tr><td>Ж ж</td><td>झ़े</td></tr>
-<tr><td>З з</td><td>ज़े</td></tr>
-<tr><td>Й й</td><td>इ</td></tr>
-<tr><td>К к</td><td>के</td></tr>
-<tr><td>Л л</td><td>ले</td></tr>
-<tr><td>М м</td><td>मे</td></tr>
-<tr><td>Н н</td><td>ने</td></tr>
-<tr><td>П п</td><td>पे</td></tr>
-<tr><td>Р р</td><td>रे</td></tr>
-<tr><td>С с</td><td>से</td></tr>
-<tr><td>Т т</td><td>टे</td></tr>
-<tr><td>Ф ф</td><td>फ़े</td></tr>
-<tr><td>Х х</td><td>ख़े</td></tr>
-<tr><td>Ц ц</td><td>त्से</td></tr>
-<tr><td>Ч ч</td><td>चे</td></tr>
-<tr><td>Ш ш</td><td>शे</td></tr>
-<tr><td>Щ щ</td><td>श्चे</td></tr>
-<tr><td>Ъ ъ</td><td>कठोर चिन्ह</td></tr>
-<tr><td>Ь ь</td><td>मृदु चिन्ह</td></tr>
+    <div class="grid-item"><span>Н н</span>ने</div>
+    <div class="grid-item"><span>О о</span>ओ</div>
+    <div class="grid-item"><span>П п</span>पे</div>
+    <div class="grid-item"><span>Р р</span>रे</div>
+    <div class="grid-item"><span>С с</span>से</div>
+    <div class="grid-item"><span>Т т</span>टे</div>
+    <div class="grid-item"><span>У у</span>उ</div>
 
-</table>
+    <div class="grid-item"><span>Ф ф</span>फ़े</div>
+    <div class="grid-item"><span>Х х</span>ख़े</div>
+    <div class="grid-item"><span>Ц ц</span>त्से</div>
+    <div class="grid-item"><span>Ч ч</span>चे</div>
+    <div class="grid-item"><span>Ш ш</span>शे</div>
+    <div class="grid-item"><span>Щ щ</span>श्चे</div>
+    <div class="grid-item"><span>Ъ ъ</span>कठोर चिन्ह</div>
+
+    <div class="grid-item"><span>Ы ы</span>ई</div>
+    <div class="grid-item"><span>Ь ь</span>मृदु चिन्ह</div>
+    <div class="grid-item"><span>Э э</span>ए</div>
+    <div class="grid-item"><span>Ю ю</span>यू</div>
+    <div class="grid-item"><span>Я я</span>या</div>
+</div>
 
 </body>
 </html>
