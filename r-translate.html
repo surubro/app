@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Russian → Devanagari Paragraph Converter</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background: #f8f9fa;
+        text-align: center;
+    }
+    h2 {
+        margin-bottom: 20px;
+    }
+    textarea {
+        font-size: 16px;
+        padding: 10px;
+        width: 90%;
+        height: 150px;
+        resize: vertical;
+    }
+    .output {
+        margin-top: 20px;
+        font-size: 20px;
+        font-weight: bold;
+        color: #2c3e50;
+        white-space: pre-wrap; /* Preserve line breaks */
+        text-align: left;
+        max-width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+        background: #e9ecef;
+        padding: 10px;
+        border-radius: 5px;
+    }
+</style>
+</head>
+<body>
+
+<h2>Russian → Devanagari Paragraph Converter</h2>
+<textarea id="russianInput" placeholder="Type Russian text here..."></textarea>
+<div class="output" id="devanagariOutput"></div>
+
+<script>
+// Natural-sounding mapping of Russian letters to Devanagari
+const map = {
+    'А':'अ','а':'अ',
+    'Б':'बे','б':'बे',
+    'В':'वे','в':'वे',
+    'Г':'गे','г':'गे',
+    'Д':'दे','д':'दे',
+    'Е':'ये','е':'ये',
+    'Ё':'यो','ё':'यो',
+    'Ж':'झ़े','ж':'झ़े',
+    'З':'ज़े','з':'ज़े',
+    'И':'ई','и':'ई',
+    'Й':'इ','й':'इ',
+    'К':'के','к':'के',
+    'Л':'ले','л':'ले',
+    'М':'मे','м':'मे',
+    'Н':'ने','н':'ने',
+    'О':'ओ','о':'ओ',
+    'П':'पे','п':'पे',
+    'Р':'रे','р':'रे',
+    'С':'से','с':'से',
+    'Т':'टे','т':'टे',
+    'У':'उ','у':'उ',
+    'Ф':'फ़े','ф':'फ़े',
+    'Х':'ख़े','х':'ख़े',
+    'Ц':'त्से','ц':'त्से',
+    'Ч':'चे','ч':'चे',
+    'Ш':'शे','ш':'शे',
+    'Щ':'श्चे','щ':'श्चे',
+    'Ъ':'',   // skip hard sign
+    'Ы':'ई', // phonetically similar
+    'Ь':'',   // skip soft sign
+    'Э':'ए','э':'ए',
+    'Ю':'यू','ю':'यू',
+    'Я':'या','я':'या'
+};
+
+const input = document.getElementById('russianInput');
+const output = document.getElementById('devanagariOutput');
+
+input.addEventListener('input', () => {
+    const text = input.value;
+    let converted = '';
+    for (let char of text) {
+        converted += map[char] || char; // Convert Russian letters, keep others
+    }
+    output.textContent = converted;
+});
+</script>
+
+</body>
+</html>
