@@ -1,168 +1,80 @@
-<!doctype html>
-<html lang="hi">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Russian alphabet — Hindi (Devanagari) readings</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Russian Alphabet (Devanagari)</title>
 <style>
-  :root{
-    --paper-bg: #fffdf6;
-    --line: #e6d8c1;
-    --ink: #1b2640;
-    --accent: #2b7a78;
-  }
-  body{
-    margin:0;
-    font-family: "Roboto Slab", Georgia, serif;
-    background: linear-gradient(#f3f3f3, #f9f9f9);
-    color:var(--ink);
-    min-height:100vh;
-    display:flex;
-    align-items:flex-start;
-    justify-content:center;
-    padding:30px 12px;
-  }
-  .notebook{
-    width:960px;
-    max-width:98%;
-    background: repeating-linear-gradient(
-      to bottom,
-      var(--paper-bg) 0 44px,
-      var(--line) 44px 45px
-    );
-    box-shadow: 0 6px 30px rgba(20,30,50,0.12);
-    border-radius:10px;
-    padding:26px;
-    border:1px solid rgba(0,0,0,0.04);
-  }
-  h1{
-    margin:0 0 10px 0;
-    font-size:22px;
-    color:var(--accent);
-    letter-spacing:0.6px;
-  }
-  p.note{
-    margin:0 0 18px 0;
-    font-size:13px;
-    color:#555;
-  }
-
-  .grid{
-    display:grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap:10px;
-  }
-
-  .cell{
-    background: rgba(255,255,255,0.6);
-    min-height:96px;
-    border-radius:6px;
-    padding:10px;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:flex-start;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
-    border-left:3px solid rgba(0,0,0,0.02);
-  }
-  .russian{
-    font-size:28px;
-    font-weight:700;
-    margin-bottom:6px;
-  }
-  .deva{
-    font-family: "Noto Sans Devanagari", serif;
-    font-size:20px;
-    color:#2b2b2b;
-  }
-  .small{
-    font-size:12px;
-    color:#666;
-    margin-top:6px;
-  }
-
-  /* responsive */
-  @media (max-width:760px){
-    .grid{ grid-template-columns: repeat(3, 1fr); }
-    .cell{ min-height:84px; }
-  }
-  @media (max-width:420px){
-    .grid{ grid-template-columns: repeat(2, 1fr); }
-  }
-
-  footer{
-    margin-top:18px;
-    font-size:13px;
-    color:#444;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-  }
-  footer .by{ font-family: "Noto Sans Devanagari", serif; }
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0; padding: 10px;
+        background: #f8f9fa;
+    }
+    h2 {
+        text-align: center;
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 6px;
+        text-align: center;
+    }
+    th {
+        background: #e9ecef;
+    }
 </style>
 </head>
 <body>
-  <div class="notebook">
-    <h1>Russian alphabet — हिन्दी (Devanagari) readings</h1>
-    <p class="note">Bracket/IPA readings replaced by Hindi syllables (approximate, editable). If you want exact alternate spellings, edit the Devanagari text inside the HTML.</p>
 
-    <div class="grid">
-      <!-- Row 1 -->
-      <div class="cell"><div class="russian">А а</div><div class="deva">अ</div></div>
-      <div class="cell"><div class="russian">Б б</div><div class="deva">बे</div></div>
-      <div class="cell"><div class="russian">В в</div><div class="deva">वे</div></div>
-      <div class="cell"><div class="russian">Г г</div><div class="deva">गे</div></div>
-      <div class="cell"><div class="russian">Д д</div><div class="deva">दे</div></div>
-      <div class="cell"><div class="russian">Е е</div><div class="deva">ये</div></div>
+<h2>Russian Alphabet → Devanagari (Letter Names)</h2>
 
-      <!-- Row 2 -->
-      <div class="cell"><div class="russian">Ё ё</div><div class="deva">यो</div></div>
-      <div class="cell"><div class="russian">Ж ж</div><div class="deva">झे / ज्हे</div></div>
-      <div class="cell"><div class="russian">З з</div><div class="deva">जे</div></div>
-      <div class="cell"><div class="russian">И и</div><div class="deva">इ</div></div>
-      <div class="cell"><div class="russian">Й й</div><div class="deva">इ क्राट्क (संक्षेप)</div></div>
-      <div class="cell"><div class="russian">К к</div><div class="deva">का</div></div>
+<table>
+<tr><th>Russian</th><th>Devanagari</th></tr>
 
-      <!-- Row 3 -->
-      <div class="cell"><div class="russian">Л л</div><div class="deva">ल</div></div>
-      <div class="cell"><div class="russian">М м</div><div class="deva">एम</div></div>
-      <div class="cell"><div class="russian">Н н</div><div class="deva">एन</div></div>
-      <div class="cell"><div class="russian">О о</div><div class="deva">ओ</div></div>
-      <div class="cell"><div class="russian">П п</div><div class="deva">पे</div></div>
-      <div class="cell"><div class="russian">Р р</div><div class="deva">आर</div></div>
+<!-- Vowels -->
+<tr><td>А а</td><td>अ</td></tr>
+<tr><td>Э э</td><td>ए</td></tr>
+<tr><td>Е е</td><td>ये</td></tr>
+<tr><td>Ё ё</td><td>यो</td></tr>
+<tr><td>И и</td><td>ई</td></tr>
+<tr><td>О о</td><td>ओ</td></tr>
+<tr><td>У у</td><td>उ</td></tr>
+<tr><td>Ы ы</td><td>ई</td></tr>
+<tr><td>Ю ю</td><td>यू</td></tr>
+<tr><td>Я я</td><td>या</td></tr>
 
-      <!-- Row 4 -->
-      <div class="cell"><div class="russian">С с</div><div class="deva">एस</div></div>
-      <div class="cell"><div class="russian">Т т</div><div class="deva">ते</div></div>
-      <div class="cell"><div class="russian">У у</div><div class="deva">उ</div></div>
-      <div class="cell"><div class="russian">Ф ф</div><div class="deva">एफ</div></div>
-      <div class="cell"><div class="russian">Х х</div><div class="deva">खा</div></div>
-      <div class="cell"><div class="russian">Ц ц</div><div class="deva">त्से</div></div>
+<!-- Consonants -->
+<tr><td>Б б</td><td>बे</td></tr>
+<tr><td>В в</td><td>वे</td></tr>
+<tr><td>Г г</td><td>गे</td></tr>
+<tr><td>Д д</td><td>दे</td></tr>
+<tr><td>Ж ж</td><td>झ़े</td></tr>
+<tr><td>З з</td><td>ज़े</td></tr>
+<tr><td>Й й</td><td>इ</td></tr>
+<tr><td>К к</td><td>के</td></tr>
+<tr><td>Л л</td><td>ले</td></tr>
+<tr><td>М м</td><td>मे</td></tr>
+<tr><td>Н н</td><td>ने</td></tr>
+<tr><td>П п</td><td>पे</td></tr>
+<tr><td>Р р</td><td>रे</td></tr>
+<tr><td>С с</td><td>से</td></tr>
+<tr><td>Т т</td><td>टे</td></tr>
+<tr><td>Ф ф</td><td>फ़े</td></tr>
+<tr><td>Х х</td><td>ख़े</td></tr>
+<tr><td>Ц ц</td><td>त्से</td></tr>
+<tr><td>Ч ч</td><td>चे</td></tr>
+<tr><td>Ш ш</td><td>शे</td></tr>
+<tr><td>Щ щ</td><td>श्चे</td></tr>
+<tr><td>Ъ ъ</td><td>कठोर चिन्ह</td></tr>
+<tr><td>Ь ь</td><td>मृदु चिन्ह</td></tr>
 
-      <!-- Row 5 -->
-      <div class="cell"><div class="russian">Ч ч</div><div class="deva">चे</div></div>
-      <div class="cell"><div class="russian">Ш ш</div><div class="deva">शा</div></div>
-      <div class="cell"><div class="russian">Щ щ</div><div class="deva">श्चा (श्च)</div></div>
-      <div class="cell"><div class="russian">Ъ ъ</div><div class="deva">कठोर चिह्न (hard sign)</div></div>
-      <div class="cell"><div class="russian">Ы ы</div><div class="deva">इ़ / ы (विशेष)</div></div>
-      <div class="cell"><div class="russian">Ь ь</div><div class="deva">मृदु चिह्न (soft sign)</div></div>
+</table>
 
-      <!-- Row 6 -->
-      <div class="cell"><div class="russian">Э э</div><div class="deva">ए</div></div>
-      <div class="cell"><div class="russian">Ю ю</div><div class="deva">यू</div></div>
-      <div class="cell"><div class="russian">Я я</div><div class="deva">या</div></div>
-
-      <!-- filler cells if needed -->
-      <div class="cell" style="visibility:hidden"></div>
-      <div class="cell" style="visibility:hidden"></div>
-      <div class="cell" style="visibility:hidden"></div>
-    </div>
-
-    <footer>
-      <div class="by">नोट: कुछ ट्रांसलिटरेशन अनुमानित हैं — आप इन्हें बदल सकते हैं।</div>
-      <div class="credit">Made with ❤️</div>
-    </footer>
-  </div>
 </body>
 </html>
