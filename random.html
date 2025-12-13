@@ -1,3 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Russian Alphabet Trainer</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f8f9fa;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+        padding-bottom: 90px; /* space for bottom button */
+    }
+
+    h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    button {
+        padding: 10px 16px;
+        font-size: 14px;
+        border: none;
+        border-radius: 6px;
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+        margin: 5px;
+    }
+
+    button:disabled {
+        background: #999;
+        cursor: not-allowed;
+    }
+
+    .card {
+        margin-top: 20px;
+        padding: 30px;
+        border: 1px solid #ccc;
+        background: #e9ecef;
+        border-radius: 12px;
+        min-height: 140px;
+    }
+
+    .ru {
+        font-size: 52px;
+        font-weight: bold;
+    }
+
+    .dev {
+        font-size: 20px;
+        margin-top: 10px;
+    }
+
+    /* Bottom thumb button */
+    .bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    .bottom-bar button {
+        width: 92%;
+        font-size: 18px;
+        padding: 14px;
+        border-radius: 10px;
+    }
+</style>
+</head>
+
+<body>
+
+<h2>Russian Alphabet Practice</h2>
+
+<button id="toggleBtn" onclick="toggleMeaning()">Hide Meaning</button>
+
+<div class="card">
+    <div class="ru" id="ru">Press Next</div>
+    <div class="dev" id="dev"></div>
+</div>
+
+<!-- Bottom Next Button -->
+<div class="bottom-bar">
+    <button id="nextBtn" onclick="nextLetter()">Next Random</button>
+</div>
+
 <script>
 const letters = [
     {ru:"А а", en:"aa"}, {ru:"Б б", en:"be"}, {ru:"В в", en:"ve"},
@@ -17,7 +111,7 @@ const letters = [
 let remaining = [...letters];
 let meaningVisible = true;
 
-// vibration helper
+/* vibration helper */
 function vibrate(pattern) {
     if (navigator.vibrate) {
         navigator.vibrate(pattern);
@@ -25,23 +119,22 @@ function vibrate(pattern) {
 }
 
 function nextLetter() {
-    vibrate(40); // short vibration on next
+    vibrate(40); // short tap feedback
 
     if (remaining.length === 0) {
         document.getElementById("ru").innerText = "✔ Completed";
         document.getElementById("dev").innerText = "";
         document.getElementById("nextBtn").disabled = true;
         document.getElementById("toggleBtn").disabled = true;
-
-        vibrate([100, 50, 100]); // long vibration when done
+        vibrate([100, 50, 100]); // finish vibration
         return;
     }
 
-    const i = Math.floor(Math.random() * remaining.length);
-    const l = remaining.splice(i, 1)[0];
+    const index = Math.floor(Math.random() * remaining.length);
+    const letter = remaining.splice(index, 1)[0];
 
-    document.getElementById("ru").innerText = l.ru;
-    document.getElementById("dev").innerText = l.en;
+    document.getElementById("ru").innerText = letter.ru;
+    document.getElementById("dev").innerText = letter.en;
     document.getElementById("dev").style.display =
         meaningVisible ? "block" : "none";
 }
@@ -52,7 +145,9 @@ function toggleMeaning() {
         meaningVisible ? "block" : "none";
     document.getElementById("toggleBtn").innerText =
         meaningVisible ? "Hide Meaning" : "Show Meaning";
-
     vibrate(20); // light vibration
 }
 </script>
+
+</body>
+</html>
