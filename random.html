@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Russian Alphabet Trainer</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f8f9fa;
+        padding: 20px;
+        text-align: center;
+    }
+
+    h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    button {
+        padding: 10px 16px;
+        font-size: 14px;
+        border: none;
+        border-radius: 6px;
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+        margin: 5px;
+    }
+
+    button:disabled {
+        background: #999;
+        cursor: not-allowed;
+    }
+
+    .card {
+        margin-top: 20px;
+        padding: 30px;
+        border: 1px solid #ccc;
+        background: #e9ecef;
+        border-radius: 10px;
+        min-height: 120px;
+    }
+
+    .ru {
+        font-size: 48px;
+        font-weight: bold;
+    }
+
+    .dev {
+        font-size: 20px;
+        margin-top: 10px;
+    }
+</style>
+</head>
+
+<body>
+
+<h2>Russian Alphabet Practice</h2>
+
+<button onclick="nextLetter()" id="nextBtn">Next Random</button>
+<button onclick="toggleMeaning()" id="toggleBtn">Hide Meaning</button>
+
+<div class="card">
+    <div class="ru" id="ru">Press Next</div>
+    <div class="dev" id="dev"></div>
+</div>
+
+<script>
+const letters = [
+    {ru:"А а", en:"aa"},
+    {ru:"Б б", en:"be"},
+    {ru:"В в", en:"ve"},
+    {ru:"Г г", en:"ge"},
+    {ru:"Д д", en:"de"},
+    {ru:"Е е", en:"ye"},
+    {ru:"Ё ё", en:"yo"},
+    {ru:"Ж ж", en:"j"},
+    {ru:"З з", en:"jhe"},
+    {ru:"И и", en:"e"},
+    {ru:"Й й", en:"y"},
+    {ru:"К к", en:"ka"},
+    {ru:"Л л", en:"l"},
+    {ru:"М м", en:"m"},
+    {ru:"Н н", en:"n"},
+    {ru:"О о", en:"o"},
+    {ru:"П п", en:"paii"},
+    {ru:"Р р", en:"arr"},
+    {ru:"С с", en:"s"},
+    {ru:"Т т", en:"te"},
+    {ru:"У у", en:"u"},
+    {ru:"Ф ф", en:"fe"},
+    {ru:"Х х", en:"kh"},
+    {ru:"Ц ц", en:"tse"},
+    {ru:"Ч ч", en:"che"},
+    {ru:"Ш ш", en:"sh"},
+    {ru:"Щ щ", en:"sha"},
+    {ru:"Ъ ъ", en:"hard symbol"},
+    {ru:"Ы ы", en:"ui"},
+    {ru:"Ь ь", en:"soft symbol"},
+    {ru:"Э э", en:"a ee"},
+    {ru:"Ю ю", en:"yu"},
+    {ru:"Я я", en:"ya"}
+];
+
+let remaining = [...letters];
+let meaningVisible = true;
+
+function nextLetter() {
+    if (remaining.length === 0) {
+        document.getElementById("ru").innerText = "✔ Completed";
+        document.getElementById("dev").innerText = "";
+        document.getElementById("nextBtn").disabled = true;
+        document.getElementById("toggleBtn").disabled = true;
+        return;
+    }
+
+    const i = Math.floor(Math.random() * remaining.length);
+    const letter = remaining.splice(i, 1)[0];
+
+    document.getElementById("ru").innerText = letter.ru;
+    document.getElementById("dev").innerText = letter.en;
+    document.getElementById("dev").style.display = meaningVisible ? "block" : "none";
+}
+
+function toggleMeaning() {
+    meaningVisible = !meaningVisible;
+    document.getElementById("dev").style.display = meaningVisible ? "block" : "none";
+    document.getElementById("toggleBtn").innerText =
+        meaningVisible ? "Hide Meaning" : "Show Meaning";
+}
+</script>
+
+</body>
+</html>
