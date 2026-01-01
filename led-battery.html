@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>LED Battery Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#ffffff;
+    color:#000000;
+    padding:20px;
+}
+input, button{
+    width:100%;
+    padding:8px;
+    margin-top:6px;
+    font-size:14px;
+}
+button{
+    margin-top:10px;
+}
+#result{
+    margin-top:15px;
+    font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<h3>LED Battery Calculator</h3>
+
+<input id="batteryV" type="number" step="0.1" placeholder="Battery Voltage (V)">
+<input id="batteryMah" type="number" placeholder="Battery Capacity (mAh)">
+<input id="ledV" type="number" step="0.1" placeholder="LED Forward Voltage (V)">
+<input id="resistor" type="number" placeholder="Resistor (Ohms)">
+
+<button onclick="calculate()">Calculate</button>
+
+<div id="result"></div>
+
+<script>
+function calculate(){
+    var bv   = parseFloat(document.getElementById("batteryV").value);
+    var mah  = parseFloat(document.getElementById("batteryMah").value);
+    var fv   = parseFloat(document.getElementById("ledV").value);
+    var r    = parseFloat(document.getElementById("resistor").value);
+    var out  = document.getElementById("result");
+
+    if(isNaN(bv) || isNaN(mah) || isNaN(fv) || isNaN(r)){
+        out.innerHTML = "❌ Enter all values";
+        return;
+    }
+
+    var current_mA = ((bv - fv) / r) * 1000;
+
+    if(current_mA <= 0){
+        out.innerHTML = "❌ Battery voltage too low for LED";
+        return;
+    }
+
+    var hours   = mah / current_mA;
+    var minutes = hours * 60;
+    var days    = hours / 24;
+
+    out.innerHTML =
+        "LED Current: " + current_mA.toFixed(2) + " mA<br>" +
+        "Runtime: " + minutes.toFixed(1) + " minutes<br>" +
+        "Runtime: " + hours.toFixed(2) + " hours<br>" +
+        "Runtime: " + days.toFixed(2) + " days";
+}
+</script>
+
+</body>
+</html>
