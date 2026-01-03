@@ -41,7 +41,7 @@ h1 {
 /* Search */
 .search {
     flex:1;
-    padding:8px 10px;
+    padding:8px 12px;
     border:none;
     border-radius:20px;
     background:var(--input);
@@ -61,7 +61,7 @@ h1 {
     grid-template-columns:repeat(auto-fit,minmax(90px,1fr));
     gap:14px;
     padding:16px;
-    max-width:600px;
+    max-width:720px;
     margin:auto;
 }
 
@@ -94,8 +94,6 @@ h1 {
 }
 
 a { text-decoration:none }
-
-/* Hide when not matched */
 .hidden { display:none }
 </style>
 </head>
@@ -104,66 +102,109 @@ a { text-decoration:none }
 
 <div class="header">
     <h1>Apps</h1>
-    <input type="text" class="search" placeholder="Search apps…" onkeyup="filterApps(this.value)">
+    <input class="search" placeholder="Search apps…" onkeyup="filterApps(this.value)">
     <div class="toggle" onclick="toggleMode()">🌙</div>
 </div>
 
 <div class="grid" id="appGrid">
 
-<a data-name="edit links github">
-<button class="bubble-btn blue"><div class="icon">✏️</div>Edit Links</button>
-</a>
+<a href="https://github.com/surubro/app/edit/main/index.html" data-name="edit apps github">
+<button class="bubble-btn blue"><div class="icon">✏️</div>Edit Apps</button></a>
 
-<a data-name="repo github">
-<button class="bubble-btn green"><div class="icon">📦</div>Repo</button>
-</a>
+<a href="https://github.com/surubro/app" data-name="github repo">
+<button class="bubble-btn green"><div class="icon">📦</div>App Repo</button></a>
 
-<a data-name="link html">
-<button class="bubble-btn purple"><div class="icon">🔗</div>link.html</button>
-</a>
+<a href="https://github.com/surubro/app/edit/main/link.txt" data-name="edit link txt">
+<button class="bubble-btn orange"><div class="icon">📝</div>Edit link.txt</button></a>
 
-<a data-name="text match check">
-<button class="bubble-btn red"><div class="icon">🔍</div>Text Match</button>
-</a>
+<a href="https://surubro.github.io/app/link.html" data-name="link html">
+<button class="bubble-btn purple"><div class="icon">🔗</div>link.html</button></a>
 
-<a data-name="upi qr payment">
-<button class="bubble-btn green"><div class="icon">💸</div>UPI QR</button>
-</a>
+<a href="https://surubro.github.io/app/check.html" data-name="text match">
+<button class="bubble-btn red"><div class="icon">🔍</div>Text Match</button></a>
 
-<a data-name="upi copy gpay">
-<button class="bubble-btn blue"><div class="icon">📋</div>UPI Copy</button>
-</a>
+<a href="https://surubro.github.io/app/upiqr.jpg" data-name="upi qr">
+<button class="bubble-btn green"><div class="icon">💸</div>UPI QR</button></a>
 
-<a data-name="expense manager">
-<button class="bubble-btn orange"><div class="icon">📊</div>Expenses</button>
-</a>
+<a href="https://surubro.github.io/app/upiqr21.png" data-name="upi qr 21">
+<button class="bubble-btn green"><div class="icon">💸</div>UPI QR 21</button></a>
 
-<a data-name="money manager">
-<button class="bubble-btn blue"><div class="icon">💰</div>Money</button>
-</a>
+<a href="https://surubro.github.io/gpay.html" data-name="upi copy gpay">
+<button class="bubble-btn blue"><div class="icon">📋</div>UPI Copy</button></a>
 
-<a data-name="total spend mspend">
-<button class="bubble-btn purple"><div class="icon">🧮</div>Total</button>
-</a>
+<a href="https://surubro.github.io/upi.html" data-name="upi ids">
+<button class="bubble-btn purple"><div class="icon">🆔</div>UPI IDs</button></a>
 
-<a data-name="csv export download">
-<button class="bubble-btn gray"><div class="icon">⬇️</div>CSV</button>
-</a>
+<a href="https://retail.sbi.bank.in/retail/login.htm" data-name="sbi bank">
+<button class="bubble-btn gray"><div class="icon">🏦</div>SBI</button></a>
+
+<a href="https://netbanking.kotak.bank.in/knb2/" data-name="kotak bank">
+<button class="bubble-btn gray"><div class="icon">🏦</div>Kotak</button></a>
+
+<a href="https://ibanking.pnb.bank.in/" data-name="pnb bank">
+<button class="bubble-btn gray"><div class="icon">🏦</div>PNB</button></a>
+
+<a href="https://surubro.github.io/app/sms-bank.html" data-name="sms banking">
+<button class="bubble-btn orange"><div class="icon">📩</div>SMS Bank</button></a>
+
+<a href="https://www.myvi.in/selfcare/prepaid-dashboard/active-packs-services" data-name="vi">
+<button class="bubble-btn red"><div class="icon">📶</div>My VI</button></a>
+
+<a href="https://github.com/surubro/X01AD" data-name="x01ad github">
+<button class="bubble-btn blue"><div class="icon">🧩</div>X01AD</button></a>
+
+<a href="https://surubro.github.io/myexpenses.html" data-name="expense manager">
+<button class="bubble-btn orange"><div class="icon">📊</div>Expenses</button></a>
+
+<a href="https://surubro.github.io/money.html" data-name="money manager">
+<button class="bubble-btn blue"><div class="icon">💰</div>Money</button></a>
+
+<a href="https://surubro.github.io/money2.html" data-name="money manager 2">
+<button class="bubble-btn blue"><div class="icon">💰</div>Money 2</button></a>
+
+<a href="https://surubro.github.io/expenses.html" data-name="expenses calc">
+<button class="bubble-btn orange"><div class="icon">🧮</div>Calc</button></a>
+
+<a href="https://surubro.github.io/spending.html" data-name="spending">
+<button class="bubble-btn green"><div class="icon">📉</div>Spend</button></a>
+
+<a href="https://surubro.github.io/mspend.html" data-name="total spend">
+<button class="bubble-btn purple"><div class="icon">📈</div>Total</button></a>
+
+<a href="https://surubro.github.io/mspend-export.html" data-name="csv export">
+<button class="bubble-btn gray"><div class="icon">⬇️</div>CSV</button></a>
+
+<a href="https://github.com/surubro/auto-clone/upload/main/mspend-csv" data-name="upload csv github">
+<button class="bubble-btn red"><div class="icon">⬆️</div>Upload</button></a>
+
+<a href="https://drive.google.com/drive/folders/1U51uca5Dr5v7rl6vXBdBfC5t6af8JviD" data-name="google drive csv">
+<button class="bubble-btn blue"><div class="icon">☁️</div>GDrive</button></a>
+
+<a href="https://console.cloud.google.com/billing/011ED6-9CDDAA-62C0D6/history?project=striped-acrobat-342207" data-name="gcp billing">
+<button class="bubble-btn purple"><div class="icon">💳</div>GCP</button></a>
 
 </div>
 
 <script>
+/* Dark mode */
 function toggleMode() {
     document.body.classList.toggle("dark");
 }
 
+/* Search */
 function filterApps(q) {
     q = q.toLowerCase();
     document.querySelectorAll("#appGrid a").forEach(a => {
-        const name = a.dataset.name || a.innerText.toLowerCase();
-        a.classList.toggle("hidden", !name.includes(q));
+        const t = a.dataset.name + a.innerText.toLowerCase();
+        a.classList.toggle("hidden", !t.includes(q));
     });
 }
+
+/* Force all links to open in new tab */
+document.querySelectorAll("a").forEach(a => {
+    a.target = "_blank";
+    a.rel = "noopener";
+});
 </script>
 
 </body>
