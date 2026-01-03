@@ -1,149 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Apps</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML Apps</title>
 
-    <style>
-    body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-    }
+<style>
+:root {
+    --bg:#ffffff;
+    --text:#000000;
+    --input:#f2f2f2;
+}
 
-    h1 {
-        margin-bottom: 20px;
-    }
+body.dark {
+    --bg:#0f0f0f;
+    --text:#ffffff;
+    --input:#1f1f1f;
+}
 
-    /* Smaller bubble circular buttons */
-    .bubble-btn {
-        display: inline-block;
-        width: 80px;
-        height: 80px;
-        margin: 8px;
-        border-radius: 50%;
-        border: none;
-        background: #4CAF50;
-        color: white;
-        font-size: 12px;
-        padding: 6px;
-        cursor: pointer;
-    }
+body {
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
 
-    a { text-decoration: none; }
+/* Header */
+.header {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px;
+}
+
+h1 {
+    margin:0;
+    font-size:18px;
+}
+
+/* Search */
+.search {
+    flex:1;
+    padding:8px 10px;
+    border:none;
+    border-radius:20px;
+    background:var(--input);
+    color:var(--text);
+    outline:none;
+}
+
+/* Toggle */
+.toggle {
+    cursor:pointer;
+    font-size:18px;
+}
+
+/* Grid */
+.grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(90px,1fr));
+    gap:14px;
+    padding:16px;
+    max-width:600px;
+    margin:auto;
+}
+
+/* Bubble */
+.bubble-btn {
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    border:none;
+    color:#fff;
+    font-size:11px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+
+/* Colors */
+.green{background:#4CAF50}
+.blue{background:#2196F3}
+.orange{background:#FF9800}
+.red{background:#F44336}
+.purple{background:#9C27B0}
+.gray{background:#607D8B}
+
+.icon {
+    font-size:20px;
+    margin-bottom:4px;
+}
+
+a { text-decoration:none }
+
+/* Hide when not matched */
+.hidden { display:none }
 </style>
-
 </head>
+
 <body>
 
-<h1>HTML Apps</h1>
+<div class="header">
+    <h1>Apps</h1>
+    <input type="text" class="search" placeholder="Search apps…" onkeyup="filterApps(this.value)">
+    <div class="toggle" onclick="toggleMode()">🌙</div>
+</div>
 
-<a href="https://github.com/surubro/app/edit/main/index.html">
-    <button class="bubble-btn">Edit Apps Links</button>
+<div class="grid" id="appGrid">
+
+<a data-name="edit links github">
+<button class="bubble-btn blue"><div class="icon">✏️</div>Edit Links</button>
 </a>
 
-<a href="https://github.com/surubro/app">
-    <button class="bubble-btn">App Repo</button>
+<a data-name="repo github">
+<button class="bubble-btn green"><div class="icon">📦</div>Repo</button>
 </a>
 
-<a href="https://github.com/surubro/app/edit/main/link.txt">
-    <button class="bubble-btn">Edit link.txt</button>
+<a data-name="link html">
+<button class="bubble-btn purple"><div class="icon">🔗</div>link.html</button>
 </a>
 
-<a href="https://surubro.github.io/app/link.html">
-    <button class="bubble-btn">Visit link.html</button>
+<a data-name="text match check">
+<button class="bubble-btn red"><div class="icon">🔍</div>Text Match</button>
 </a>
 
-<a href="https://surubro.github.io/app/check.html">
-    <button class="bubble-btn">Text Match</button>
+<a data-name="upi qr payment">
+<button class="bubble-btn green"><div class="icon">💸</div>UPI QR</button>
 </a>
 
-<a href="https://surubro.github.io/app/upiqr.jpg">
-    <button class="bubble-btn">UPI QR</button>
+<a data-name="upi copy gpay">
+<button class="bubble-btn blue"><div class="icon">📋</div>UPI Copy</button>
 </a>
 
-<a href="https://surubro.github.io/app/upiqr21.png">
-    <button class="bubble-btn">UPI QR 21</button>
+<a data-name="expense manager">
+<button class="bubble-btn orange"><div class="icon">📊</div>Expenses</button>
 </a>
 
-<a href="https://surubro.github.io/gpay.html">
-    <button class="bubble-btn">UPI Copy</button>
+<a data-name="money manager">
+<button class="bubble-btn blue"><div class="icon">💰</div>Money</button>
 </a>
 
-<a href="https://surubro.github.io/upi.html">
-    <button class="bubble-btn">UPI IDs java</button>
+<a data-name="total spend mspend">
+<button class="bubble-btn purple"><div class="icon">🧮</div>Total</button>
 </a>
 
-<a href="https://retail.sbi.bank.in/retail/login.htm">
-    <button class="bubble-btn">SBI Login</button>
+<a data-name="csv export download">
+<button class="bubble-btn gray"><div class="icon">⬇️</div>CSV</button>
 </a>
 
-<a href="https://netbanking.kotak.bank.in/knb2/">
-    <button class="bubble-btn">Kotak Login</button>
-</a>
+</div>
 
-<a href="https://ibanking.pnb.bank.in/">
-    <button class="bubble-btn">PNB Login</button>
-</a>
+<script>
+function toggleMode() {
+    document.body.classList.toggle("dark");
+}
 
-<a href="https://surubro.github.io/app/sms-bank.html">
-    <button class="bubble-btn">SMS Banking</button>
-</a>
+function filterApps(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll("#appGrid a").forEach(a => {
+        const name = a.dataset.name || a.innerText.toLowerCase();
+        a.classList.toggle("hidden", !name.includes(q));
+    });
+}
+</script>
 
-<a href="https://www.myvi.in/selfcare/prepaid-dashboard/active-packs-services">
-    <button class="bubble-btn">My VI</button>
-</a>
-
-<a href="https://github.com/surubro/X01AD">
-    <button class="bubble-btn">X01AD</button>
-</a>
-
-<a href="https://surubro.github.io/myexpenses.html">
-    <button class="bubble-btn">Expense Manager</button>
-</a>
-
-<a href="https://surubro.github.io/money.html">
-    <button class="bubble-btn">Money Manager</button>
-</a>
-    
-    <a href="https://surubro.github.io/money2.html">
-    <button class="bubble-btn">Money Manager 2</button>
-</a>
-
-<a href="https://surubro.github.io/expenses.html">
-    <button class="bubble-btn">Expenses Calc</button>
-</a>
-
-<a href="https://surubro.github.io/spending.html">
-    <button class="bubble-btn">My Spendings</button>
-</a>
-
-<a href="https://surubro.github.io/mspend.html">
-    <button class="bubble-btn">Total Spend</button>
-</a>
-
-  
-    <a href="surubro.github.io/mspend-export.html">
-    <button class="bubble-btn">csv export.</button>
-</a>
-
-
-    <a href="https://github.com/surubro/auto-clone/upload/main/mspend-csv">
-    <button class="bubble-btn">UPLOAD ⬆️ csv</button>
-</a>
-
-    <a href=" https://drive.google.com/drive/folders/1U51uca5Dr5v7rl6vXBdBfC5t6af8JviD">
-    <button class="bubble-btn">UPLOAD Gdrive ⬆️ csv</button>
-</a>
-
-   
-
-    <a href="https://console.cloud.google.com/billing/011ED6-9CDDAA-62C0D6/history?project=striped-acrobat-342207">
-    <button class="bubble-btn">GCP Transactions</button>
-</a>
-
-    
-   
-    
 </body>
 </html>
