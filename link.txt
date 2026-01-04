@@ -5,4 +5,4 @@ https://sameeralsahab.github.io/ESP32-Deauther/
 https://github.com/SameerAlSahab/ESP32-Deauther
 https://tesa-klebeband.github.io/ESP32-Webflasher/
 https://tesa-klebeband.github.io/
-http://35.208.200.11/private/auto-clone/MD-Files/view-md.php?file=#1-Asim-no-useby-services.md
+http://35.208.200.11/private/auto-clone/MD-Files/
