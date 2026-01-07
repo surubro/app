@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salary Split Calculator</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        padding: 20px;
+    }
+    .box {
+        max-width: 350px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        font-size: 16px;
+    }
+    button {
+        background: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #0056b3;
+    }
+    .result {
+        margin-top: 15px;
+        font-size: 16px;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>Salary Split</h2>
+
+    <input type="number" id="salary" placeholder="Enter salary received ₹">
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div class="result" id="output"></div>
+</div>
+
+<script>
+function calculate() {
+    let salary = Number(document.getElementById("salary").value);
+
+    if (salary <= 0) {
+        document.getElementById("output").innerHTML = "Enter a valid salary amount";
+        return;
+    }
+
+    let needs = salary * 0.50;
+    let wants = salary * 0.30;
+    let savings = salary * 0.10;
+    let fd = salary * 0.10;
+
+    document.getElementById("output").innerHTML = `
+        <p>Needs (50%): ₹${needs.toFixed(2)}</p>
+        <p>Wants (30%): ₹${wants.toFixed(2)}</p>
+        <p>Savings (10%): ₹${savings.toFixed(2)}</p>
+        <p>FD (10%): ₹${fd.toFixed(2)}</p>
+    `;
+}
+</script>
+
+</body>
+</html>
