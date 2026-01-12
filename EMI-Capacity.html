@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EMI Capacity Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+    .box {
+      max-width: 360px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h2>EMI Capacity Calculator</h2>
+
+    <label>Salary in Bank (₹)</label>
+    <input type="number" id="salary" placeholder="Enter salary">
+
+    <label>EMI Amount (₹)</label>
+    <input type="number" id="emi" placeholder="Enter EMI amount">
+
+    <button onclick="calculateEMI()">Calculate</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function calculateEMI() {
+      const salary = Number(document.getElementById("salary").value);
+      const emi = Number(document.getElementById("emi").value);
+
+      if (salary <= 0 || emi <= 0) {
+        document.getElementById("result").innerHTML = "Enter valid values";
+        return;
+      }
+
+      const emiCount = Math.floor(salary / emi);
+      const remaining = salary - (emiCount * emi);
+
+      document.getElementById("result").innerHTML =
+        `You can afford <b>${emiCount}</b> EMI(s)<br>
+         Total EMI: ₹${emiCount * emi}<br>
+         Remaining Balance: ₹${remaining}`;
+    }
+  </script>
+
+</body>
+</html>
