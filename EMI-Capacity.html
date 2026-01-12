@@ -79,3 +79,83 @@
 
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EMI Requirement Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+    .box {
+      max-width: 360px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    button {
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1e7e34;
+    }
+    .result {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h2>EMI Requirement Calculator</h2>
+
+    <label>EMI Amount (₹)</label>
+    <input type="number" id="emi" placeholder="Enter EMI amount">
+
+    <label>Number of EMIs</label>
+    <input type="number" id="count" placeholder="Enter EMI count">
+
+    <button onclick="calculateRequired()">Calculate</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function calculateRequired() {
+      const emi = Number(document.getElementById("emi").value);
+      const count = Number(document.getElementById("count").value);
+
+      if (emi <= 0 || count <= 0) {
+        document.getElementById("result").innerHTML = "Enter valid values";
+        return;
+      }
+
+      const requiredSalary = emi * count;
+
+      document.getElementById("result").innerHTML =
+        `To afford <b>${count}</b> EMI(s):<br>
+         Required Bank Balance: <b>₹${requiredSalary}</b>`;
+    }
+  </script>
+
+</body>
+</html>
