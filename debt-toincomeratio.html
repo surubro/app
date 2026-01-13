@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debt-to-Income Ratio Calculator</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 20px;
+}
+.container {
+    max-width: 420px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+}
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 16px;
+}
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    font-size: 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+button:hover {
+    background: #0056b3;
+}
+.result {
+    margin-top: 20px;
+    padding: 15px;
+    background: #eef2f5;
+    border-radius: 5px;
+}
+.good { color: green; font-weight: bold; }
+.ok { color: orange; font-weight: bold; }
+.bad { color: red; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>DTI Ratio Calculator</h2>
+
+    <label>Gross Monthly Income (₹)</label>
+    <input type="number" id="income" placeholder="e.g. 50000">
+
+    <label>Total Monthly Debt (₹)</label>
+    <input type="number" id="debt" placeholder="e.g. 15000">
+
+    <button onclick="calculateDTI()">Calculate DTI</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+function calculateDTI() {
+    var income = parseFloat(document.getElementById("income").value);
+    var debt = parseFloat(document.getElementById("debt").value);
+    var result = document.getElementById("result");
+
+    if (!income || income <= 0) {
+        result.innerHTML = "❌ Please enter a valid income.";
+        return;
+    }
+
+    var dti = (debt / income) * 100;
+    dti = dti.toFixed(2);
+
+    var status = "";
+    var cls = "";
+
+    if (dti <= 36) {
+        status = "Excellent – Low risk";
+        cls = "good";
+    } else if (dti <= 43) {
+        status = "Acceptable – Medium risk";
+        cls = "ok";
+    } else {
+        status = "High Risk – Loan may be rejected";
+        cls = "bad";
+    }
+
+    result.innerHTML = `
+        <strong>DTI Ratio:</strong> ${dti}%<br>
+        <span class="${cls}">${status}</span>
+    `;
+}
+</script>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>The debt-to-income ratio</h1>
+
+<p> below ≤ 36% → ✅ Excellent
+37% – 43% → ⚠️ Acceptable
+> 43% → ❌ High Risk (banks may reject)</p>
+
+</body>
+</html>
+
+
+
