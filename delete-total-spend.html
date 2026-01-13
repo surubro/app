@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Spendings</title>
+
+<style>
+body{font-family:Arial;margin:0;background:#f9fafb}
+.container{max-width:600px;margin:auto;padding:15px}
+h2,h3{text-align:center}
+.card{background:#fff;padding:15px;margin:10px 0;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,.1)}
+input,select,button{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:1px solid #ccc}
+button{background:#4f46e5;color:#fff;border:none;cursor:pointer}
+button:hover{opacity:.9}
+.delete{background:#dc2626}
+.edit{background:#2563eb}
+.collapsible{background:#eef2ff;padding:12px;border-radius:12px;margin:10px 0}
+.collapsible h3{margin:0;cursor:pointer;display:flex;justify-content:space-between}
+.collapsible-content{display:none;margin-top:8px}
+.expense-text{color:#dc2626;font-weight:bold}
+.income-text{color:#16a34a;font-weight:bold}
+.muted{color:#6b7280;font-size:13px}
+</style>
+</head>
+
+<body>
+<div class="container">
+<h2>💰 My Spending</h2>
+
+<!-- AUTH -->
+<div id="authSection" class="card">
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<button onclick="logout()">Logout</button>
+</div>
+
+<div id="appSection" style="display:none">
+
+<!-- SUMMARY -->
+<div class="collapsible" id="summaryBox">
+<h3>
+Summary
+<span>
+<span class="expense-text">Spent ₹<span id="totalExpenses">0</span></span> |
+<b>Remaining ₹<span id="remainingBalance">0</span></b>
+</span>
+</h3>
+<div class="collapsible-content" id="summaryContent">
+<div class="income-text">Income ₹<span id="totalIncome">0</span></div>
+<div id="categorySummary"></div>
+</div>
+</div>
+
+<!-- SALARY -->
+<div class="collapsible" id="salaryBox">
+<h3 id="salaryBoxTitle">Add Salary</h3>
+<div class="collapsible-content" id="salaryContent">
+<input id="salaryName" placeholder="Source">
+<input id="salaryAmount" type="number" placeholder="Amount">
+<button id="salarySaveBtn" onclick="saveSalary()">Save</button>
+<div id="salaryList"></div>
+</div>
+</div>
+
+<!-- CATEGORY -->
+<div class="collapsible" id="categoryBox">
+<h3 id="categoryBoxTitle">Add Category</h3>
+<div class="collapsible-content" id="categoryContent">
+<input id="categoryName" placeholder="Category name">
+<button id="categorySaveBtn" onclick="saveCategory()">Save</button>
+<div id="categoryList"></div>
+</div>
+</div>
+
+<!-- ADD SPENDING -->
+<div class="card">
+<h3>Add Spending</h3>
+<input id="descInput" placeholder="Description">
+<input id="amountInput" type="number" placeholder="Amount">
+<select id="categorySelect"></select>
+<button onclick="addExpense()">Add</button>
+</div>
+
+<!-- LIST -->
+<h3>Spending Entries</h3>
+<button class="delete" onclick="deleteAllItems()">🗑 Delete ALL Entries</button>
+<div id="list"></div>
+
+</div>
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import{getDatabase,ref,push,onValue,update,remove,get}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
+authDomain:"striped-acrobat-342207.firebaseapp.com",
+databaseURL:"https://striped-acrobat-342207-default-rtdb.firebaseio.com",
+projectId:"striped-acrobat-342207"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getDatabase(app);
+const auth=getAuth(app);
+
+const salariesRef=ref(db,"spending/salaries");
+const categoriesRef=ref(db,"spending/categories");
+const itemsRef=ref(db,"spending/items");
+
+const PASSWORD="Confirm";
+const askPassword=()=>prompt("Enter password")==PASSWORD;
+
+["summary","salary","category"].forEach(id=>{
+document.querySelector(`#${id}Box h3`)
+.addEventListener("click",()=>{
+const c=document.getElementById(id+"Content");
+c.style.display=c.style.display==="block"?"none":"block";
+});
+});
+
+window.login=()=>signInWithEmailAndPassword(auth,email.value,password.value);
+window.logout=()=>signOut(auth);
+
+onAuthStateChanged(auth,u=>{
+authSection.style.display=u?"none":"block";
+appSection.style.display=u?"block":"none";
+if(u){loadSalaries();loadCategories();loadItems();}
+});
+
+/* SALARY */
+let editingSalary=null;
+window.saveSalary=async()=>{
+if(!askPassword())return;
+const n=salaryName.value,a=+salaryAmount.value;
+if(!n||a<=0)return;
+editingSalary?
+update(ref(db,`spending/salaries/${editingSalary}`),{name:n,amount:a}):
+push(salariesRef,{name:n,amount:a});
+editingSalary=null;salaryName.value=salaryAmount.value="";
+};
+function loadSalaries(){
+onValue(salariesRef,s=>{
+salaryList.innerHTML="";let t=0;
+s.forEach(c=>{
+t+=c.val().amount;
+salaryList.innerHTML+=`${c.val().name} ₹${c.val().amount}
+<button class="delete" onclick="remove(ref(db,'spending/salaries/${c.key}'))">X</button><br>`;
+});
+totalIncome.innerText=t;updateRemaining();
+});
+}
+
+/* CATEGORY */
+window.saveCategory=async()=>{
+if(!askPassword())return;
+const n=categoryName.value;if(!n)return;
+push(categoriesRef,{name:n});categoryName.value="";
+};
+function loadCategories(){
+onValue(categoriesRef,s=>{
+categorySelect.innerHTML="";categoryList.innerHTML="";
+s.forEach(c=>{
+categorySelect.innerHTML+=`<option value="${c.key}">${c.val().name}</option>`;
+categoryList.innerHTML+=`${c.val().name}
+<button class="delete" onclick="remove(ref(db,'spending/categories/${c.key}'))">X</button><br>`;
+});
+});
+}
+
+/* SPENDING */
+window.addExpense=async()=>{
+if(!askPassword())return;
+const d=descInput.value,a=+amountInput.value,c=categorySelect.value;
+if(!d||a<=0)return;
+const n=(await get(ref(db,`spending/categories/${c}`))).val().name;
+push(itemsRef,{desc:d,amount:a,categoryId:c,categoryName:n,date:Date.now()});
+descInput.value=amountInput.value="";
+};
+
+function loadItems(){
+onValue(itemsRef,s=>{
+list.innerHTML="";let t=0,cat={};
+s.forEach(c=>{
+t+=c.val().amount;
+cat[c.val().categoryName]=(cat[c.val().categoryName]||0)+c.val().amount;
+list.innerHTML=`<div class="card"><b>${c.val().desc}</b> ₹${c.val().amount}
+<br><small class="muted">${c.val().categoryName}</small>
+<button class="delete" onclick="remove(ref(db,'spending/items/${c.key}'))">Delete</button></div>`+list.innerHTML;
+});
+totalExpenses.innerText=t;updateRemaining();
+categorySummary.innerHTML="";
+for(let k in cat)categorySummary.innerHTML+=`${k}: ₹${cat[k]}<br>`;
+});
+}
+
+/* DELETE ALL */
+window.deleteAllItems=async()=>{
+if(!askPassword())return;
+if(!confirm("Delete ALL entries?"))return;
+if(!confirm("Final confirmation"))return;
+await remove(itemsRef);
+alert("All entries deleted");
+};
+
+function updateRemaining(){
+remainingBalance.innerText=(+totalIncome.innerText||0)-(+totalExpenses.innerText||0);
+}
+</script>
+</body>
+</html>
