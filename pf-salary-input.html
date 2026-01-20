@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PF Salary Split Calculator</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    padding: 20px;
+}
+.container {
+    max-width: 420px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+h2, h3 {
+    text-align: center;
+}
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 16px;
+}
+button {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+button:hover {
+    background: #0056b3;
+}
+.section {
+    margin-top: 15px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}
+p {
+    margin: 6px 0;
+}
+.green { color: green; font-weight: bold; }
+.orange { color: orange; font-weight: bold; }
+.red { color: red; font-weight: bold; }
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+    <h2>PF Salary Split Calculator</h2>
+
+```
+<input type="number" id="salary" placeholder="Enter Gross Salary ₹">
+<button onclick="calculate()">Calculate</button>
+
+<div id="output"></div>
+```
+
+</div>
+
+<script>
+let remaining = 0;
+
+function calculate() {
+    const salary = Number(document.getElementById("salary").value);
+    const output = document.getElementById("output");
+
+    if (salary <= 0) {
+        output.innerHTML = "<p class='red'>Enter a valid salary amount</p>";
+        return;
+    }
+
+    const pfEmp = salary * 0.12;
+    const pfEmpr = salary * 0.12;
+    const esi = salary * 0.05;
+
+    const totalDeduction = pfEmp + pfEmpr + esi;
+    remaining = salary - totalDeduction;
+
+    output.innerHTML = `
+        <div class="section">
+            <h3>Deductions</h3>
+            <p>PF Employee (12%): ₹${pfEmp.toFixed(2)}</p>
+            <p>PF Employer (12%): ₹${pfEmpr.toFixed(2)}</p>
+            <p>ESI (5%): ₹${esi.toFixed(2)}</p>
+            <p><b>Total Deductions:</b> ₹${totalDeduction.toFixed(2)}</p>
+        </div>
+
+        <div class="section">
+            <h3>Remaining Amount</h3>
+            <p><b>₹${remaining.toFixed(2)}</b></p>
+        </div>
+
+        <div class="section">
+            <h3>Split Remaining Amount</h3>
+            <input type="number" id="needs" placeholder="Needs ₹" oninput="split()">
+            <input type="number" id="wants" placeholder="Wants ₹" oninput="split()">
+            <input type="number" id="savings" placeholder="Savings ₹" oninput="split()">
+            <p id="status"></p>
+        </div>
+    `;
+}
+
+function split() {
+    const needs = Number(document.getElementById("needs").value) || 0;
+    const wants = Number(document.getElementById("wants").value) || 0;
+    const savings = Number(document.getElementById("savings").value) || 0;
+
+    const total = needs + wants + savings;
+    const balance = remaining - total;
+
+    const status = document.getElementById("status");
+
+    if (balance === 0) {
+        status.innerHTML = "<span class='green'>Perfect allocation ✔</span>";
+    } else if (balance > 0) {
+        status.innerHTML = `<span class='orange'>Remaining Balance: ₹${balance.toFixed(2)}</span>`;
+    } else {
+        status.innerHTML = `<span class='red'>Over Allocated: ₹${Math.abs(balance).toFixed(2)}</span>`;
+    }
+}
+</script>
+
+</body>
+</html>
