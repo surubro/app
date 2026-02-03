@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Back4App Chat with Login + File Names</title>
+  <title>Back4App Chat with File Naming</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
@@ -100,6 +100,7 @@
   <button onclick="sendText()">Send Message</button>
 
   <input type="file" id="fileInput">
+  <input type="text" id="fileNameInput" placeholder="Enter file name">
   <button onclick="sendFile()">Send File</button>
 </div>
 
@@ -116,7 +117,7 @@
   const chatBox = document.getElementById("chatBox");
   const messagesDiv = document.getElementById("messages");
 
-  // 🔄 Auth state
+  // 🔄 Check login state
   function checkAuth() {
     if (Parse.User.current()) {
       authBox.style.display = "none";
@@ -130,8 +131,9 @@
 
   // 🔑 Login
   async function login() {
-    const u = username.value;
-    const p = password.value;
+    const u = username.value.trim();
+    const p = password.value.trim();
+    if(!u || !p) return alert("Enter username and password");
     try {
       await Parse.User.logIn(u, p);
       checkAuth();
@@ -143,8 +145,12 @@
   // 📝 Register
   async function register() {
     const user = new Parse.User();
-    user.set("username", username.value);
-    user.set("password", password.value);
+    const u = username.value.trim();
+    const p = password.value.trim();
+    if(!u || !p) return alert("Enter username and password");
+
+    user.set("username", u);
+    user.set("password", p);
 
     try {
       await user.signUp();
@@ -176,13 +182,13 @@
       const content = document.createElement("div");
       content.textContent = m.get("text") || "";
 
-      // Display file if exists
+      // Show file with custom name
       const file = m.get("file");
       if (file) {
         const a = document.createElement("a");
         a.href = file.url();
         a.target = "_blank";
-        a.textContent = `📎 ${file.name}`; // Show file name
+        a.textContent = `📎 ${file.name()}`;
         content.appendChild(a);
       }
 
@@ -213,12 +219,15 @@
     loadMessages();
   }
 
-  // 📎 Send file
+  // 📎 Send file with custom name
   async function sendFile() {
     const file = fileInput.files[0];
-    if (!file) return alert("Select a file");
+    const customName = fileNameInput.value.trim();
 
-    const pf = new Parse.File(file.name, file);
+    if (!file) return alert("Select a file");
+    if (!customName) return alert("Enter a file name");
+
+    const pf = new Parse.File(customName, file);
     await pf.save();
 
     const m = new Message();
@@ -227,12 +236,13 @@
     await m.save();
 
     fileInput.value = "";
+    fileNameInput.value = "";
     loadMessages();
   }
 
   // 🗑️ Delete message
   async function deleteMsg(id) {
-    if (!confirm("Delete message?")) return;
+    if (!confirm("Delete this message?")) return;
     const q = new Parse.Query(Message);
     const m = await q.get(id);
     await m.destroy();
