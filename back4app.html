@@ -56,7 +56,7 @@ button {
   flex: 1;
   overflow-y: auto;
   margin: 10px 0;
-  max-height: calc(100% - 240px); /* leave space for inputs/buttons */
+  max-height: calc(100% - 200px);
 }
 
 .message {
@@ -109,7 +109,6 @@ button {
   <button onclick="sendText()">Send Message</button>
 
   <input type="file" id="fileInput">
-  <input type="text" id="fileNameInput" placeholder="Enter file name">
   <button onclick="sendFile()">Send File</button>
 </div>
 
@@ -205,17 +204,14 @@ async function sendText(){
 
 async function sendFile(){
   const file=fileInput.files[0];
-  const customName=fileNameInput.value.trim();
   if(!file) return alert("Select a file");
-  if(!customName) return alert("Enter a file name");
-  const pf=new Parse.File(customName,file);
+  const pf=new Parse.File(file.name,file);
   await pf.save();
   const m=new Message();
   m.set("file",pf);
   m.set("user",Parse.User.current());
   await m.save();
   fileInput.value="";
-  fileNameInput.value="";
   loadMessages();
 }
 
