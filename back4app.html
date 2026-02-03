@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Back4App Chat</title>
+  <title>Back4App Chat with Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Parse SDK -->
   <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
 
   <style>
@@ -13,105 +12,101 @@
       margin: 0;
       font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
       color: #fff;
     }
 
-    .chat-container {
+    .box {
       width: 100%;
       max-width: 420px;
-      height: 80vh;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0,0,0,0.4);
       border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .chat-header {
       padding: 16px;
-      text-align: center;
-      background: rgba(0, 0, 0, 0.3);
-      font-weight: bold;
     }
 
-    .chat-messages {
-      flex: 1;
-      padding: 16px;
-      overflow-y: auto;
-    }
-
-    .message {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      padding: 10px 14px;
-      background: #00c6ff;
-      color: #000;
-      border-radius: 8px;
-      max-width: 100%;
-      word-wrap: break-word;
-    }
-
-    .message-text {
-      flex: 1;
-      margin-right: 10px;
-    }
-
-    .delete-btn {
-      background: #ff4d4d;
-      border: none;
-      border-radius: 4px;
-      color: #fff;
-      padding: 4px 8px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-
-    .chat-input {
-      display: flex;
-      padding: 12px;
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    .chat-input input {
-      flex: 1;
+    input, button {
+      width: 100%;
       padding: 10px;
+      margin-top: 8px;
       border-radius: 6px;
       border: none;
       outline: none;
     }
 
-    .chat-input button {
-      margin-left: 8px;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 6px;
+    button {
       background: #00c6ff;
       font-weight: bold;
       cursor: pointer;
+    }
+
+    .chat {
+      display: none;
+      flex-direction: column;
+      height: 80vh;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      margin: 10px 0;
+    }
+
+    .message {
+      background: #00c6ff;
+      color: #000;
+      padding: 8px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .message a {
+      display: block;
+      font-size: 13px;
+    }
+
+    .danger {
+      background: #ff4d4d;
+      color: #fff;
+    }
+
+    .row {
+      display: flex;
+      gap: 6px;
     }
   </style>
 </head>
 <body>
 
-<div class="chat-container">
-  <div class="chat-header">💬 Back4App Chat</div>
+<!-- LOGIN / REGISTER -->
+<div class="box" id="authBox">
+  <h3>Login / Register</h3>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <button onclick="register()">Register</button>
+</div>
 
-  <div class="chat-messages" id="messages"></div>
+<!-- CHAT -->
+<div class="box chat" id="chatBox">
+  <button class="danger" onclick="logout()">Logout</button>
 
-  <div class="chat-input">
-    <input id="messageInput" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
-  </div>
+  <div class="messages" id="messages"></div>
+
+  <input id="textInput" placeholder="Message">
+  <button onclick="sendText()">Send Message</button>
+
+  <input type="file" id="fileInput">
+  <button onclick="sendFile()">Send File</button>
 </div>
 
 <script>
-  // 🔐 Parse Initialization
+  // 🔐 Parse Init
   Parse.initialize(
     "DDn3pRW0GSEcX2ZnV4vD6ATRyVVlCelTCWjzGI29",
     "Ar2XAAFl4N0kzo6uUcBwlp3FSFgjeAj5VpbyfT6R"
@@ -119,69 +114,131 @@
   Parse.serverURL = "https://parseapi.back4app.com/";
 
   const Message = Parse.Object.extend("Message");
+  const authBox = document.getElementById("authBox");
+  const chatBox = document.getElementById("chatBox");
   const messagesDiv = document.getElementById("messages");
-  const input = document.getElementById("messageInput");
+
+  // 🔄 Auth state
+  function checkAuth() {
+    if (Parse.User.current()) {
+      authBox.style.display = "none";
+      chatBox.style.display = "flex";
+      loadMessages();
+    } else {
+      authBox.style.display = "block";
+      chatBox.style.display = "none";
+    }
+  }
+
+  // 🔑 Login
+  async function login() {
+    const u = username.value;
+    const p = password.value;
+    try {
+      await Parse.User.logIn(u, p);
+      checkAuth();
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
+  // 📝 Register
+  async function register() {
+    const user = new Parse.User();
+    user.set("username", username.value);
+    user.set("password", password.value);
+
+    try {
+      await user.signUp();
+      checkAuth();
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
+  // 🚪 Logout
+  async function logout() {
+    await Parse.User.logOut();
+    checkAuth();
+  }
 
   // 📥 Load messages
   async function loadMessages() {
-    const query = new Parse.Query(Message);
-    query.ascending("createdAt");
-    query.limit(50);
+    const q = new Parse.Query(Message);
+    q.ascending("createdAt");
+    q.limit(50);
 
-    const results = await query.find();
+    const res = await q.find();
     messagesDiv.innerHTML = "";
 
-    results.forEach(msg => {
-      const wrapper = document.createElement("div");
-      wrapper.className = "message";
+    res.forEach(m => {
+      const div = document.createElement("div");
+      div.className = "message";
 
-      const text = document.createElement("div");
-      text.className = "message-text";
-      text.textContent = msg.get("text");
+      const content = document.createElement("div");
+      content.textContent = m.get("text") || "";
 
-      const delBtn = document.createElement("button");
-      delBtn.className = "delete-btn";
-      delBtn.textContent = "Delete";
-      delBtn.onclick = () => deleteMessage(msg.id);
+      const file = m.get("file");
+      if (file) {
+        const a = document.createElement("a");
+        a.href = file.url();
+        a.target = "_blank";
+        a.textContent = "📎 File";
+        content.appendChild(a);
+      }
 
-      wrapper.appendChild(text);
-      wrapper.appendChild(delBtn);
-      messagesDiv.appendChild(wrapper);
+      const del = document.createElement("button");
+      del.textContent = "X";
+      del.className = "danger";
+      del.onclick = () => deleteMsg(m.id);
+
+      div.appendChild(content);
+      div.appendChild(del);
+      messagesDiv.appendChild(div);
     });
-
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
 
-  // 📤 Send message
-  async function sendMessage() {
-    const text = input.value.trim();
+  // ✉️ Send text
+  async function sendText() {
+    const text = textInput.value.trim();
     if (!text) return;
 
-    const message = new Message();
-    message.set("text", text);
+    const m = new Message();
+    m.set("text", text);
+    m.set("user", Parse.User.current());
+    await m.save();
 
-    await message.save();
-    input.value = "";
+    textInput.value = "";
     loadMessages();
   }
 
-  // 🗑️ Delete message with confirmation
-  async function deleteMessage(id) {
-    const confirmDelete = confirm("Are you sure you want to delete this message?");
-    if (!confirmDelete) return;
+  // 📎 Send file
+  async function sendFile() {
+    const file = fileInput.files[0];
+    if (!file) return alert("Select file");
 
-    const query = new Parse.Query(Message);
-    const message = await query.get(id);
-    await message.destroy();
+    const pf = new Parse.File(file.name, file);
+    await pf.save();
 
+    const m = new Message();
+    m.set("file", pf);
+    m.set("user", Parse.User.current());
+    await m.save();
+
+    fileInput.value = "";
     loadMessages();
   }
 
-  input.addEventListener("keypress", e => {
-    if (e.key === "Enter") sendMessage();
-  });
+  // 🗑️ Delete
+  async function deleteMsg(id) {
+    if (!confirm("Delete message?")) return;
+    const q = new Parse.Query(Message);
+    const m = await q.get(id);
+    await m.destroy();
+    loadMessages();
+  }
 
-  loadMessages();
+  checkAuth();
 </script>
 
 </body>
