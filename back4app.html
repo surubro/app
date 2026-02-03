@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Back4App Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Parse SDK -->
+  <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 420px;
+      height: 80vh;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 16px;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.3);
+      font-weight: bold;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .message {
+      margin-bottom: 10px;
+      padding: 10px 14px;
+      background: #00c6ff;
+      color: #000;
+      border-radius: 8px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+
+    .chat-input {
+      display: flex;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+    }
+
+    .chat-input button {
+      margin-left: 8px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      background: #00c6ff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div class="chat-header">💬 Back4App Chat</div>
+
+  <div class="chat-messages" id="messages"></div>
+
+  <div class="chat-input">
+    <input id="messageInput" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+  // 🔐 Parse Initialization
+  Parse.initialize("DDn3pRW0GSEcX2ZnV4vD6ATRyVVlCelTCWjzGI29", "Ar2XAAFl4N0kzo6uUcBwlp3FSFgjeAj5VpbyfT6R");
+  Parse.serverURL = "https://parseapi.back4app.com/";
+
+  const Message = Parse.Object.extend("Message");
+  const messagesDiv = document.getElementById("messages");
+  const input = document.getElementById("messageInput");
+
+  // 📥 Load messages from Back4App
+  async function loadMessages() {
+    const query = new Parse.Query(Message);
+    query.ascending("createdAt");
+    query.limit(50);
+
+    const results = await query.find();
+    messagesDiv.innerHTML = "";
+
+    results.forEach(msg => {
+      const div = document.createElement("div");
+      div.className = "message";
+      div.textContent = msg.get("text");
+      messagesDiv.appendChild(div);
+    });
+
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  // 📤 Save message to Back4App
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+
+    const message = new Message();
+    message.set("text", text);
+
+    await message.save();
+
+    input.value = "";
+    loadMessages();
+  }
+
+  input.addEventListener("keypress", e => {
+    if (e.key === "Enter") sendMessage();
+  });
+
+  loadMessages();
+</script>
+
+</body>
+</html>
