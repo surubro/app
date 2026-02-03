@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Back4App Chat with Login</title>
+  <title>Back4App Chat with Login + File Names</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
@@ -68,16 +68,14 @@
     .message a {
       display: block;
       font-size: 13px;
+      color: #003366;
+      text-decoration: underline;
+      margin-top: 4px;
     }
 
     .danger {
       background: #ff4d4d;
       color: #fff;
-    }
-
-    .row {
-      display: flex;
-      gap: 6px;
     }
   </style>
 </head>
@@ -178,12 +176,13 @@
       const content = document.createElement("div");
       content.textContent = m.get("text") || "";
 
+      // Display file if exists
       const file = m.get("file");
       if (file) {
         const a = document.createElement("a");
         a.href = file.url();
         a.target = "_blank";
-        a.textContent = "📎 File";
+        a.textContent = `📎 ${file.name}`; // Show file name
         content.appendChild(a);
       }
 
@@ -196,6 +195,8 @@
       div.appendChild(del);
       messagesDiv.appendChild(div);
     });
+
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
 
   // ✉️ Send text
@@ -215,7 +216,7 @@
   // 📎 Send file
   async function sendFile() {
     const file = fileInput.files[0];
-    if (!file) return alert("Select file");
+    if (!file) return alert("Select a file");
 
     const pf = new Parse.File(file.name, file);
     await pf.save();
@@ -229,7 +230,7 @@
     loadMessages();
   }
 
-  // 🗑️ Delete
+  // 🗑️ Delete message
   async function deleteMsg(id) {
     if (!confirm("Delete message?")) return;
     const q = new Parse.Query(Message);
