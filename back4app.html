@@ -1,83 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Back4App Chat with File Naming</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<title>Back4App Chat Mobile-Friendly</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
+<script src="https://unpkg.com/parse/dist/parse.min.js"></script>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #fff;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+}
 
-    .box {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(0,0,0,0.4);
-      border-radius: 12px;
-      padding: 16px;
-    }
+.box {
+  width: 95%;
+  max-width: 420px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+}
 
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-      border-radius: 6px;
-      border: none;
-      outline: none;
-    }
+input, button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+}
 
-    button {
-      background: #00c6ff;
-      font-weight: bold;
-      cursor: pointer;
-    }
+button {
+  background: #00c6ff;
+  font-weight: bold;
+  cursor: pointer;
+}
 
-    .chat {
-      display: none;
-      flex-direction: column;
-      height: 80vh;
-    }
+.chat {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+}
 
-    .messages {
-      flex: 1;
-      overflow-y: auto;
-      margin: 10px 0;
-    }
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  margin: 10px 0;
+  max-height: calc(100% - 240px); /* leave space for inputs/buttons */
+}
 
-    .message {
-      background: #00c6ff;
-      color: #000;
-      padding: 8px;
-      margin-bottom: 8px;
-      border-radius: 6px;
-      display: flex;
-      justify-content: space-between;
-      gap: 6px;
-    }
+.message {
+  background: #00c6ff;
+  color: #000;
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
 
-    .message a {
-      display: block;
-      font-size: 13px;
-      color: #003366;
-      text-decoration: underline;
-      margin-top: 4px;
-    }
+.message a {
+  display: block;
+  font-size: 14px;
+  color: #003366;
+  text-decoration: underline;
+  margin-top: 4px;
+}
 
-    .danger {
-      background: #ff4d4d;
-      color: #fff;
-    }
-  </style>
+.danger {
+  background: #ff4d4d;
+  color: #fff;
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+</style>
 </head>
 <body>
 
@@ -105,151 +114,120 @@
 </div>
 
 <script>
-  // 🔐 Parse Init
-  Parse.initialize(
-    "DDn3pRW0GSEcX2ZnV4vD6ATRyVVlCelTCWjzGI29",
-    "Ar2XAAFl4N0kzo6uUcBwlp3FSFgjeAj5VpbyfT6R"
-  );
-  Parse.serverURL = "https://parseapi.back4app.com/";
+Parse.initialize("DDn3pRW0GSEcX2ZnV4vD6ATRyVVlCelTCWjzGI29","Ar2XAAFl4N0kzo6uUcBwlp3FSFgjeAj5VpbyfT6R");
+Parse.serverURL="https://parseapi.back4app.com/";
 
-  const Message = Parse.Object.extend("Message");
-  const authBox = document.getElementById("authBox");
-  const chatBox = document.getElementById("chatBox");
-  const messagesDiv = document.getElementById("messages");
+const Message = Parse.Object.extend("Message");
+const authBox = document.getElementById("authBox");
+const chatBox = document.getElementById("chatBox");
+const messagesDiv = document.getElementById("messages");
 
-  // 🔄 Check login state
-  function checkAuth() {
-    if (Parse.User.current()) {
-      authBox.style.display = "none";
-      chatBox.style.display = "flex";
-      loadMessages();
-    } else {
-      authBox.style.display = "block";
-      chatBox.style.display = "none";
-    }
+function checkAuth() {
+  if(Parse.User.current()){
+    authBox.style.display="none";
+    chatBox.style.display="flex";
+    loadMessages();
+  }else{
+    authBox.style.display="block";
+    chatBox.style.display="none";
   }
+}
 
-  // 🔑 Login
-  async function login() {
-    const u = username.value.trim();
-    const p = password.value.trim();
-    if(!u || !p) return alert("Enter username and password");
-    try {
-      await Parse.User.logIn(u, p);
-      checkAuth();
-    } catch (e) {
-      alert(e.message);
-    }
-  }
-
-  // 📝 Register
-  async function register() {
-    const user = new Parse.User();
-    const u = username.value.trim();
-    const p = password.value.trim();
-    if(!u || !p) return alert("Enter username and password");
-
-    user.set("username", u);
-    user.set("password", p);
-
-    try {
-      await user.signUp();
-      checkAuth();
-    } catch (e) {
-      alert(e.message);
-    }
-  }
-
-  // 🚪 Logout
-  async function logout() {
-    await Parse.User.logOut();
+async function login(){
+  const u=username.value.trim();
+  const p=password.value.trim();
+  if(!u || !p) return alert("Enter username and password");
+  try{
+    await Parse.User.logIn(u,p);
     checkAuth();
-  }
+  }catch(e){ alert(e.message); }
+}
 
-  // 📥 Load messages
-  async function loadMessages() {
-    const q = new Parse.Query(Message);
-    q.ascending("createdAt");
-    q.limit(50);
+async function register(){
+  const u=username.value.trim();
+  const p=password.value.trim();
+  if(!u || !p) return alert("Enter username and password");
+  const user=new Parse.User();
+  user.set("username",u);
+  user.set("password",p);
+  try{ await user.signUp(); checkAuth(); }catch(e){ alert(e.message); }
+}
 
-    const res = await q.find();
-    messagesDiv.innerHTML = "";
-
-    res.forEach(m => {
-      const div = document.createElement("div");
-      div.className = "message";
-
-      const content = document.createElement("div");
-      content.textContent = m.get("text") || "";
-
-      // Show file with custom name
-      const file = m.get("file");
-      if (file) {
-        const a = document.createElement("a");
-        a.href = file.url();
-        a.target = "_blank";
-        a.textContent = `📎 ${file.name()}`;
-        content.appendChild(a);
-      }
-
-      const del = document.createElement("button");
-      del.textContent = "X";
-      del.className = "danger";
-      del.onclick = () => deleteMsg(m.id);
-
-      div.appendChild(content);
-      div.appendChild(del);
-      messagesDiv.appendChild(div);
-    });
-
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  }
-
-  // ✉️ Send text
-  async function sendText() {
-    const text = textInput.value.trim();
-    if (!text) return;
-
-    const m = new Message();
-    m.set("text", text);
-    m.set("user", Parse.User.current());
-    await m.save();
-
-    textInput.value = "";
-    loadMessages();
-  }
-
-  // 📎 Send file with custom name
-  async function sendFile() {
-    const file = fileInput.files[0];
-    const customName = fileNameInput.value.trim();
-
-    if (!file) return alert("Select a file");
-    if (!customName) return alert("Enter a file name");
-
-    const pf = new Parse.File(customName, file);
-    await pf.save();
-
-    const m = new Message();
-    m.set("file", pf);
-    m.set("user", Parse.User.current());
-    await m.save();
-
-    fileInput.value = "";
-    fileNameInput.value = "";
-    loadMessages();
-  }
-
-  // 🗑️ Delete message
-  async function deleteMsg(id) {
-    if (!confirm("Delete this message?")) return;
-    const q = new Parse.Query(Message);
-    const m = await q.get(id);
-    await m.destroy();
-    loadMessages();
-  }
-
+async function logout(){
+  await Parse.User.logOut();
   checkAuth();
+}
+
+async function loadMessages(){
+  const q=new Parse.Query(Message);
+  q.ascending("createdAt");
+  q.limit(50);
+  const res=await q.find();
+  messagesDiv.innerHTML="";
+  res.forEach(m=>{
+    const div=document.createElement("div");
+    div.className="message";
+
+    const content=document.createElement("div");
+    content.textContent=m.get("text")||"";
+
+    const file=m.get("file");
+    if(file){
+      const a=document.createElement("a");
+      a.href=file.url();
+      a.target="_blank";
+      a.textContent=`📎 ${file.name()}`;
+      content.appendChild(a);
+    }
+
+    const del=document.createElement("button");
+    del.textContent="X";
+    del.className="danger";
+    del.onclick=()=>deleteMsg(m.id);
+
+    div.appendChild(content);
+    div.appendChild(del);
+    messagesDiv.appendChild(div);
+  });
+  messagesDiv.scrollTop=messagesDiv.scrollHeight;
+}
+
+async function sendText(){
+  const text=textInput.value.trim();
+  if(!text) return;
+  const m=new Message();
+  m.set("text",text);
+  m.set("user",Parse.User.current());
+  await m.save();
+  textInput.value="";
+  loadMessages();
+}
+
+async function sendFile(){
+  const file=fileInput.files[0];
+  const customName=fileNameInput.value.trim();
+  if(!file) return alert("Select a file");
+  if(!customName) return alert("Enter a file name");
+  const pf=new Parse.File(customName,file);
+  await pf.save();
+  const m=new Message();
+  m.set("file",pf);
+  m.set("user",Parse.User.current());
+  await m.save();
+  fileInput.value="";
+  fileNameInput.value="";
+  loadMessages();
+}
+
+async function deleteMsg(id){
+  if(!confirm("Delete this message?")) return;
+  const q=new Parse.Query(Message);
+  const m=await q.get(id);
+  await m.destroy();
+  loadMessages();
+}
+
+checkAuth();
 </script>
 
 </body>
