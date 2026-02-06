@@ -68,6 +68,7 @@
       border-radius: 10px;
       max-width: 75%;
       word-wrap: break-word;
+      white-space: pre-wrap;
     }
 
     .sent {
@@ -109,6 +110,7 @@
       border-radius: 25px;
       border: 1px solid #ccc;
       height: 44px;
+      font-size: 15px;
     }
 
     .send-btn {
@@ -123,18 +125,14 @@
       cursor: pointer;
     }
 
-    .clear-all {
+    #logoutBtn {
       margin-left: 10px;
       padding: 10px 14px;
-      background: #dc3545;
+      background: #555;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-    }
-
-    #logoutBtn {
-      background: #555;
     }
   </style>
 </head>
@@ -157,8 +155,7 @@
     <button class="send-btn" id="sendBtn">
       <i class="fas fa-paper-plane"></i>
     </button>
-    <button class="clear-all" id="clearBtn">Clear</button>
-    <button class="clear-all" id="logoutBtn">Logout</button>
+    <button id="logoutBtn">Logout</button>
   </div>
 </div>
 
@@ -182,6 +179,7 @@
   const db = getDatabase(app);
 
   const chatBox = document.getElementById("chatBox");
+  const input = document.getElementById("messageInput");
 
   document.getElementById("loginBtn").onclick = () => {
     signInWithEmailAndPassword(
@@ -195,8 +193,16 @@
 
   document.getElementById("sendBtn").onclick = sendMessage;
 
+  // ENTER = SEND | CTRL+ENTER = NEW LINE
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.ctrlKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
   function sendMessage() {
-    const text = messageInput.value.trim();
+    const text = input.value.trim();
     if (!text) return;
 
     push(ref(db, "thought1"), {
@@ -205,14 +211,8 @@
       timestamp: Date.now()
     });
 
-    messageInput.value = "";
+    input.value = "";
   }
-
-  document.getElementById("clearBtn").onclick = () => {
-    if (confirm("Clear ALL messages?")) {
-      remove(ref(db, "thought1"));
-    }
-  };
 
   function renderMessages(messages, uid) {
     chatBox.innerHTML = "";
@@ -225,7 +225,7 @@
       if (msg.uid === uid) {
         const del = document.createElement("span");
         del.className = "delete-btn";
-        del.innerHTML = "🗑️";
+        del.textContent = "🗑️";
         del.onclick = () => {
           if (confirm("Delete this message?")) {
             remove(ref(db, `thought1/${msg.key}`));
