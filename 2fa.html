@@ -1,145 +1,110 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TOTP Generator</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    max-width: 420px;
-    margin: auto;
-  }
-  h2 { text-align: center; }
-  input {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    box-sizing: border-box;
-  }
-  button {
-    margin-top: 6px;
-    padding: 8px;
-    width: 100%;
-  }
-  .account-btn {
-    display: block;
-    width: 100%;
-    text-align: left;
-    margin: 3px 0;
-  }
-  .otp {
-    font-size: 38px;
-    font-weight: bold;
-    text-align: center;
-    margin-top: 15px;
-  }
-  .timer {
-    text-align: center;
-    color: #555;
-    margin-top: 5px;
-  }
-  details { margin-top: 10px; }
+  body { font-family: -apple-system, sans-serif; background: #f4f7f9; display: flex; justify-content: center; padding: 20px; }
+  .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 400px; text-align: center; }
+  h2 { margin-top: 0; color: #333; }
+  .otp-val { font-size: 48px; font-family: monospace; font-weight: bold; color: #1a73e8; margin: 10px 0; cursor: pointer; }
+  .otp-val:hover { opacity: 0.8; }
+  .timer-text { font-size: 14px; color: #666; margin-bottom: 20px; }
+  input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+  button { width: 100%; padding: 10px; background: #1a73e8; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+  button:hover { background: #1557b0; }
+  details { margin-top: 20px; text-align: left; border-top: 1px solid #eee; padding-top: 10px; }
+  .preset-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; margin-top: 10px; }
+  .preset-btn { background: #f8f9fa; color: #555; border: 1px solid #ddd; font-size: 12px; padding: 5px; }
+  .preset-btn:hover { background: #e9ecef; }
+  .toast { font-size: 12px; color: green; height: 15px; }
 </style>
 </head>
 <body>
 
-<h2>TOTP Generator</h2>
+<div class="card">
+  <h2>TOTP Generator</h2>
+  
+  <div class="otp-val" id="otpDisplay" onclick="copyToClipboard()">------</div>
+  <div class="timer-text">Refresh in: <span id="timeLeft">30</span>s</div>
+  <div id="toast" class="toast"></div>
 
-<!-- Input box (like before) -->
+  <input id="customKey" placeholder="Paste Base32 Secret Key">
+  <button onclick="generateFromInput()">Generate Code</button>
 
-<label>Enter Secret Key:</label> <input id="customKey" placeholder="BASE32 SECRET"> <button onclick="generateFromInput()">Generate OTP</button>
-
-<!-- Preset Accounts -->
-
-<details>
-  <summary><b>Show Accounts (20)</b></summary>
-  <div id="accounts"></div>
-</details>
-
-<div class="otp" id="otpDisplay">------</div>
-<div class="timer">Expires in <span id="timeLeft">30</span>s</div>
+  <details>
+    <summary>Use a Preset Account</summary>
+    <div class="preset-grid" id="presetKeys"></div>
+  </details>
+</div>
 
 <script>
-/* ===== ACCOUNTS WITH NAMES ===== */
-const accounts = [
-  { name: "Google", secret: "JBSWY3DPEHPK3PXP" },
-  { name: "GitHub", secret: "KRSXG5DSNFXGOIDB" },
-  { name: "Facebook", secret: "MFRGGZDFMZTWQ2LK" },
-  { name: "Amazon", secret: "GEZDGNBVGY3TQOJQ" },
-  { name: "Microsoft", secret: "JZXW6YTBOI======" },
-  { name: "PayPal", secret: "MFZXI2LOM4======" },
-  { name: "Dropbox", secret: "NRQXGZJTGI======" },
-  { name: "Twitter", secret: "J5XW6Z3BOI======" },
-  { name: "LinkedIn", secret: "KZQW2ZLTOR======" },
-  { name: "Apple", secret: "L5RGG33OMY======" },
-  { name: "AWS", secret: "NBSWY3DPFQQHO33S" },
-  { name: "DigitalOcean", secret: "OBQXE4TBON2GK3TQ" },
-  { name: "Heroku", secret: "MZXW6YTBOI======" },
-  { name: "Slack", secret: "KRUGS4ZANFZSA===" },
-  { name: "Discord", secret: "MVXGGZDFNZTSA===" },
-  { name: "Telegram", secret: "JBSWY3DPK5XXE3DE" },
-  { name: "WhatsApp", secret: "KRSXG5DSN5XWEZDF" },
-  { name: "Notion", secret: "MFRGGZDFMZXXE3DE" },
-  { name: "Cloudflare", secret: "ONSWG4TFOQXWEZDF" },
-  { name: "Custom Service", secret: "JBSWY3DPEHPK3PXA" }
+/* ====== CONFIG (Corrected Base32 Keys) ====== */
+const presetSecrets = [
+  "JBSWY3DPEHPK3PXP", "KRSXG5CTMVRXEZLU", "JBSWY3DPEHPK3PXA", "JBSWY3DPEHPK3PXB",
+  "JBSWY3DPEHPK3PXC", "JBSWY3DPEHPK3PXD", "JBSWY3DPEHPK3PXE", "JBSWY3DPEHPK3PXF",
+  "JBSWY3DPEHPK3PXG", "JBSWY3DPEHPK3PXH", "JBSWY3DPEHPK3PXI", "JBSWY3DPEHPK3PXJ",
+  "JBSWY3DPEHPK3PXK", "JBSWY3DPEHPK3PXL", "JBSWY3DPEHPK3PXM", "JBSWY3DPEHPK3PXN",
+  "JBSWY3DPEHPK3PXO", "JBSWY3DPEHPK3PXP", "JBSWY3DPEHPK3PXQ", "JBSWY3DPEHPK3PXR"
 ];
 
 let activeSecret = null;
 
-/* ===== BASE32 ===== */
+/* ====== CORE LOGIC ====== */
 function base32ToBytes(base32) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-  let bits = "", bytes = [];
-  base32 = base32.replace(/=+$/, "").toUpperCase();
+  let bits = "";
+  let bytes = [];
+  // Clean string: remove spaces and padding, convert to uppercase
+  base32 = base32.replace(/[\s=]/g, "").toUpperCase();
 
-  for (let c of base32) {
-    const val = chars.indexOf(c);
-    if (val === -1) continue;
+  for (let i = 0; i < base32.length; i++) {
+    const val = chars.indexOf(base32.charAt(i));
+    if (val === -1) continue; // Ignore non-base32 chars
     bits += val.toString(2).padStart(5, "0");
   }
 
   for (let i = 0; i + 8 <= bits.length; i += 8) {
     bytes.push(parseInt(bits.substring(i, i + 8), 2));
   }
-
   return new Uint8Array(bytes);
 }
 
-/* ===== TOTP ===== */
 async function generateTOTP(secret) {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    base32ToBytes(secret),
-    { name: "HMAC", hash: "SHA-1" },
-    false,
-    ["sign"]
-  );
+  try {
+    const keyBytes = base32ToBytes(secret);
+    if (keyBytes.length === 0) return "ERROR";
 
-  const counter = Math.floor(Date.now() / 1000 / 30);
-  const buffer = new ArrayBuffer(8);
-  new DataView(buffer).setUint32(4, counter);
+    const key = await crypto.subtle.importKey(
+      "raw", keyBytes, { name: "HMAC", hash: "SHA-1" }, false, ["sign"]
+    );
 
-  const hmac = new Uint8Array(
-    await crypto.subtle.sign("HMAC", key, buffer)
-  );
+    const counter = Math.floor(Date.now() / 1000 / 30);
+    const buffer = new ArrayBuffer(8);
+    const dataview = new DataView(buffer);
+    // Write counter to last 4 bytes of the 8-byte buffer
+    dataview.setUint32(4, counter);
 
-  const offset = hmac[hmac.length - 1] & 0xf;
-  const code =
-    ((hmac[offset] & 0x7f) << 24) |
-    ((hmac[offset + 1] & 0xff) << 16) |
-    ((hmac[offset + 2] & 0xff) << 8) |
-    (hmac[offset + 3] & 0xff);
+    const hmac = new Uint8Array(await crypto.subtle.sign("HMAC", key, buffer));
+    const offset = hmac[hmac.length - 1] & 0xf;
+    const code =
+      ((hmac[offset] & 0x7f) << 24) |
+      ((hmac[offset + 1] & 0xff) << 16) |
+      ((hmac[offset + 2] & 0xff) << 8) |
+      (hmac[offset + 3] & 0xff);
 
-  return (code % 1e6).toString().padStart(6, "0");
+    return (code % 1000000).toString().padStart(6, "0");
+  } catch (e) {
+    return "INVALID";
+  }
 }
 
-/* ===== UI ===== */
+/* ====== UI ACTIONS ====== */
 async function showOTP(secret) {
   activeSecret = secret;
-  document.getElementById("otpDisplay").textContent =
-    await generateTOTP(secret);
+  const code = await generateTOTP(secret);
+  document.getElementById("otpDisplay").textContent = code;
 }
 
 function generateFromInput() {
@@ -147,18 +112,30 @@ function generateFromInput() {
   if (key) showOTP(key);
 }
 
-/* ===== ACCOUNT BUTTONS ===== */
-const container = document.getElementById("accounts");
-accounts.forEach(acc => {
+function copyToClipboard() {
+  const text = document.getElementById("otpDisplay").textContent;
+  if (text === "------") return;
+  navigator.clipboard.writeText(text);
+  const toast = document.getElementById("toast");
+  toast.textContent = "Copied to clipboard!";
+  setTimeout(() => toast.textContent = "", 2000);
+}
+
+// Build Preset Buttons
+const container = document.getElementById("presetKeys");
+presetSecrets.forEach((key, i) => {
   const btn = document.createElement("button");
-  btn.className = "account-btn";
-  btn.textContent = acc.name;
-  btn.onclick = () => showOTP(acc.secret);
+  btn.className = "preset-btn";
+  btn.textContent = `Account ${i + 1}`;
+  btn.onclick = () => {
+    document.getElementById("customKey").value = key;
+    showOTP(key);
+  };
   container.appendChild(btn);
 });
 
-/* ===== TIMER ===== */
-function updateTimer() {
+// Timer Loop
+setInterval(async () => {
   const now = Math.floor(Date.now() / 1000);
   const remaining = 30 - (now % 30);
   document.getElementById("timeLeft").textContent = remaining;
@@ -166,10 +143,7 @@ function updateTimer() {
   if (remaining === 30 && activeSecret) {
     showOTP(activeSecret);
   }
-}
-
-setInterval(updateTimer, 1000);
-updateTimer();
+}, 1000);
 </script>
 
 </body>
