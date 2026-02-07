@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TOTP Generator</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  button { margin: 5px 0; padding: 6px 10px; }
+  .keys { margin-top: 10px; }
+  .key-btn { display: block; width: 100%; text-align: left; }
+  .otp { font-size: 28px; font-weight: bold; margin-top: 15px; }
+  details { margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<h2>TOTP Generator</h2>
+
+<!-- Custom key input -->
+<label>
+  Enter Secret Key:
+  <input id="customKey" placeholder="BASE32 SECRET">
+</label>
+<br>
+<button onclick="generateFromInput()">Generate OTP</button>
+
+<!-- Collapsible preset keys -->
+<details>
+  <summary>Show 20 Preset Keys</summary>
+  <div class="keys" id="presetKeys"></div>
+</details>
+
+<div class="otp" id="otpDisplay">------</div>
+
+<script>
+/* ====== CONFIG ====== */
+const presetKeys = Array.from({ length: 20 }, (_, i) =>
+  `JBSWY3DPEHPK3PXP${i}`
+);
+
+/* ====== BASE32 DECODER ====== */
+function base32ToBytes(base32) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = "", bytes = [];
+  base32 = base32.replace(/=+$/, "").toUpperCase();
+
+  for (let c of base32) {
+    bits += chars.indexOf(c).toString(2).padStart(5, "0");
+  }
+  for (let i = 0; i + 8 <= bits.length; i += 8) {
+    bytes.push(parseInt(bits.substring(i, i + 8), 2));
+  }
+  return new Uint8Array(bytes);
+}
+
+/* ====== TOTP ====== */
+async function generateTOTP(secret) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    base32ToBytes(secret),
+    { name: "HMAC", hash: "SHA-1" },
+    false,
+    ["sign"]
+  );
+
+  const counter = Math.floor(Date.now() / 1000 / 30);
+  const buffer = new ArrayBuffer(8);
+  const view = new DataView(buffer);
+  view.setUint32(4, counter);
+
+  const hmac = new Uint8Array(
+    await crypto.subtle.sign("HMAC", key, buffer)
+  );
+
+  const offset = hmac[hmac.length - 1] & 0xf;
+  const code =
+    ((hmac[offset] & 0x7f) << 24) |
+    ((hmac[offset + 1] & 0xff) << 16) |
+    ((hmac[offset + 2] & 0xff) << 8) |
+    (hmac[offset + 3] & 0xff);
+
+  return (code % 1e6).toString().padStart(6, "0");
+}
+
+/* ====== UI HANDLERS ====== */
+async function showOTP(secret) {
+  document.getElementById("otpDisplay").textContent =
+    await generateTOTP(secret);
+}
+
+function generateFromInput() {
+  const key = document.getElementById("customKey").value.trim();
+  if (key) showOTP(key);
+}
+
+/* ====== PRESET KEYS RENDER ====== */
+const container = document.getElementById("presetKeys");
+presetKeys.forEach((key, i) => {
+  const btn = document.createElement("button");
+  btn.className = "key-btn";
+  btn.textContent = `Key ${i + 1}`;
+  btn.onclick = () => showOTP(key);
+  container.appendChild(btn);
+});
+
+/* ====== AUTO REFRESH OTP ====== */
+setInterval(() => {
+  const current = document.getElementById("otpDisplay").textContent;
+  if (current !== "------") {
+    generateFromInput();
+  }
+}, 1000);
+</script>
+
+</body>
+</html>
