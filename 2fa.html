@@ -1,15 +1,45 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>TOTP Generator</title>
 <style>
-  body { font-family: Arial, sans-serif; padding: 20px; }
-  button { margin: 5px 0; padding: 6px 10px; }
-  .keys { margin-top: 10px; }
-  .key-btn { display: block; width: 100%; text-align: left; }
-  .otp { font-size: 32px; font-weight: bold; margin-top: 15px; }
-  .timer { font-size: 16px; color: #555; }
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    max-width: 420px;
+    margin: auto;
+  }
+  h2 { text-align: center; }
+  input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    box-sizing: border-box;
+  }
+  button {
+    margin-top: 6px;
+    padding: 8px;
+    width: 100%;
+  }
+  .account-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin: 3px 0;
+  }
+  .otp {
+    font-size: 38px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 15px;
+  }
+  .timer {
+    text-align: center;
+    color: #555;
+    margin-top: 5px;
+  }
   details { margin-top: 10px; }
 </style>
 </head>
@@ -17,47 +47,67 @@
 
 <h2>TOTP Generator</h2>
 
-<!-- Custom key input -->
-<label>
-  Enter Secret Key:
-  <input id="customKey" placeholder="BASE32 SECRET">
-</label>
-<br>
-<button onclick="generateFromInput()">Generate OTP</button>
+<!-- Input box (like before) -->
 
-<!-- Collapsible preset keys -->
+<label>Enter Secret Key:</label> <input id="customKey" placeholder="BASE32 SECRET"> <button onclick="generateFromInput()">Generate OTP</button>
+
+<!-- Preset Accounts -->
+
 <details>
-  <summary>Show 20 Preset Keys</summary>
-  <div class="keys" id="presetKeys"></div>
+  <summary><b>Show Accounts (20)</b></summary>
+  <div id="accounts"></div>
 </details>
 
 <div class="otp" id="otpDisplay">------</div>
 <div class="timer">Expires in <span id="timeLeft">30</span>s</div>
 
 <script>
-/* ====== CONFIG ====== */
-const presetKeys = Array.from({ length: 20 }, (_, i) =>
-  `JBSWY3DPEHPK3PXP${i}`
-);
+/* ===== ACCOUNTS WITH NAMES ===== */
+const accounts = [
+  { name: "Google", secret: "JBSWY3DPEHPK3PXP" },
+  { name: "GitHub", secret: "KRSXG5DSNFXGOIDB" },
+  { name: "Facebook", secret: "MFRGGZDFMZTWQ2LK" },
+  { name: "Amazon", secret: "GEZDGNBVGY3TQOJQ" },
+  { name: "Microsoft", secret: "JZXW6YTBOI======" },
+  { name: "PayPal", secret: "MFZXI2LOM4======" },
+  { name: "Dropbox", secret: "NRQXGZJTGI======" },
+  { name: "Twitter", secret: "J5XW6Z3BOI======" },
+  { name: "LinkedIn", secret: "KZQW2ZLTOR======" },
+  { name: "Apple", secret: "L5RGG33OMY======" },
+  { name: "AWS", secret: "NBSWY3DPFQQHO33S" },
+  { name: "DigitalOcean", secret: "OBQXE4TBON2GK3TQ" },
+  { name: "Heroku", secret: "MZXW6YTBOI======" },
+  { name: "Slack", secret: "KRUGS4ZANFZSA===" },
+  { name: "Discord", secret: "MVXGGZDFNZTSA===" },
+  { name: "Telegram", secret: "JBSWY3DPK5XXE3DE" },
+  { name: "WhatsApp", secret: "KRSXG5DSN5XWEZDF" },
+  { name: "Notion", secret: "MFRGGZDFMZXXE3DE" },
+  { name: "Cloudflare", secret: "ONSWG4TFOQXWEZDF" },
+  { name: "Custom Service", secret: "JBSWY3DPEHPK3PXA" }
+];
 
 let activeSecret = null;
 
-/* ====== BASE32 ====== */
+/* ===== BASE32 ===== */
 function base32ToBytes(base32) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
   let bits = "", bytes = [];
   base32 = base32.replace(/=+$/, "").toUpperCase();
 
   for (let c of base32) {
-    bits += chars.indexOf(c).toString(2).padStart(5, "0");
+    const val = chars.indexOf(c);
+    if (val === -1) continue;
+    bits += val.toString(2).padStart(5, "0");
   }
+
   for (let i = 0; i + 8 <= bits.length; i += 8) {
     bytes.push(parseInt(bits.substring(i, i + 8), 2));
   }
+
   return new Uint8Array(bytes);
 }
 
-/* ====== TOTP ====== */
+/* ===== TOTP ===== */
 async function generateTOTP(secret) {
   const key = await crypto.subtle.importKey(
     "raw",
@@ -85,7 +135,7 @@ async function generateTOTP(secret) {
   return (code % 1e6).toString().padStart(6, "0");
 }
 
-/* ====== UI ====== */
+/* ===== UI ===== */
 async function showOTP(secret) {
   activeSecret = secret;
   document.getElementById("otpDisplay").textContent =
@@ -97,17 +147,17 @@ function generateFromInput() {
   if (key) showOTP(key);
 }
 
-/* ====== PRESET KEYS ====== */
-const container = document.getElementById("presetKeys");
-presetKeys.forEach((key, i) => {
+/* ===== ACCOUNT BUTTONS ===== */
+const container = document.getElementById("accounts");
+accounts.forEach(acc => {
   const btn = document.createElement("button");
-  btn.className = "key-btn";
-  btn.textContent = `Key ${i + 1}`;
-  btn.onclick = () => showOTP(key);
+  btn.className = "account-btn";
+  btn.textContent = acc.name;
+  btn.onclick = () => showOTP(acc.secret);
   container.appendChild(btn);
 });
 
-/* ====== TIMER ====== */
+/* ===== TIMER ===== */
 function updateTimer() {
   const now = Math.floor(Date.now() / 1000);
   const remaining = 30 - (now % 30);
