@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Private Authenticator</title>
+    <style>
+        :root { --primary: #1a73e8; --bg: #f8f9fa; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        
+        /* Display Area */
+        .display-section { text-align: center; margin-bottom: 25px; padding: 20px; background: #f1f3f4; border-radius: 12px; }
+        .account-name { font-size: 14px; color: #5f6368; font-weight: bold; text-transform: uppercase; }
+        .otp-code { font-size: 48px; font-family: 'Courier New', monospace; font-weight: bold; color: var(--primary); margin: 10px 0; }
+        .progress-container { width: 100%; height: 4px; background: #ddd; border-radius: 2px; }
+        #bar { height: 100%; background: var(--primary); width: 0%; transition: width 1s linear; }
+
+        /* Form Area */
+        .input-group { margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #dadce0; border-radius: 8px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--primary); }
+        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        
+        /* Account List */
+        .account-list { margin-top: 20px; max-height: 200px; overflow-y: auto; }
+        .acc-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f1f1f1; }
+        .acc-item:hover { background: #f8f9fa; cursor: pointer; }
+        .del-btn { color: #d93025; background: none; border: none; width: auto; font-size: 12px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="display-section">
+        <div id="activeName" class="account-name">Select an Account</div>
+        <div id="otpDisplay" class="otp-code">------</div>
+        <div class="progress-container"><div id="bar"></div></div>
+        <div style="font-size: 12px; margin-top: 5px; color: #777;">Next refresh in <span id="timer">--</span>s</div>
+    </div>
+
+    <div class="input-group">
+        <input type="text" id="accName" placeholder="Account Name (e.g. Gmail)">
+        <input type="text" id="accSecret" placeholder="Base32 Secret Key">
+        <button onclick="addAccount()">Save to Local Storage</button>
+    </div>
+
+    <div class="account-list" id="list"></div>
+</div>
+
+<script>
+/* --- SHA-1 & TOTP Core (Works on Apache/HTTP) --- */
+const TOTP = {
+    sha1: function(d){
+        var w=[],i,j,t,v=[1732584193,-271733879,-1732584194,271733878,-1009589776];
+        for(i=0;i<d.length*8;i+=8)w[i>>5]|=(d[i/8]&255)<<(24-i%32);
+        var l=d.length*8;w[l>>5]|=128<<(24-l%32);w[((l+64>>9)<<4)+15]=l;
+        for(i=0;i<w.length;i+=16){
+            var o=v.slice(0);
+            for(j=0;j<80;j++){
+                var x=(j<16)?w[i+j]:(t=w[j-3]^w[j-8]^w[j-14]^w[j-16],(t<<1)|(t>>>31));
+                t=((v[0]<<5|v[0]>>>27)+v[4]+x+(j<20?(v[1]&v[2]|~v[1]&v[3])+1518500249:j<40?(v[1]^v[2]^v[3])+1859775393:j<60?(v[1]&v[2]|v[1]&v[3]|v[2]&v[3])-1894007588:(v[1]^v[2]^v[3])-899497514))|0;
+                v[4]=v[3];v[3]=v[2];v[2]=(v[1]<<30|v[1]>>>2);v[1]=v[0];v[0]=t;
+            }
+            for(j=0;j<5;j++)v[j]=(v[j]+o[j])|0;
+        }
+        var r=[];for(i=0;i<5;i++)for(j=3;j>=0;j--)r.push((v[i]>>(j*8))&255);return r;
+    },
+    get: function(s){
+        try {
+            var b="ABCDEFGHIJKLMNOPQRSTUVWXYZ234567",cl=s.replace(/[\s=]/g,"").toUpperCase(),bits="",k=[];
+            for(var i=0;i<cl.length;i++){var v=b.indexOf(cl[i]);if(v>=0)bits+=v.toString(2).padStart(5,'0');}
+            for(var i=0;i+8<=bits.length;i+=8)k.push(parseInt(bits.substr(i,8),2));
+            var t=Math.floor(Date.now()/30000),m=new Array(8).fill(0);
+            for(var i=7;i>=0;i--){m[i]=t&255;t=Math.floor(t/256);}
+            var ip=new Array(64).fill(0x36),op=new Array(64).fill(0x5c),key=k.length>64?this.sha1(k):k;
+            for(var i=0;i<key.length;i++){ip[i]^=key[i];op[i]^=key[i];}
+            var h=this.sha1(op.concat(this.sha1(ip.concat(m)))),o=h[19]&15;
+            var c=((h[o]&127)<<24)|(h[o+1]<<16)|(h[o+2]<<8)|h[o+3];
+            return (c%1000000).toString().padStart(6,'0');
+        } catch(e){return "ERR";}
+    }
+};
+
+/* --- Local Storage Logic --- */
+let accounts = JSON.parse(localStorage.getItem('totp_accounts')) || [];
+let currentIdx = -1;
+
+function addAccount() {
+    const name = document.getElementById('accName').value.trim();
+    const secret = document.getElementById('accSecret').value.trim();
+    if (!name || !secret) return alert("Enter Name and Secret");
+    
+    accounts.push({ name, secret });
+    localStorage.setItem('totp_accounts', JSON.stringify(accounts));
+    document.getElementById('accName').value = "";
+    document.getElementById('accSecret').value = "";
+    renderList();
+}
+
+function deleteAccount(e, index) {
+    e.stopPropagation();
+    accounts.splice(index, 1);
+    localStorage.setItem('totp_accounts', JSON.stringify(accounts));
+    if (currentIdx === index) { currentIdx = -1; resetDisplay(); }
+    renderList();
+}
+
+function selectAccount(index) {
+    currentIdx = index;
+    updateOTP();
+}
+
+function resetDisplay() {
+    document.getElementById('activeName').textContent = "Select an Account";
+    document.getElementById('otpDisplay').textContent = "------";
+}
+
+function renderList() {
+    const list = document.getElementById('list');
+    list.innerHTML = "";
+    accounts.forEach((acc, i) => {
+        const div = document.createElement('div');
+        div.className = "acc-item";
+        div.onclick = () => selectAccount(i);
+        div.innerHTML = `<span>${acc.name}</span><button class="del-btn" onclick="deleteAccount(event, ${i})">Delete</button>`;
+        list.appendChild(div);
+    });
+}
+
+function updateOTP() {
+    if (currentIdx > -1 && accounts[currentIdx]) {
+        document.getElementById('activeName').textContent = accounts[currentIdx].name;
+        document.getElementById('otpDisplay').textContent = TOTP.get(accounts[currentIdx].secret);
+    }
+}
+
+// Timer Loop
+setInterval(() => {
+    const remain = 30 - (Math.floor(Date.now() / 1000) % 30);
+    document.getElementById('timer').textContent = remain;
+    document.getElementById('bar').style.width = (remain / 30 * 100) + "%";
+    if (remain === 30) updateOTP();
+}, 1000);
+
+renderList();
+</script>
+</body>
+</html>
