@@ -1,111 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Precision Authenticator</title>
-    <style>
-        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 350px; }
-        .otp-main { font-size: 42px; font-family: monospace; font-weight: bold; color: #1a73e8; text-align: center; margin: 10px 0; }
-        .progress { height: 4px; background: #eee; margin-bottom: 20px; }
-        #bar { height: 100%; background: #1a73e8; width: 0%; }
-        input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #1a73e8; color: white; border: none; border-radius: 6px; cursor: pointer; }
-        .drift-box { font-size: 11px; color: #777; background: #f9f9f9; padding: 8px; border-radius: 4px; margin-top: 15px; }
-        .acc-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #eee; font-size: 14px; cursor: pointer; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Private TOTP Vault</title>
+<style>
+  body { font-family: -apple-system, sans-serif; background: #f4f7f9; display: flex; justify-content: center; padding: 20px; }
+  .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 400px; text-align: center; }
+  h2 { margin-top: 0; color: #333; }
+  
+  /* OTP Display */
+  .otp-val { font-size: 48px; font-family: monospace; font-weight: bold; color: #1a73e8; margin: 10px 0; cursor: pointer; }
+  .timer-text { font-size: 14px; color: #666; margin-bottom: 20px; }
+  .active-label { font-size: 16px; font-weight: bold; color: #555; text-transform: uppercase; }
+
+  /* Inputs */
+  .input-box { margin: 20px 0; border-top: 1px solid #eee; padding-top: 20px; }
+  input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+  .btn-save { width: 100%; padding: 10px; background: #34a853; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+  
+  /* Account List */
+  .account-list { text-align: left; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+  .acc-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #fafafa; }
+  .acc-item:hover { background: #f9f9f9; cursor: pointer; }
+  .del-btn { color: #ff4444; border: none; background: none; cursor: pointer; font-weight: bold; font-size: 18px; }
+  .toast { font-size: 12px; color: green; height: 15px; margin-bottom: 5px; }
+</style>
 </head>
 <body>
 
 <div class="card">
-    <h3 style="margin:0">Vault</h3>
-    <div class="otp-main" id="otp">------</div>
-    <div class="progress"><div id="bar"></div></div>
-    
-    <div id="driftInfo" class="drift-box" style="display:none">
-        <div>Earlier (-30s): <span id="prevOtp"></span></div>
-        <div>Later (+30s): <span id="nextOtp"></span></div>
-    </div>
+  <h2>TOTP Vault</h2>
+  <div id="activeAccount" class="active-label">Select an account</div>
+  <div class="otp-val" id="otpDisplay" onclick="copyToClipboard()">------</div>
+  <div class="timer-text">Refresh in: <span id="timeLeft">30</span>s</div>
+  <div id="toast" class="toast"></div>
 
-    <div style="margin-top:15px">
-        <input type="text" id="name" placeholder="Name">
-        <input type="text" id="key" placeholder="Base32 Secret">
-        <button onclick="add()">Save Account</button>
+  <div class="input-box">
+    <input id="accName" placeholder="Account Name (e.g. Amazon)">
+    <input id="accKey" placeholder="Base32 Secret Key">
+    <button class="btn-save" onclick="saveAccount()">Add Account</button>
+  </div>
+
+  <div class="account-list" id="accountList">
     </div>
-    <div id="list" style="margin-top:10px"></div>
 </div>
 
 <script>
-const Utils = {
-    dec32: function(s) {
-        let b="ABCDEFGHIJKLMNOPQRSTUVWXYZ234567", c=s.replace(/[\s=]/g,"").toUpperCase(), bits="", res=[];
-        for(let i=0;i<c.length;i++){let v=b.indexOf(c[i]); if(v>=0) bits+=v.toString(2).padStart(5,'0');}
-        for(let i=0;i+8<=bits.length;i+=8) res.push(parseInt(bits.substr(i,8),2));
-        return res;
-    },
-    sha1: function(d) {
-        let w=[],i,j,t,v=[1732584193,-271733879,-1732584194,271733878,-1009589776];
-        for(i=0;i<d.length*8;i+=8)w[i>>5]|=(d[i/8]&255)<<(24-i%32);
-        let l=d.length*8; w[l>>5]|=128<<(24-l%32); w[((l+64>>9)<<4)+15]=l;
-        for(i=0;i<w.length;i+=16){
-            let o=v.slice(0);
-            for(j=0;j<80;j++){
-                let x=(j<16)?w[i+j]:(t=w[j-3]^w[j-8]^w[j-14]^w[j-16],(t<<1)|(t>>>31));
-                t=((v[0]<<5|v[0]>>>27)+v[4]+x+(j<20?(v[1]&v[2]|~v[1]&v[3])+1518500249:j<40?(v[1]^v[2]^v[3])+1859775393:j<60?(v[1]&v[2]|v[1]&v[3]|v[2]&v[3])-1894007588:(v[1]^v[2]^v[3])-899497514))|0;
-                v[4]=v[3];v[3]=v[2];v[2]=(v[1]<<30|v[1]>>>2);v[1]=v[0];v[0]=t;
-            }
-            for(j=0;j<5;j++)v[j]=(v[j]+o[j])|0;
-        }
-        let r=[]; for(i=0;i<5;i++)for(j=3;j>=0;j--)r.push((v[i]>>(j*8))&255); return r;
-    },
-    gen: function(s, offset = 0) {
-        let k=this.dec32(s), t=Math.floor(Date.now()/30000)+offset, m=new Array(8).fill(0);
-        for(let i=7;i>=0;i--){m[i]=t&255;t=Math.floor(t/256);}
-        let ip=new Array(64).fill(0x36), op=new Array(64).fill(0x5c), key=k.length>64?this.sha1(k):k;
-        for(let i=0;i<key.length;i++){ip[i]^=key[i];op[i]^=key[i];}
-        let h=this.sha1(op.concat(this.sha1(ip.concat(m)))), o=h[19]&15;
-        let c=((h[o]&127)<<24)|(h[o+1]<<16)|(h[o+2]<<8)|h[o+3];
-        return (c%1000000).toString().padStart(6,'0');
-    }
-};
-
-let accounts = JSON.parse(localStorage.getItem('vault')) || [];
-let active = -1;
-
-function add() {
-    let n=document.getElementById('name').value, k=document.getElementById('key').value;
-    if(n&&k){ accounts.push({n,k}); localStorage.setItem('vault', JSON.stringify(accounts)); render(); }
+/* ====== CORE LOGIC (Using your working method) ====== */
+function base32ToBytes(base32) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = "";
+  let bytes = [];
+  base32 = base32.replace(/[\s=]/g, "").toUpperCase();
+  for (let i = 0; i < base32.length; i++) {
+    const val = chars.indexOf(base32.charAt(i));
+    if (val === -1) continue;
+    bits += val.toString(2).padStart(5, "0");
+  }
+  for (let i = 0; i + 8 <= bits.length; i += 8) {
+    bytes.push(parseInt(bits.substring(i, i + 8), 2));
+  }
+  return new Uint8Array(bytes);
 }
 
-function render() {
-    let l=document.getElementById('list'); l.innerHTML="";
-    accounts.forEach((a,i)=>{
-        let d=document.createElement('div'); d.className="acc-item";
-        d.innerHTML=`<span>${a.n}</span><span style="color:red" onclick="del(${i})">×</span>`;
-        d.onclick=(e)=>{if(e.target.tagName!=='SPAN'||e.target.innerText!=='×') active=i; update();};
-        l.appendChild(d);
-    });
+async function generateTOTP(secret) {
+  try {
+    const keyBytes = base32ToBytes(secret);
+    if (keyBytes.length === 0) return "ERROR";
+    const key = await crypto.subtle.importKey(
+      "raw", keyBytes, { name: "HMAC", hash: "SHA-1" }, false, ["sign"]
+    );
+    const counter = Math.floor(Date.now() / 1000 / 30);
+    const buffer = new ArrayBuffer(8);
+    new DataView(buffer).setUint32(4, counter);
+    const hmac = new Uint8Array(await crypto.subtle.sign("HMAC", key, buffer));
+    const offset = hmac[hmac.length - 1] & 0xf;
+    const code = ((hmac[offset] & 0x7f) << 24) | ((hmac[offset+1] & 0xff) << 16) | ((hmac[offset+2] & 0xff) << 8) | (hmac[offset+3] & 0xff);
+    return (code % 1000000).toString().padStart(6, "0");
+  } catch (e) { return "HTTPS REQ"; }
 }
 
-function del(i) { accounts.splice(i,1); localStorage.setItem('vault', JSON.stringify(accounts)); render(); }
+/* ====== STORAGE & UI ====== */
+let accounts = JSON.parse(localStorage.getItem('my_otp_vault')) || [];
+let activeIdx = -1;
 
-function update() {
-    if(active>-1) {
-        let s = accounts[active].k;
-        document.getElementById('otp').innerText = Utils.gen(s);
-        document.getElementById('prevOtp').innerText = Utils.gen(s, -1);
-        document.getElementById('nextOtp').innerText = Utils.gen(s, 1);
-        document.getElementById('driftInfo').style.display = "block";
-    }
+function saveAccount() {
+  const name = document.getElementById('accName').value.trim();
+  const key = document.getElementById('accKey').value.trim();
+  if (name && key) {
+    accounts.push({ name, key });
+    localStorage.setItem('my_otp_vault', JSON.stringify(accounts));
+    document.getElementById('accName').value = "";
+    document.getElementById('accKey').value = "";
+    renderList();
+  }
 }
 
-setInterval(()=>{
-    let r=30-(Math.floor(Date.now()/1000)%30);
-    document.getElementById('bar').style.width=(r/30*100)+"%";
-    if(r===30) update();
+function deleteAccount(e, index) {
+  e.stopPropagation();
+  accounts.splice(index, 1);
+  localStorage.setItem('my_otp_vault', JSON.stringify(accounts));
+  if (activeIdx === index) activeIdx = -1;
+  renderList();
+}
+
+async function selectAccount(index) {
+  activeIdx = index;
+  const acc = accounts[index];
+  document.getElementById('activeAccount').textContent = acc.name;
+  const code = await generateTOTP(acc.key);
+  document.getElementById('otpDisplay').textContent = code;
+}
+
+function renderList() {
+  const container = document.getElementById('accountList');
+  container.innerHTML = "";
+  accounts.forEach((acc, i) => {
+    const div = document.createElement('div');
+    div.className = "acc-item";
+    div.onclick = () => selectAccount(i);
+    div.innerHTML = `
+      <span>${acc.name}</span>
+      <button class="del-btn" onclick="deleteAccount(event, ${i})">&times;</button>
+    `;
+    container.appendChild(div);
+  });
+  if(activeIdx === -1) {
+    document.getElementById('activeAccount').textContent = "Select an account";
+    document.getElementById('otpDisplay').textContent = "------";
+  }
+}
+
+function copyToClipboard() {
+  const text = document.getElementById("otpDisplay").textContent;
+  if (text.includes("-")) return;
+  navigator.clipboard.writeText(text);
+  const toast = document.getElementById("toast");
+  toast.textContent = "Copied!";
+  setTimeout(() => toast.textContent = "", 2000);
+}
+
+// Timer Loop
+setInterval(async () => {
+  const now = Math.floor(Date.now() / 1000);
+  const remaining = 30 - (now % 30);
+  document.getElementById("timeLeft").textContent = remaining;
+  if (remaining === 30 && activeIdx !== -1) {
+    selectAccount(activeIdx);
+  }
 }, 1000);
 
-render();
+renderList();
 </script>
+
 </body>
 </html>
