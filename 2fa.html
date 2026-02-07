@@ -8,7 +8,8 @@
   button { margin: 5px 0; padding: 6px 10px; }
   .keys { margin-top: 10px; }
   .key-btn { display: block; width: 100%; text-align: left; }
-  .otp { font-size: 28px; font-weight: bold; margin-top: 15px; }
+  .otp { font-size: 32px; font-weight: bold; margin-top: 15px; }
+  .timer { font-size: 16px; color: #555; }
   details { margin-top: 10px; }
 </style>
 </head>
@@ -31,6 +32,7 @@
 </details>
 
 <div class="otp" id="otpDisplay">------</div>
+<div class="timer">Expires in <span id="timeLeft">30</span>s</div>
 
 <script>
 /* ====== CONFIG ====== */
@@ -38,7 +40,9 @@ const presetKeys = Array.from({ length: 20 }, (_, i) =>
   `JBSWY3DPEHPK3PXP${i}`
 );
 
-/* ====== BASE32 DECODER ====== */
+let activeSecret = null;
+
+/* ====== BASE32 ====== */
 function base32ToBytes(base32) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
   let bits = "", bytes = [];
@@ -65,8 +69,7 @@ async function generateTOTP(secret) {
 
   const counter = Math.floor(Date.now() / 1000 / 30);
   const buffer = new ArrayBuffer(8);
-  const view = new DataView(buffer);
-  view.setUint32(4, counter);
+  new DataView(buffer).setUint32(4, counter);
 
   const hmac = new Uint8Array(
     await crypto.subtle.sign("HMAC", key, buffer)
@@ -82,8 +85,9 @@ async function generateTOTP(secret) {
   return (code % 1e6).toString().padStart(6, "0");
 }
 
-/* ====== UI HANDLERS ====== */
+/* ====== UI ====== */
 async function showOTP(secret) {
+  activeSecret = secret;
   document.getElementById("otpDisplay").textContent =
     await generateTOTP(secret);
 }
@@ -93,7 +97,7 @@ function generateFromInput() {
   if (key) showOTP(key);
 }
 
-/* ====== PRESET KEYS RENDER ====== */
+/* ====== PRESET KEYS ====== */
 const container = document.getElementById("presetKeys");
 presetKeys.forEach((key, i) => {
   const btn = document.createElement("button");
@@ -103,13 +107,19 @@ presetKeys.forEach((key, i) => {
   container.appendChild(btn);
 });
 
-/* ====== AUTO REFRESH OTP ====== */
-setInterval(() => {
-  const current = document.getElementById("otpDisplay").textContent;
-  if (current !== "------") {
-    generateFromInput();
+/* ====== TIMER ====== */
+function updateTimer() {
+  const now = Math.floor(Date.now() / 1000);
+  const remaining = 30 - (now % 30);
+  document.getElementById("timeLeft").textContent = remaining;
+
+  if (remaining === 30 && activeSecret) {
+    showOTP(activeSecret);
   }
-}, 1000);
+}
+
+setInterval(updateTimer, 1000);
+updateTimer();
 </script>
 
 </body>
