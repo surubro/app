@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fullscreen Color Mode</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html, body {
+        height: 100%;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        transition: background 0.3s ease;
+    }
+
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    .menu {
+        text-align: center;
+    }
+
+    .colors {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .color-btn {
+        width: 50px;
+        height: 50px;
+        border: none;
+        cursor: pointer;
+        border-radius: 8px;
+    }
+
+    .hide {
+        display: none;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="menu" id="menu">
+    <h1>Select a Color</h1>
+
+    <div class="colors">
+        <button class="color-btn" style="background:#ffffff" onclick="setColor('#ffffff')"></button>
+        <button class="color-btn" style="background:#000000" onclick="setColor('#000000')"></button>
+        <button class="color-btn" style="background:#3498db" onclick="setColor('#3498db')"></button>
+        <button class="color-btn" style="background:#2ecc71" onclick="setColor('#2ecc71')"></button>
+        <button class="color-btn" style="background:#e74c3c" onclick="setColor('#e74c3c')"></button>
+        <button class="color-btn" style="background:#f1c40f" onclick="setColor('#f1c40f')"></button>
+        <button class="color-btn" style="background:#9b59b6" onclick="setColor('#9b59b6')"></button>
+        <button class="color-btn" style="background:#ff69b4" onclick="setColor('#ff69b4')"></button>
+    </div>
+
+    <p style="margin-top:20px;">Press "F" for Fullscreen</p>
+</div>
+
+<script>
+function setColor(color) {
+    document.body.style.backgroundColor = color;
+
+    // Auto text color
+    const rgb = parseInt(color.substring(1), 16);
+    const r = (rgb >> 16) & 255;
+    const g = (rgb >> 8) & 255;
+    const b = rgb & 255;
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    document.body.style.color = brightness > 125 ? "black" : "white";
+}
+
+// Press F for fullscreen
+document.addEventListener("keydown", function(e) {
+    if (e.key.toLowerCase() === "f") {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+            document.getElementById("menu").classList.add("hide");
+        }
+    }
+});
+
+// When exiting fullscreen (ESC)
+document.addEventListener("fullscreenchange", function() {
+    if (!document.fullscreenElement) {
+        document.getElementById("menu").classList.remove("hide");
+    }
+});
+</script>
+
+</body>
+</html>
