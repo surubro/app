@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>utility bill</title>
+
+<style>
+:root {
+    --bg:#ffffff;
+    --text:#000000;
+    --input:#f2f2f2;
+}
+
+body.dark {
+    --bg:#0f0f0f;
+    --text:#ffffff;
+    --input:#1f1f1f;
+}
+
+body {
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+/* Header */
+.header {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px;
+}
+
+h1 {
+    margin:0;
+    font-size:18px;
+}
+
+/* Search */
+.search {
+    flex:1;
+    padding:8px 12px;
+    border:none;
+    border-radius:20px;
+    background:var(--input);
+    color:var(--text);
+    outline:none;
+}
+
+/* Toggle */
+.toggle {
+    cursor:pointer;
+    font-size:18px;
+}
+
+/* Grid */
+.grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(90px,1fr));
+    gap:14px;
+    padding:16px;
+    max-width:720px;
+    margin:auto;
+}
+
+/* Bubble */
+.bubble-btn {
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    border:none;
+    color:#fff;
+    font-size:11px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+
+/* Colors */
+.green{background:#4CAF50}
+.blue{background:#2196F3}
+.orange{background:#FF9800}
+.red{background:#F44336}
+.purple{background:#9C27B0}
+.gray{background:#607D8B}
+
+.icon {
+    font-size:20px;
+    margin-bottom:4px;
+}
+
+a { text-decoration:none }
+.hidden { display:none }
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>utility bill</h1>
+    <input class="search" placeholder="Search apps…" onkeyup="filterApps(this.value)">
+    <div class="toggle" onclick="toggleMode()">🌙</div>
+</div>
+
+<div class="grid" id="appGrid">
+
+<a href="https://github.com/surubro/app/edit/main/index.html" data-name="edit apps github">
+<button class="bubble-btn blue"><div class="icon">✏️</div>Edit Apps</button></a>
+
+<a href="https://github.com/surubro/app" data-name="github repo">
+<button class="bubble-btn green"><div class="icon">📦</div>App Repo</button></a>
+<a href=" https://myhpgas.in/myHPGas/HPGas/User/ConsumerConsole.aspx" data-name="gas">
+<button class="bubble-btn purple"><div class="icon">🔥</div>HP GAS</button></a>
+
+<a href="https://www.nmmc.gov.in/water-tax" data-name="gas">
+<button class="bubble-btn purple"><div class="icon">💧</div>water</button></a>
+
+<a href="https://www.nmmc.gov.in/property-tax" data-name="gas">
+<button class="bubble-btn purple"><div class="icon">🏠</div>property tax</button></a>
+
+<a href="https://wss.mahadiscom.in/wss/wss?uiActionName=getViewPayBill" data-name="gas">
+<button class="bubble-btn purple"><div class="icon">⚡</div>electricity bill</button></a>
+
+<a href="https://www.airtel.in/dth-recharge?icid=header" data-name="gas">
+<button class="bubble-btn purple"><div class="icon">📡</div>airtel dth </button></a>
+
+    
+   
+
+<script>
+/* Dark mode */
+function toggleMode() {
+    document.body.classList.toggle("dark");
+}
+
+/* Search */
+function filterApps(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll("#appGrid a").forEach(a => {
+        const t = a.dataset.name + a.innerText.toLowerCase();
+        a.classList.toggle("hidden", !t.includes(q));
+    });
+}
+
+/* Force all links to open in new tab */
+document.querySelectorAll("a").forEach(a => {
+    a.target = "_blank";
+    a.rel = "noopener";
+});
+</script>
+
+</body>
+</html>
