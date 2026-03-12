@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Password Manager</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; background: #e9ecef; }
+        .container { max-width: 450px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 6px; font-weight: bold; margin-top: 10px; }
+        button:hover { background: #0056b3; }
+        .hidden { display: none; }
+        .entry { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+        .delete-btn { width: auto; background: #dc3545; padding: 5px 10px; font-size: 12px; margin: 0; }
+        .auth-toggle { text-align: center; margin-top: 15px; color: #007bff; cursor: pointer; font-size: 0.9em; }
+        #logoutBtn { background: #6c757d; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="authSection">
+        <h2 id="authTitle">Login</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="authPassword" placeholder="Password">
+        <button id="authBtn">Login</button>
+        <p class="auth-toggle" id="toggleAuth">Don't have an account? Sign Up</p>
+    </div>
+
+    <div id="appSection" class="hidden">
+        <h2>My Passwords</h2>
+        <input type="text" id="username" placeholder="Service (e.g. Netflix)">
+        <input type="text" id="password" placeholder="Password">
+        <button id="saveBtn">Add Entry</button>
+
+        <div id="passwordList"></div>
+        <button id="logoutBtn">Logout</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, push, set, onValue, remove, off } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
+      authDomain: "striped-acrobat-342207.firebaseapp.com",
+      databaseURL: "https://striped-acrobat-342207-default-rtdb.firebaseio.com",
+      projectId: "striped-acrobat-342207",
+      storageBucket: "striped-acrobat-342207.appspot.com",
+      messagingSenderId: "367114842706",
+      appId: "1:367114842706:web:0f6d504163ed3c72ed658b"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let isLoginMode = true;
+    let currentUser = null;
+
+    // --- AUTH UI TOGGLE ---
+    const toggleAuth = document.getElementById('toggleAuth');
+    toggleAuth.onclick = () => {
+        isLoginMode = !isLoginMode;
+        document.getElementById('authTitle').innerText = isLoginMode ? "Login" : "Sign Up";
+        document.getElementById('authBtn').innerText = isLoginMode ? "Login" : "Sign Up";
+        toggleAuth.innerText = isLoginMode ? "Don't have an account? Sign Up" : "Already have an account? Login";
+    };
+
+    // --- AUTH LOGIC ---
+    document.getElementById('authBtn').onclick = () => {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('authPassword').value;
+        
+        if (isLoginMode) {
+            signInWithEmailAndPassword(auth, email, pass).catch(err => alert(err.message));
+        } else {
+            createUserWithEmailAndPassword(auth, email, pass).catch(err => alert(err.message));
+        }
+    };
+
+    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+    // --- APP LOGIC ---
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('appSection').classList.remove('hidden');
+            loadPasswords(user.uid);
+        } else {
+            currentUser = null;
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('appSection').classList.add('hidden');
+            // Stop listening to DB updates
+            off(ref(db, 'users/' + (currentUser?.uid || '')));
+        }
+    });
+
+    function loadPasswords(uid) {
+        const userPassRef = ref(db, 'users/' + uid);
+        onValue(userPassRef, (snapshot) => {
+            const listDiv = document.getElementById('passwordList');
+            listDiv.innerHTML = '';
+            const data = snapshot.val();
+            for (let id in data) {
+                const item = data[id];
+                const div = document.createElement('div');
+                div.className = 'entry';
+                div.innerHTML = `
+                    <span><strong>${item.username}</strong>: ${item.password}</span>
+                    <button class="delete-btn" onclick="deleteEntry('${id}')">Delete</button>
+                `;
+                listDiv.appendChild(div);
+            }
+        });
+    }
+
+    document.getElementById('saveBtn').onclick = () => {
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
+        if (u && p && currentUser) {
+            const newRef = push(ref(db, 'users/' + currentUser.uid));
+            set(newRef, { username: u, password: p });
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+    };
+
+    window.deleteEntry = (id) => {
+        if (currentUser) {
+            remove(ref(db, `users/${currentUser.uid}/${id}`));
+        }
+    };
+</script>
+
+</body>
+</html>
