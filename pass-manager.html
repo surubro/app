@@ -13,7 +13,8 @@
         .hidden { display: none; }
         .entry-card { background: #fff; border: 1px solid #eee; padding: 15px; margin-top: 15px; border-radius: 8px; position: relative; }
         .entry-header { font-weight: bold; color: #007bff; font-size: 1.1em; border-bottom: 1px solid #f0f0f0; margin-bottom: 8px; padding-bottom: 5px; }
-        .delete-btn { width: auto; background: #ff4d4d; padding: 5px 10px; font-size: 11px; margin-top: 10px; }
+        .delete-btn { width: auto; background: #ff4d4d; padding: 5px 10px; font-size: 11px; margin-top: 10px; margin-right: 5px; }
+        .edit-btn { width: auto; background: #ffc107; color: #000; padding: 5px 10px; font-size: 11px; margin-top: 10px; border-radius: 6px; border:none; cursor:pointer; font-weight: bold; }
         .toggle-text { color: #007bff; cursor: pointer; font-size: 0.85em; text-decoration: underline; margin-left: 5px; }
     </style>
 </head>
@@ -45,7 +46,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getDatabase, ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, push, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
@@ -111,7 +112,7 @@
         }
     };
 
-    // --- LOAD & DELETE DATA ---
+    // --- LOAD DATA ---
     function loadData(uid) {
         onValue(ref(db, 'users/' + uid), (snapshot) => {
             const list = document.getElementById('passwordList');
@@ -122,17 +123,19 @@
                 const card = document.createElement('div');
                 card.className = 'entry-card';
                 card.innerHTML = `
-                    <div class="entry-header">${item.name}</div>
-                    <div><strong>User:</strong> ${item.user}</div>
+                    <div class="entry-header" id="h-${id}">${item.name}</div>
+                    <div><strong>User:</strong> <span id="u-${id}">${item.user}</span></div>
                     <div><strong>Pass:</strong> <span id="p-${id}">••••••</span> 
                          <span class="toggle-text" onclick="toggle('${id}', '${item.pass}')">Show</span></div>
-                    <button class="delete-btn" onclick="deleteItem('${id}')">Delete Entry</button>
+                    <button class="edit-btn" onclick="editItem('${id}', '${item.user}', '${item.pass}')">Edit Info</button>
+                    <button class="delete-btn" onclick="deleteItem('${id}')">Delete</button>
                 `;
                 list.appendChild(card);
             }
         });
     }
 
+    // --- TOGGLE, DELETE & EDIT FUNCTIONS ---
     window.toggle = (id, val) => {
         const el = document.getElementById('p-' + id);
         el.innerText = el.innerText === '••••••' ? val : '••••••';
@@ -140,6 +143,19 @@
 
     window.deleteItem = (id) => {
         if(confirm("Delete this entry?")) remove(ref(db, `users/${currentUser.uid}/${id}`));
+    };
+
+    window.editItem = (id, oldUser, oldPass) => {
+        const newUser = prompt("Edit Username:", oldUser);
+        const newPass = prompt("Edit Password:", oldPass);
+        
+        // Ensure user didn't hit 'Cancel'
+        if (newUser !== null && newPass !== null) {
+            update(ref(db, `users/${currentUser.uid}/${id}`), {
+                user: newUser,
+                pass: newPass
+            }).catch(err => alert("Update failed: " + err.message));
+        }
     };
 </script>
 </body>
