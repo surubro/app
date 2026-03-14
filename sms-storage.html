@@ -6,45 +6,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #eaeff1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eaeff1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
     .hidden { display: none !important; }
 
-    /* Login Screen */
-    #loginScreen { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: white; }
-    #loginScreen input { padding: 10px; font-size: 16px; margin: 8px 0; border-radius: 5px; border: 1px solid #ccc; width: 240px; }
-    #loginScreen button { padding: 10px 20px; font-size: 15px; background: #007bff; border: none; color: white; border-radius: 5px; cursor: pointer; }
-    
+    /* Login UI */
+    #loginScreen { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: white; text-align: center; }
+    #loginScreen input { padding: 12px; font-size: 16px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; width: 260px; outline: none; }
+    #loginScreen button { padding: 12px 24px; font-size: 15px; background: #007bff; border: none; color: white; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+    #loginScreen button:hover { background: #0056b3; }
+
     /* Chat UI */
     #chatUI { display: flex; flex-direction: column; height: 100%; }
-    .chat-box { flex: 1; overflow-y: auto; padding: 15px; background: #f8f9fa; display: flex; flex-direction: column; }
-    .message { position: relative; padding: 10px 14px; margin: 5px 0; border-radius: 10px; max-width: 75%; word-wrap: break-word; font-size: 15px; }
-    .sent { align-self: flex-end; background: #cce5ff; color: #004085; }
-    .received { align-self: flex-start; background: #dee2e6; color: #383d41; }
+    .chat-box { flex: 1; overflow-y: auto; padding: 15px; background: #f0f2f5; display: flex; flex-direction: column; }
+    
+    .message { position: relative; padding: 10px 14px; margin: 6px 0; border-radius: 12px; max-width: 80%; word-wrap: break-word; font-size: 15px; line-height: 1.4; shadow: 0 1px 1px rgba(0,0,0,0.1); }
+    .sent { align-self: flex-end; background: #dcf8c6; color: #303030; border-bottom-right-radius: 2px; }
+    .received { align-self: flex-start; background: #ffffff; color: #303030; border-bottom-left-radius: 2px; border: 1px solid #e0e0e0; }
 
-    .input-container { display: flex; align-items: center; padding: 12px 15px; background: #fff; border-top: 1px solid #ccc; }
-    .input-container textarea { flex: 1; resize: none; padding: 12px 16px; font-size: 15px; border: 1px solid #ccc; border-radius: 25px; outline: none; height: 44px; }
-    .send-btn { background: #007bff; border: none; color: white; margin-left: 10px; border-radius: 50%; width: 44px; height: 44px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .clear-all { background: #dc3545; color: #fff; border: none; padding: 10px 16px; margin-left: 10px; font-size: 14px; border-radius: 5px; cursor: pointer; }
-    #logoutBtn { background: #6c757d; }
+    /* Footer / Input Area */
+    .input-container { display: flex; align-items: center; padding: 10px 15px; background: #fff; border-top: 1px solid #ddd; }
+    .input-container textarea { flex: 1; resize: none; padding: 12px 16px; font-size: 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; height: 44px; max-height: 100px; }
+    
+    .btn-icon { background: #007bff; border: none; color: white; margin-left: 8px; border-radius: 50%; width: 44px; height: 44px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .btn-danger { background: #dc3545; color: white; border: none; padding: 10px 14px; margin-left: 5px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+    .btn-secondary { background: #6c757d; color: white; border: none; padding: 10px 14px; margin-left: 5px; border-radius: 8px; cursor: pointer; font-size: 13px; }
   </style>
 </head>
 <body>
 
-  <div id="loginScreen" class="hidden">
-    <h2>Login to Continue</h2>
-    <input type="email" id="loginEmail" placeholder="Email">
+  <div id="loginScreen">
+    <h2>Welcome Back</h2>
+    <input type="email" id="loginEmail" placeholder="Email Address">
     <input type="password" id="loginPassword" placeholder="Password">
-    <button id="loginBtn">Login</button>
-    <p><small>Only verified accounts can access.</small></p>
+    <button id="loginBtn">Sign In</button>
+    <p><small>Access restricted to verified members.</small></p>
   </div>
 
   <div id="chatUI" class="hidden">
     <div class="chat-box" id="chatBox"></div>
     <div class="input-container">
-      <textarea id="messageInput" placeholder="Type a message..."></textarea>
-      <button class="send-btn" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
-      <button class="clear-all" id="clearBtn">Clear All</button>
-      <button id="logoutBtn" class="clear-all">Logout</button>
+      <textarea id="messageInput" placeholder="Message..."></textarea>
+      <button class="btn-icon" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+      <button class="btn-danger" id="clearBtn">Clear</button>
+      <button class="btn-secondary" id="logoutBtn">Logout</button>
     </div>
   </div>
 
@@ -53,7 +57,7 @@
   import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-  // Firebase Configuration
+  // Firebase Config with your provided credentials
   const firebaseConfig = {
     apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
     authDomain: "striped-acrobat-342207.firebaseapp.com",
@@ -67,107 +71,92 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getDatabase(app);
+
+  const loginScreen = document.getElementById("loginScreen");
+  const chatUI = document.getElementById("chatUI");
   const chatBox = document.getElementById("chatBox");
+  const messageInput = document.getElementById("messageInput");
 
-  // Local Storage Management - Renamed to "phonesms"
-  function saveCache(messages) {
-    localStorage.setItem("phonesms", JSON.stringify(messages));
-  }
-  
-  function loadCache() {
-    const data = localStorage.getItem("phonesms");
-    return data ? JSON.parse(data) : [];
-  }
+  // Local Storage (Data String: phonesms)
+  const saveLocal = (data) => localStorage.setItem("phonesms", JSON.stringify(data));
+  const loadLocal = () => JSON.parse(localStorage.getItem("phonesms") || "[]");
 
-  function renderMessages(messages, currentUserUid) {
+  // Render Logic
+  function renderMessages(messages, uid) {
     chatBox.innerHTML = "";
     messages.forEach(msg => {
-      const div = document.createElement("div");
-      div.classList.add("message");
-      div.classList.add(msg.uid === currentUserUid ? "sent" : "received");
-      div.textContent = msg.text;
-      chatBox.appendChild(div);
+      const msgDiv = document.createElement("div");
+      msgDiv.className = `message ${msg.uid === uid ? 'sent' : 'received'}`;
+      msgDiv.textContent = msg.text;
+      chatBox.appendChild(msgDiv);
     });
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  // Initial Load from Cache
-  const cachedMessages = loadCache();
-  if (cachedMessages.length > 0) {
-    document.getElementById("chatUI").classList.remove("hidden");
-    renderMessages(cachedMessages, null);
+  // --- ACTIONS ---
+
+  // Send Message (Data String: phonesms)
+  function sendMessage() {
+    const text = messageInput.value.trim();
+    if (text && auth.currentUser) {
+      push(ref(db, "phonesms"), {
+        text: text,
+        uid: auth.currentUser.uid,
+        time: Date.now()
+      });
+      messageInput.value = "";
+    }
   }
 
-  // Authentication Actions
+  // Login
   document.getElementById("loginBtn").onclick = () => {
     const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
-    signInWithEmailAndPassword(auth, email, password)
-      .catch(err => alert("Login Error: " + err.message));
+    const pass = document.getElementById("loginPassword").value;
+    signInWithEmailAndPassword(auth, email, pass).catch(err => alert(err.message));
   };
 
+  // Logout
   document.getElementById("logoutBtn").onclick = () => {
     signOut(auth).then(() => {
       localStorage.removeItem("phonesms");
-      location.reload(); 
+      location.reload();
     });
   };
 
-  // Messaging Actions
-  function sendMessage() {
-    const input = document.getElementById("messageInput");
-    const text = input.value.trim();
-    if (!text || !auth.currentUser) return;
-    
-    push(ref(db, "messages"), { 
-      text, 
-      uid: auth.currentUser.uid, 
-      timestamp: Date.now() 
-    });
-    input.value = "";
-  }
-
-  document.getElementById("sendBtn").onclick = sendMessage;
-
-  document.getElementById("messageInput").addEventListener("keydown", e => {
-    if (e.key === "Enter" && !e.ctrlKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-
+  // Clear All (Online & Local)
   document.getElementById("clearBtn").onclick = () => {
-    if (confirm("Delete all messages for everyone?")) {
-      remove(ref(db, "messages"));
-      saveCache([]);
-      chatBox.innerHTML = "";
+    if (confirm("Delete all history for everyone?")) {
+      remove(ref(db, "phonesms"));
     }
   };
 
-  // Live Sync with Firebase
-  function syncMessages() {
-    onValue(ref(db, "messages"), snapshot => {
-      const data = snapshot.val() || {};
-      const messages = Object.values(data);
-      saveCache(messages);
-      renderMessages(messages, auth.currentUser?.uid);
-    });
+  // Event Listeners
+  document.getElementById("sendBtn").onclick = sendMessage;
+  messageInput.onkeydown = (e) => { if(e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
+
+  // --- AUTH & SYNC ---
+
+  // Load local cache immediately for speed
+  const cached = loadLocal();
+  if (cached.length > 0) {
+    renderMessages(cached, null);
   }
 
-  // Auth State Listener
   onAuthStateChanged(auth, user => {
-    if (user && user.emailVerified) {
-      document.getElementById("loginScreen").classList.add("hidden");
-      document.getElementById("chatUI").classList.remove("hidden");
-      syncMessages();
-    } else if (user && !user.emailVerified) {
-      alert("Please verify your email address.");
-      signOut(auth);
+    if (user) {
+      loginScreen.classList.add("hidden");
+      chatUI.classList.remove("hidden");
+
+      // Sync with Online "phonesms" string
+      onValue(ref(db, "phonesms"), (snapshot) => {
+        const data = snapshot.val() || {};
+        const messages = Object.values(data);
+        saveLocal(messages); // Update cache
+        renderMessages(messages, user.uid);
+      });
     } else {
-      document.getElementById("loginScreen").classList.remove("hidden");
-      if (loadCache().length === 0) {
-        document.getElementById("chatUI").classList.add("hidden");
-      }
+      loginScreen.classList.remove("hidden");
+      chatUI.classList.add("hidden");
     }
   });
 </script>
