@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>phone sms..</title>
+  <title>Phone SMS - Copy Enabled</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
@@ -18,8 +18,18 @@
     #chatUI { display: flex; flex-direction: column; height: 100%; }
     .chat-box { flex: 1; overflow-y: auto; padding: 15px; background: #f0f2f5; display: flex; flex-direction: column; }
     
-    .message { position: relative; padding: 10px 14px; margin: 6px 0; border-radius: 12px; max-width: 80%; word-wrap: break-word; font-size: 15px; cursor: pointer; user-select: none; }
-    .message:active { opacity: 0.7; }
+    /* MODIFIED: Removed user-select: none to allow copying */
+    .message { 
+        position: relative; 
+        padding: 10px 14px; 
+        margin: 6px 0; 
+        border-radius: 12px; 
+        max-width: 80%; 
+        word-wrap: break-word; 
+        font-size: 15px; 
+        cursor: text; /* Changed from pointer to text for better UX */
+    }
+    .message:active { opacity: 0.9; } /* Slightly less transparent on click */
     .sent { align-self: flex-end; background: #dcf8c6; color: #303030; border-bottom-right-radius: 2px; }
     .received { align-self: flex-start; background: #ffffff; color: #303030; border-bottom-left-radius: 2px; border: 1px solid #e0e0e0; }
 
@@ -85,11 +95,11 @@
       msgDiv.textContent = msg.text;
       
       // Double click to delete message
-      msgDiv.ondblclick = () => {
+      msgDiv.addEventListener('dblclick', () => {
         if (confirm("Delete this message?")) {
           remove(ref(db, `phonesms/${key}`));
         }
-      };
+      });
       
       chatBox.appendChild(msgDiv);
     });
@@ -122,7 +132,6 @@
   document.getElementById("sendBtn").onclick = sendMessage;
   messageInput.onkeydown = (e) => { if(e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
 
-  // Load local cache immediately
   const cached = loadLocal();
   if (Object.keys(cached).length > 0) {
     renderMessages(cached, null);
