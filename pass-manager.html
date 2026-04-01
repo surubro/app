@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Secure Vault</title>
+    <title>My Secure Vault - Expanded</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f0f2f5; color: #333; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 6px; font-weight: bold; margin-top: 10px; }
         button:hover { background: #0056b3; }
@@ -16,6 +16,8 @@
         .delete-btn { width: auto; background: #ff4d4d; padding: 5px 10px; font-size: 11px; margin-top: 10px; margin-right: 5px; }
         .edit-btn { width: auto; background: #ffc107; color: #000; padding: 5px 10px; font-size: 11px; margin-top: 10px; border-radius: 6px; border:none; cursor:pointer; font-weight: bold; }
         .toggle-text { color: #007bff; cursor: pointer; font-size: 0.85em; text-decoration: underline; margin-left: 5px; }
+        .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.9em; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -31,9 +33,26 @@
 
     <div id="appSection" class="hidden">
         <h2>Add New Entry</h2>
-        <input type="text" id="accName" placeholder="Account Name (e.g. Facebook)">
-        <input type="text" id="accUser" placeholder="Username/Email">
-        <input type="password" id="accPass" placeholder="Password">
+        <input type="text" id="accName" placeholder="Account Name (e.g. Personal Gmail)">
+        
+        <div class="field-group">
+            <input type="text" id="accUser" placeholder="Username">
+            <input type="password" id="accPass" placeholder="Password">
+        </div>
+
+        <div class="field-group">
+            <input type="text" id="extra1" placeholder="Extra Description 1">
+            <input type="text" id="extra2" placeholder="Extra Description 2">
+        </div>
+        <div class="field-group">
+            <input type="text" id="extra3" placeholder="Extra Description 3">
+            <input type="text" id="extra4" placeholder="Extra Description 4">
+        </div>
+        <div class="field-group">
+            <input type="text" id="extra5" placeholder="Extra Description 5">
+            <input type="text" id="extra6" placeholder="Extra Description 6">
+        </div>
+
         <button id="saveBtn">Save to Vault</button>
 
         <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
@@ -65,14 +84,12 @@
     let isLoginMode = true;
     let currentUser = null;
 
-    // --- AUTH TOGGLE ---
     document.getElementById('toggleAuth').onclick = () => {
         isLoginMode = !isLoginMode;
         document.getElementById('authTitle').innerText = isLoginMode ? "Vault Login" : "Create Vault";
         document.getElementById('authBtn').innerText = isLoginMode ? "Login" : "Sign Up";
     };
 
-    // --- LOGIN/SIGNUP ---
     document.getElementById('authBtn').onclick = () => {
         const e = document.getElementById('email').value;
         const p = document.getElementById('authPassword').value;
@@ -82,7 +99,6 @@
 
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
 
-    // --- TRACK AUTH STATE ---
     onAuthStateChanged(auth, (user) => {
         if (user) {
             currentUser = user;
@@ -95,24 +111,33 @@
         }
     });
 
-    // --- SAVE DATA ---
+    // --- SAVE DATA (9 FIELDS TOTAL) ---
     document.getElementById('saveBtn').onclick = () => {
-        const name = document.getElementById('accName').value;
-        const user = document.getElementById('accUser').value;
-        const pass = document.getElementById('accPass').value;
+        const data = {
+            name: document.getElementById('accName').value,
+            user: document.getElementById('accUser').value,
+            pass: document.getElementById('accPass').value,
+            e1: document.getElementById('extra1').value,
+            e2: document.getElementById('extra2').value,
+            e3: document.getElementById('extra3').value,
+            e4: document.getElementById('extra4').value,
+            e5: document.getElementById('extra5').value,
+            e6: document.getElementById('extra6').value
+        };
 
-        if (name && user && pass && currentUser) {
+        if (data.name && currentUser) {
             const userRef = ref(db, 'users/' + currentUser.uid);
-            const newEntry = push(userRef);
-            set(newEntry, { name, user, pass }).then(() => {
-                document.getElementById('accName').value = '';
-                document.getElementById('accUser').value = '';
-                document.getElementById('accPass').value = '';
+            push(userRef, data).then(() => {
+                // Clear all inputs
+                ['accName','accUser','accPass','extra1','extra2','extra3','extra4','extra5','extra6'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
             });
+        } else {
+            alert("Please enter at least an Account Name");
         }
     };
 
-    // --- LOAD DATA ---
     function loadData(uid) {
         onValue(ref(db, 'users/' + uid), (snapshot) => {
             const list = document.getElementById('passwordList');
@@ -123,11 +148,20 @@
                 const card = document.createElement('div');
                 card.className = 'entry-card';
                 card.innerHTML = `
-                    <div class="entry-header" id="h-${id}">${item.name}</div>
-                    <div><strong>User:</strong> <span id="u-${id}">${item.user}</span></div>
-                    <div><strong>Pass:</strong> <span id="p-${id}">••••••</span> 
-                         <span class="toggle-text" onclick="toggle('${id}', '${item.pass}')">Show</span></div>
-                    <button class="edit-btn" onclick="editItem('${id}', '${item.user}', '${item.pass}')">Edit Info</button>
+                    <div class="entry-header">${item.name}</div>
+                    <div class="details-grid">
+                        <div><strong>User:</strong> ${item.user}</div>
+                        <div><strong>Pass:</strong> <span id="p-${id}">••••••</span> <span class="toggle-text" onclick="toggle('${id}', '${item.pass}')">Show</span></div>
+                    </div>
+                    <div class="details-grid" style="border-top: 1px dashed #eee; margin-top: 8px; padding-top: 5px; color: #666;">
+                        <div><strong>E1:</strong> ${item.e1 || '-'}</div>
+                        <div><strong>E2:</strong> ${item.e2 || '-'}</div>
+                        <div><strong>E3:</strong> ${item.e3 || '-'}</div>
+                        <div><strong>E4:</strong> ${item.e4 || '-'}</div>
+                        <div><strong>E5:</strong> ${item.e5 || '-'}</div>
+                        <div><strong>E6:</strong> ${item.e6 || '-'}</div>
+                    </div>
+                    <button class="edit-btn" onclick="editItem('${id}')">Edit All Fields</button>
                     <button class="delete-btn" onclick="deleteItem('${id}')">Delete</button>
                 `;
                 list.appendChild(card);
@@ -135,7 +169,6 @@
         });
     }
 
-    // --- TOGGLE, DELETE & EDIT FUNCTIONS ---
     window.toggle = (id, val) => {
         const el = document.getElementById('p-' + id);
         el.innerText = el.innerText === '••••••' ? val : '••••••';
@@ -145,17 +178,28 @@
         if(confirm("Delete this entry?")) remove(ref(db, `users/${currentUser.uid}/${id}`));
     };
 
-    window.editItem = (id, oldUser, oldPass) => {
-        const newUser = prompt("Edit Username:", oldUser);
-        const newPass = prompt("Edit Password:", oldPass);
-        
-        // Ensure user didn't hit 'Cancel'
-        if (newUser !== null && newPass !== null) {
-            update(ref(db, `users/${currentUser.uid}/${id}`), {
-                user: newUser,
-                pass: newPass
-            }).catch(err => alert("Update failed: " + err.message));
-        }
+    window.editItem = (id) => {
+        // Fetch current data from DB to pre-fill prompts
+        onValue(ref(db, `users/${currentUser.uid}/${id}`), (snapshot) => {
+            const current = snapshot.val();
+            if(!current) return;
+
+            const n = prompt("Account Name:", current.name);
+            const u = prompt("Username:", current.user);
+            const p = prompt("Password:", current.pass);
+            const e1 = prompt("Extra 1:", current.e1);
+            const e2 = prompt("Extra 2:", current.e2);
+            const e3 = prompt("Extra 3:", current.e3);
+            const e4 = prompt("Extra 4:", current.e4);
+            const e5 = prompt("Extra 5:", current.e5);
+            const e6 = prompt("Extra 6:", current.e6);
+
+            if (n !== null) {
+                update(ref(db, `users/${currentUser.uid}/${id}`), {
+                    name: n, user: u, pass: p, e1: e1, e2: e2, e3: e3, e4: e4, e5: e5, e6: e6
+                });
+            }
+        }, { onlyOnce: true });
     };
 </script>
 </body>
