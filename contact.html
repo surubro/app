@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Cloud Contacts Pro - VCF Sync</title>
+  <title>Cloud Contacts Pro - Dialer Enabled</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
@@ -18,7 +18,7 @@
     .container { max-width: 800px; margin: 20px auto; padding: 0 20px; }
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
     
-    /* Expanded Form */
+    /* Form */
     .contact-form { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 30px; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     input, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
@@ -27,15 +27,20 @@
 
     /* List Display */
     .contact-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .contact-info h4 { margin: 0 0 5px 0; font-size: 17px; text-transform: capitalize; }
-    .contact-info p { margin: 2px 0; font-size: 13px; color: #64748b; }
-    .tags { display: inline-block; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 5px; }
+    .contact-info h4 { margin: 0 0 8px 0; font-size: 18px; color: #1e293b; }
+    .contact-info p { margin: 5px 0; font-size: 14px; color: #64748b; display: flex; align-items: center; }
+    
+    /* Clickable Phone Styles */
+    .dial-link { color: var(--primary); text-decoration: none; font-weight: 600; transition: opacity 0.2s; }
+    .dial-link:hover { text-decoration: underline; opacity: 0.8; }
+    .tags { display: inline-block; background: #e2e8f0; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 8px; color: #475569; font-weight: bold; }
 
     /* Buttons */
     button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; }
     .btn-add { background: var(--primary); color: white; flex: 2; padding: 12px; }
     .btn-export { background: #059669; color: white; padding: 12px 20px; display: flex; align-items: center; gap: 8px; }
-    .btn-del { background: #fee2e2; color: #ef4444; width: 40px; height: 40px; border-radius: 50%; }
+    .btn-del { background: #fee2e2; color: #ef4444; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+    .btn-del:hover { background: #fecaca; }
     .logout-btn { background: none; color: #64748b; font-size: 14px; }
   </style>
 </head>
@@ -43,7 +48,7 @@
 
   <div id="loginScreen">
     <div class="auth-card">
-      <i class="fas fa-address-book fa-3x" style="color:var(--primary); margin-bottom:15px"></i>
+      <i class="fas fa-id-card-clip fa-3x" style="color:var(--primary); margin-bottom:15px"></i>
       <h2>Cloud Contacts</h2>
       <input type="email" id="loginEmail" placeholder="Email">
       <input type="password" id="loginPassword" placeholder="Password">
@@ -54,7 +59,7 @@
   <div id="appUI" class="hidden">
     <div class="container">
       <header>
-        <h1>Contacts</h1>
+        <h1>My Directory</h1>
         <button id="logoutBtn" class="logout-btn">Logout</button>
       </header>
 
@@ -64,12 +69,12 @@
           <input type="text" id="lName" placeholder="Last Name">
           <input type="tel" id="pWork" placeholder="Work Phone">
           <input type="tel" id="pHome" placeholder="Home Phone">
-          <input type="email" id="cEmail" placeholder="Email Address" class="full-width" style="grid-column: span 2;">
-          <textarea id="cNotes" placeholder="Notes / Address / Extra Info"></textarea>
+          <input type="email" id="cEmail" placeholder="Email Address" style="grid-column: span 2;">
+          <textarea id="cNotes" placeholder="Address or Notes..."></textarea>
         </div>
         <div class="btn-row">
-          <button class="btn-add" id="addBtn">Add to Cloud</button>
-          <button class="btn-export" id="exportBtn"><i class="fas fa-file-download"></i> Export VCF</button>
+          <button class="btn-add" id="addBtn">Save Contact</button>
+          <button class="btn-export" id="exportBtn"><i class="fas fa-file-export"></i> Export All VCF</button>
         </div>
       </div>
 
@@ -97,7 +102,7 @@
   const db = getDatabase(app);
   let contactsData = {};
 
-  // Auth Handling
+  // Login/Logout
   document.getElementById("loginBtn").onclick = () => {
     signInWithEmailAndPassword(auth, loginEmail.value, loginPassword.value).catch(e => alert(e.message));
   };
@@ -117,7 +122,7 @@
     }
   });
 
-  // Database Logic
+  // Database Add
   document.getElementById("addBtn").onclick = () => {
     const data = {
       firstName: document.getElementById("fName").value,
@@ -132,12 +137,16 @@
       push(ref(db, `contacts/${auth.currentUser.uid}`), data);
       document.querySelectorAll(".form-grid input, .form-grid textarea").forEach(i => i.value = "");
     } else {
-      alert("Please enter at least a First Name and one Phone Number.");
+      alert("Required: First Name and one Phone Number.");
     }
   };
 
-  window.deleteEntry = (id) => {
-    if(confirm("Delete contact?")) remove(ref(db, `contacts/${auth.currentUser.uid}/${id}`));
+  // Helper for rendering Dial Links
+  const createDialLink = (number, type) => {
+    if (!number) return '—';
+    // Remove non-numeric characters for the href (except +)
+    const cleanNum = number.replace(/[^\d+]/g, "");
+    return `<span class="tags">${type}</span><a href="tel:${cleanNum}" class="dial-link">${number}</a>`;
   };
 
   function renderContacts() {
@@ -150,37 +159,36 @@
       card.innerHTML = `
         <div class="contact-info">
           <h4>${c.firstName} ${c.lastName}</h4>
-          <p><span class="tags">WORK</span> ${c.workPhone || '—'}</p>
-          <p><span class="tags">HOME</span> ${c.homePhone || '—'}</p>
-          <p><i class="fas fa-envelope"></i> ${c.email || 'No email'}</p>
+          <p>${createDialLink(c.workPhone, 'WORK')}</p>
+          <p>${createDialLink(c.homePhone, 'HOME')}</p>
+          <p><i class="fas fa-envelope" style="margin-right:8px"></i> ${c.email || 'N/A'}</p>
         </div>
-        <button class="btn-del" onclick="deleteEntry('${id}')"><i class="fas fa-trash"></i></button>
+        <button class="btn-del" onclick="window.deleteEntry('${id}')"><i class="fas fa-trash-alt"></i></button>
       `;
       list.appendChild(card);
     });
   }
 
-  // VCF Export (Comprehensive)
+  window.deleteEntry = (id) => {
+    if(confirm("Delete this contact permanently?")) remove(ref(db, `contacts/${auth.currentUser.uid}/${id}`));
+  };
+
+  // VCF Export
   document.getElementById("exportBtn").onclick = () => {
-    if (Object.keys(contactsData).length === 0) return alert("No contacts found.");
-
-    let vcfString = "";
+    if (Object.keys(contactsData).length === 0) return alert("No contacts available.");
+    let vcf = "";
     Object.values(contactsData).forEach(c => {
-      vcfString += "BEGIN:VCARD\nVERSION:3.0\n";
-      vcfString += `N:${c.lastName};${c.firstName};;;\n`;
-      vcfString += `FN:${c.firstName} ${c.lastName}\n`;
-      if(c.workPhone) vcfString += `TEL;TYPE=WORK,VOICE:${c.workPhone}\n`;
-      if(c.homePhone) vcfString += `TEL;TYPE=HOME,VOICE:${c.homePhone}\n`;
-      if(c.email) vcfString += `EMAIL;TYPE=PREF,INTERNET:${c.email}\n`;
-      if(c.notes) vcfString += `NOTE:${c.notes.replace(/\n/g, '\\n')}\n`;
-      vcfString += "END:VCARD\n";
+      vcf += `BEGIN:VCARD\nVERSION:3.0\nN:${c.lastName};${c.firstName};;;\nFN:${c.firstName} ${c.lastName}\n`;
+      if(c.workPhone) vcf += `TEL;TYPE=WORK,VOICE:${c.workPhone}\n`;
+      if(c.homePhone) vcf += `TEL;TYPE=HOME,VOICE:${c.homePhone}\n`;
+      if(c.email) vcf += `EMAIL;TYPE=PREF,INTERNET:${c.email}\n`;
+      if(c.notes) vcf += `NOTE:${c.notes.replace(/\n/g, '\\n')}\n`;
+      vcf += "END:VCARD\n";
     });
-
-    const blob = new Blob([vcfString], { type: "text/vcard" });
-    const url = URL.createObjectURL(blob);
+    const blob = new Blob([vcf], { type: "text/vcard" });
     const a = document.createElement("a");
-    a.href = url;
-    a.download = "Cloud_Contacts_Export.vcf";
+    a.href = URL.createObjectURL(blob);
+    a.download = `Contacts_${new Date().toLocaleDateString()}.vcf`;
     a.click();
   };
 </script>
