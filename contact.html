@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cloud Contacts - Firebase VCF Export</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; }
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: #1e293b; }
+    .hidden { display: none !important; }
+
+    /* Auth Screen */
+    #loginScreen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+    .auth-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); width: 100%; max-width: 320px; }
+    input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+    button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; transition: 0.2s; }
+    .btn-primary { background: var(--primary); color: white; width: 100%; padding: 12px; }
+    .btn-primary:hover { background: #1d4ed8; }
+
+    /* App Layout */
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    
+    /* Contact Form */
+    .contact-form { background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .full-width { grid-column: span 2; }
+    
+    /* Contact List */
+    .contact-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
+    .contact-info h4 { margin: 0; font-size: 16px; }
+    .contact-info p { margin: 2px 0 0; font-size: 13px; color: #64748b; }
+    
+    .actions { display: flex; gap: 10px; }
+    .btn-del { color: #ef4444; background: none; font-size: 18px; }
+    .btn-export { background: #10b981; color: white; padding: 8px 16px; margin-top: 10px; }
+    .logout-link { color: #64748b; font-size: 14px; background: none; }
+  </style>
+</head>
+<body>
+
+  <div id="loginScreen">
+    <div class="auth-card">
+      <h2 style="margin-top:0">Cloud Contacts</h2>
+      <input type="email" id="loginEmail" placeholder="Email">
+      <input type="password" id="loginPassword" placeholder="Password">
+      <button class="btn-primary" id="loginBtn">Sign In</button>
+    </div>
+  </div>
+
+  <div id="appUI" class="hidden">
+    <div class="container">
+      <header>
+        <h3>My Contacts</h3>
+        <button id="logoutBtn" class="logout-link">Logout</button>
+      </header>
+
+      <div class="contact-form">
+        <div class="form-grid">
+          <input type="text" id="cName" placeholder="Full Name" class="full-width">
+          <input type="tel" id="cPhone" placeholder="Phone Number">
+          <input type="email" id="cEmail" placeholder="Email Address">
+        </div>
+        <button class="btn-primary" id="addBtn" style="margin-top:10px">Add Contact</button>
+      </div>
+
+      <div id="contactList"></div>
+      
+      <button class="btn-export" id="exportBtn">
+        <i class="fas fa-file-export"></i> Export to VCF
+      </button>
+    </div>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  // Using your existing Firebase credentials
+  const firebaseConfig = {
+    apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
+    authDomain: "striped-acrobat-342207.firebaseapp.com",
+    databaseURL: "https://striped-acrobat-342207-default-rtdb.firebaseio.com",
+    projectId: "striped-acrobat-342207",
+    storageBucket: "striped-acrobat-342207.appspot.com",
+    messagingSenderId: "367114842706",
+    appId: "1:367114842706:web:0f6d504163ed3c72ed658b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  let currentContacts = {};
+
+  // DOM Elements
+  const loginScreen = document.getElementById("loginScreen");
+  const appUI = document.getElementById("appUI");
+  const contactList = document.getElementById("contactList");
+
+  // Authentication Logic
+  document.getElementById("loginBtn").onclick = () => {
+    const email = document.getElementById("loginEmail").value;
+    const pass = document.getElementById("loginPassword").value;
+    signInWithEmailAndPassword(auth, email, pass).catch(err => alert(err.message));
+  };
+
+  document.getElementById("logoutBtn").onclick = () => signOut(auth);
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      loginScreen.classList.add("hidden");
+      appUI.classList.remove("hidden");
+      
+      // Sync from Database - Nodes are stored under users/UID/contacts
+      onValue(ref(db, `contacts/${user.uid}`), (snapshot) => {
+        currentContacts = snapshot.val() || {};
+        renderContacts(currentContacts, user.uid);
+      });
+    } else {
+      loginScreen.classList.remove("hidden");
+      appUI.classList.add("hidden");
+    }
+  });
+
+  // Database Operations
+  document.getElementById("addBtn").onclick = () => {
+    const name = document.getElementById("cName").value;
+    const phone = document.getElementById("cPhone").value;
+    const email = document.getElementById("cEmail").value;
+
+    if (name && phone && auth.currentUser) {
+      push(ref(db, `contacts/${auth.currentUser.uid}`), {
+        name, phone, email, createdAt: Date.now()
+      });
+      // Clear inputs
+      ["cName", "cPhone", "cEmail"].forEach(id => document.getElementById(id).value = "");
+    } else {
+      alert("Please enter at least a name and phone number.");
+    }
+  };
+
+  function deleteContact(id) {
+    if(confirm("Delete this contact?")) {
+      remove(ref(db, `contacts/${auth.currentUser.uid}/${id}`));
+    }
+  }
+
+  function renderContacts(data, uid) {
+    contactList.innerHTML = "";
+    Object.keys(data).forEach(key => {
+      const c = data[key];
+      const div = document.createElement("div");
+      div.className = "contact-card";
+      div.innerHTML = `
+        <div class="contact-info">
+          <h4>${c.name}</h4>
+          <p><i class="fas fa-phone"></i> ${c.phone} | <i class="fas fa-envelope"></i> ${c.email || 'N/A'}</p>
+        </div>
+        <div class="actions">
+          <button class="btn-del" onclick="window.triggerDelete('${key}')"><i class="fas fa-trash-can"></i></button>
+        </div>
+      `;
+      contactList.appendChild(div);
+    });
+  }
+
+  // Global exposure for the delete trigger
+  window.triggerDelete = (id) => deleteContact(id);
+
+  // VCF Export Logic
+  document.getElementById("exportBtn").onclick = () => {
+    if (Object.keys(currentContacts).length === 0) return alert("No contacts to export!");
+
+    let vcfContent = "";
+    Object.values(currentContacts).forEach(c => {
+      vcfContent += "BEGIN:VCARD\n";
+      vcfContent += "VERSION:3.0\n";
+      vcfContent += `FN:${c.name}\n`;
+      vcfContent += `TEL;TYPE=CELL:${c.phone}\n`;
+      if(c.email) vcfContent += `EMAIL:${c.email}\n`;
+      vcfContent += "END:VCARD\n";
+    });
+
+    const blob = new Blob([vcfContent], { type: "text/vcard" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `contacts_export_${Date.now()}.vcf`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+</script>
+</body>
+</html>
