@@ -2,74 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Cloud Contacts - Firebase VCF Export</title>
+  <title>Cloud Contacts Pro - VCF Sync</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; }
-    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: #1e293b; }
+    :root { --primary: #2563eb; --bg: #f1f5f9; --text: #0f172a; }
+    body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
     .hidden { display: none !important; }
 
-    /* Auth Screen */
-    #loginScreen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-    .auth-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); width: 100%; max-width: 320px; }
-    input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
-    button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; transition: 0.2s; }
-    .btn-primary { background: var(--primary); color: white; width: 100%; padding: 12px; }
-    .btn-primary:hover { background: #1d4ed8; }
+    /* Auth UI */
+    #loginScreen { display: flex; align-items: center; justify-content: center; height: 100vh; }
+    .auth-card { background: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
 
-    /* App Layout */
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    /* Main UI */
+    .container { max-width: 800px; margin: 20px auto; padding: 0 20px; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
     
-    /* Contact Form */
-    .contact-form { background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .full-width { grid-column: span 2; }
-    
-    /* Contact List */
-    .contact-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
-    .contact-info h4 { margin: 0; font-size: 16px; }
-    .contact-info p { margin: 2px 0 0; font-size: 13px; color: #64748b; }
-    
-    .actions { display: flex; gap: 10px; }
-    .btn-del { color: #ef4444; background: none; font-size: 18px; }
-    .btn-export { background: #10b981; color: white; padding: 8px 16px; margin-top: 10px; }
-    .logout-link { color: #64748b; font-size: 14px; background: none; }
+    /* Expanded Form */
+    .contact-form { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 30px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    input, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+    textarea { grid-column: span 2; height: 80px; resize: none; }
+    .btn-row { margin-top: 15px; display: flex; gap: 10px; }
+
+    /* List Display */
+    .contact-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .contact-info h4 { margin: 0 0 5px 0; font-size: 17px; text-transform: capitalize; }
+    .contact-info p { margin: 2px 0; font-size: 13px; color: #64748b; }
+    .tags { display: inline-block; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 5px; }
+
+    /* Buttons */
+    button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; }
+    .btn-add { background: var(--primary); color: white; flex: 2; padding: 12px; }
+    .btn-export { background: #059669; color: white; padding: 12px 20px; display: flex; align-items: center; gap: 8px; }
+    .btn-del { background: #fee2e2; color: #ef4444; width: 40px; height: 40px; border-radius: 50%; }
+    .logout-btn { background: none; color: #64748b; font-size: 14px; }
   </style>
 </head>
 <body>
 
   <div id="loginScreen">
     <div class="auth-card">
-      <h2 style="margin-top:0">Cloud Contacts</h2>
+      <i class="fas fa-address-book fa-3x" style="color:var(--primary); margin-bottom:15px"></i>
+      <h2>Cloud Contacts</h2>
       <input type="email" id="loginEmail" placeholder="Email">
       <input type="password" id="loginPassword" placeholder="Password">
-      <button class="btn-primary" id="loginBtn">Sign In</button>
+      <button class="btn-add" id="loginBtn" style="width:100%; margin-top:10px">Sign In</button>
     </div>
   </div>
 
   <div id="appUI" class="hidden">
     <div class="container">
       <header>
-        <h3>My Contacts</h3>
-        <button id="logoutBtn" class="logout-link">Logout</button>
+        <h1>Contacts</h1>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
       </header>
 
       <div class="contact-form">
         <div class="form-grid">
-          <input type="text" id="cName" placeholder="Full Name" class="full-width">
-          <input type="tel" id="cPhone" placeholder="Phone Number">
-          <input type="email" id="cEmail" placeholder="Email Address">
+          <input type="text" id="fName" placeholder="First Name">
+          <input type="text" id="lName" placeholder="Last Name">
+          <input type="tel" id="pWork" placeholder="Work Phone">
+          <input type="tel" id="pHome" placeholder="Home Phone">
+          <input type="email" id="cEmail" placeholder="Email Address" class="full-width" style="grid-column: span 2;">
+          <textarea id="cNotes" placeholder="Notes / Address / Extra Info"></textarea>
         </div>
-        <button class="btn-primary" id="addBtn" style="margin-top:10px">Add Contact</button>
+        <div class="btn-row">
+          <button class="btn-add" id="addBtn">Add to Cloud</button>
+          <button class="btn-export" id="exportBtn"><i class="fas fa-file-download"></i> Export VCF</button>
+        </div>
       </div>
 
       <div id="contactList"></div>
-      
-      <button class="btn-export" id="exportBtn">
-        <i class="fas fa-file-export"></i> Export to VCF
-      </button>
     </div>
   </div>
 
@@ -78,7 +82,6 @@
   import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-  // Using your existing Firebase credentials
   const firebaseConfig = {
     apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
     authDomain: "striped-acrobat-342207.firebaseapp.com",
@@ -92,32 +95,21 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getDatabase(app);
+  let contactsData = {};
 
-  let currentContacts = {};
-
-  // DOM Elements
-  const loginScreen = document.getElementById("loginScreen");
-  const appUI = document.getElementById("appUI");
-  const contactList = document.getElementById("contactList");
-
-  // Authentication Logic
+  // Auth Handling
   document.getElementById("loginBtn").onclick = () => {
-    const email = document.getElementById("loginEmail").value;
-    const pass = document.getElementById("loginPassword").value;
-    signInWithEmailAndPassword(auth, email, pass).catch(err => alert(err.message));
+    signInWithEmailAndPassword(auth, loginEmail.value, loginPassword.value).catch(e => alert(e.message));
   };
-
   document.getElementById("logoutBtn").onclick = () => signOut(auth);
 
   onAuthStateChanged(auth, user => {
     if (user) {
       loginScreen.classList.add("hidden");
       appUI.classList.remove("hidden");
-      
-      // Sync from Database - Nodes are stored under users/UID/contacts
-      onValue(ref(db, `contacts/${user.uid}`), (snapshot) => {
-        currentContacts = snapshot.val() || {};
-        renderContacts(currentContacts, user.uid);
+      onValue(ref(db, `contacts/${user.uid}`), (snap) => {
+        contactsData = snap.val() || {};
+        renderContacts();
       });
     } else {
       loginScreen.classList.remove("hidden");
@@ -125,72 +117,71 @@
     }
   });
 
-  // Database Operations
+  // Database Logic
   document.getElementById("addBtn").onclick = () => {
-    const name = document.getElementById("cName").value;
-    const phone = document.getElementById("cPhone").value;
-    const email = document.getElementById("cEmail").value;
+    const data = {
+      firstName: document.getElementById("fName").value,
+      lastName: document.getElementById("lName").value,
+      workPhone: document.getElementById("pWork").value,
+      homePhone: document.getElementById("pHome").value,
+      email: document.getElementById("cEmail").value,
+      notes: document.getElementById("cNotes").value
+    };
 
-    if (name && phone && auth.currentUser) {
-      push(ref(db, `contacts/${auth.currentUser.uid}`), {
-        name, phone, email, createdAt: Date.now()
-      });
-      // Clear inputs
-      ["cName", "cPhone", "cEmail"].forEach(id => document.getElementById(id).value = "");
+    if (data.firstName && (data.workPhone || data.homePhone)) {
+      push(ref(db, `contacts/${auth.currentUser.uid}`), data);
+      document.querySelectorAll(".form-grid input, .form-grid textarea").forEach(i => i.value = "");
     } else {
-      alert("Please enter at least a name and phone number.");
+      alert("Please enter at least a First Name and one Phone Number.");
     }
   };
 
-  function deleteContact(id) {
-    if(confirm("Delete this contact?")) {
-      remove(ref(db, `contacts/${auth.currentUser.uid}/${id}`));
-    }
-  }
+  window.deleteEntry = (id) => {
+    if(confirm("Delete contact?")) remove(ref(db, `contacts/${auth.currentUser.uid}/${id}`));
+  };
 
-  function renderContacts(data, uid) {
-    contactList.innerHTML = "";
-    Object.keys(data).forEach(key => {
-      const c = data[key];
-      const div = document.createElement("div");
-      div.className = "contact-card";
-      div.innerHTML = `
+  function renderContacts() {
+    const list = document.getElementById("contactList");
+    list.innerHTML = "";
+    Object.keys(contactsData).forEach(id => {
+      const c = contactsData[id];
+      const card = document.createElement("div");
+      card.className = "contact-card";
+      card.innerHTML = `
         <div class="contact-info">
-          <h4>${c.name}</h4>
-          <p><i class="fas fa-phone"></i> ${c.phone} | <i class="fas fa-envelope"></i> ${c.email || 'N/A'}</p>
+          <h4>${c.firstName} ${c.lastName}</h4>
+          <p><span class="tags">WORK</span> ${c.workPhone || '—'}</p>
+          <p><span class="tags">HOME</span> ${c.homePhone || '—'}</p>
+          <p><i class="fas fa-envelope"></i> ${c.email || 'No email'}</p>
         </div>
-        <div class="actions">
-          <button class="btn-del" onclick="window.triggerDelete('${key}')"><i class="fas fa-trash-can"></i></button>
-        </div>
+        <button class="btn-del" onclick="deleteEntry('${id}')"><i class="fas fa-trash"></i></button>
       `;
-      contactList.appendChild(div);
+      list.appendChild(card);
     });
   }
 
-  // Global exposure for the delete trigger
-  window.triggerDelete = (id) => deleteContact(id);
-
-  // VCF Export Logic
+  // VCF Export (Comprehensive)
   document.getElementById("exportBtn").onclick = () => {
-    if (Object.keys(currentContacts).length === 0) return alert("No contacts to export!");
+    if (Object.keys(contactsData).length === 0) return alert("No contacts found.");
 
-    let vcfContent = "";
-    Object.values(currentContacts).forEach(c => {
-      vcfContent += "BEGIN:VCARD\n";
-      vcfContent += "VERSION:3.0\n";
-      vcfContent += `FN:${c.name}\n`;
-      vcfContent += `TEL;TYPE=CELL:${c.phone}\n`;
-      if(c.email) vcfContent += `EMAIL:${c.email}\n`;
-      vcfContent += "END:VCARD\n";
+    let vcfString = "";
+    Object.values(contactsData).forEach(c => {
+      vcfString += "BEGIN:VCARD\nVERSION:3.0\n";
+      vcfString += `N:${c.lastName};${c.firstName};;;\n`;
+      vcfString += `FN:${c.firstName} ${c.lastName}\n`;
+      if(c.workPhone) vcfString += `TEL;TYPE=WORK,VOICE:${c.workPhone}\n`;
+      if(c.homePhone) vcfString += `TEL;TYPE=HOME,VOICE:${c.homePhone}\n`;
+      if(c.email) vcfString += `EMAIL;TYPE=PREF,INTERNET:${c.email}\n`;
+      if(c.notes) vcfString += `NOTE:${c.notes.replace(/\n/g, '\\n')}\n`;
+      vcfString += "END:VCARD\n";
     });
 
-    const blob = new Blob([vcfContent], { type: "text/vcard" });
+    const blob = new Blob([vcfString], { type: "text/vcard" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `contacts_export_${Date.now()}.vcf`;
-    link.click();
-    URL.revokeObjectURL(url);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "Cloud_Contacts_Export.vcf";
+    a.click();
   };
 </script>
 </body>
