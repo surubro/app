@@ -3,56 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Bill Calculator</title>
+    <title>Expense Cloud Calculator</title>
     <style>
-        :root { --bg: #f0f2f5; --card: #ffffff; --primary: #1a73e8; --text: #202124; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; }
-        .container { background: var(--card); width: 100%; max-width: 450px; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h2 { text-align: center; margin-top: 0; color: var(--primary); }
-        
-        .auth-section { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #ddd; }
+        body { font-family: sans-serif; background: #f4f4f9; padding: 20px; display: flex; justify-content: center; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        .input-box { display: flex; gap: 10px; margin-bottom: 15px; }
+        input { padding: 10px; border: 1px solid #ddd; border-radius: 5px; flex: 1; }
+        button { cursor: pointer; border-radius: 5px; border: none; font-weight: bold; }
+        .btn-add { background: #28a745; color: white; width: 100%; padding: 12px; margin-bottom: 20px; }
+        .item { display: flex; justify-content: space-between; background: #eee; padding: 10px; margin-bottom: 5px; border-radius: 5px; align-items: center; }
+        .btn-del { background: #dc3545; color: white; padding: 5px 8px; font-size: 12px; }
+        .results { background: #222; color: #00ff00; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .res-row { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px dashed #444; padding-bottom: 5px; }
         .hidden { display: none; }
-        
-        .input-group { display: flex; gap: 10px; margin-bottom: 15px; }
-        input { padding: 10px; border: 1px solid #ccc; border-radius: 6px; flex: 1; outline: none; }
-        button { cursor: pointer; border: none; border-radius: 6px; font-weight: bold; transition: 0.2s; }
-        .btn-add { background: var(--primary); color: white; width: 100%; padding: 12px; margin-bottom: 20px; }
-        
-        .entry-item { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 10px; margin-bottom: 8px; border-radius: 6px; font-size: 0.9rem; }
-        .btn-del { background: #ea4335; color: white; padding: 5px 10px; font-size: 0.8rem; }
-        
-        .stats-card { background: #202124; color: white; padding: 20px; border-radius: 10px; margin-top: 20px; }
-        .stat-row { display: flex; justify-content: space-between; margin-bottom: 8px; opacity: 0.9; }
-        .stat-row b { color: #8ab4f8; }
-        .stat-row.total { border-top: 1px solid #444; padding-top: 10px; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Expense Cloud</h2>
+<div class="card">
+    <h2 style="text-align:center">Bill Tracker</h2>
 
-    <div id="authPanel" class="auth-section">
-        <input type="email" id="loginEmail" placeholder="Email">
-        <input type="password" id="loginPass" placeholder="Password">
-        <button id="loginBtn" style="background:#34a853; color:white; width:100%; padding:10px; margin-top:10px;">Login</button>
+    <div id="authDiv">
+        <input type="email" id="email" placeholder="Email" style="width:94%; margin-bottom:10px;">
+        <input type="password" id="pass" placeholder="Password" style="width:94%; margin-bottom:10px;">
+        <button onclick="login()" style="width:100%; padding:10px; background:#007bff; color:white;">Login to Sync</button>
     </div>
 
-    <div id="calcPanel" class="hidden">
-        <div class="input-group">
-            <input type="text" id="desc" placeholder="DTH, Phone 1, etc.">
-            <input type="number" id="amount" placeholder="Monthly ₹">
+    <div id="mainDiv" class="hidden">
+        <div class="input-box">
+            <input type="text" id="name" placeholder="Name (Phone 1, DTH)">
+            <input type="number" id="amt" placeholder="Monthly ₹">
         </div>
-        <button class="btn-add" id="addBtn">Add Monthly Recharge</button>
+        <button class="btn-add" id="addBtn">Add Entry</button>
 
-        <div id="entryList"></div>
+        <div id="list"></div>
 
-        <div class="stats-card">
-            <div class="stat-row">Daily Spend: <b id="dailyVal">₹0.00</b></div>
-            <div class="stat-row">Monthly Total: <b id="monthlyVal">₹0.00</b></div>
-            <div class="stat-row total">Yearly Total: <b id="yearlyVal">₹0.00</b></div>
+        <div class="results">
+            <div class="res-row"><span>Daily (30 days):</span> <span id="dayTot">₹0</span></div>
+            <div class="res-row"><span>Total Monthly:</span> <span id="monTot">₹0</span></div>
+            <div class="res-row"><span>Total Yearly:</span> <span id="yearTot">₹0</span></div>
         </div>
-        <button id="logoutBtn" style="margin-top:15px; background:none; color:#ea4335; cursor:pointer;">Logout</button>
+        <button onclick="logout()" style="margin-top:10px; background:none; color:red; font-size:12px;">Logout</button>
     </div>
 </div>
 
@@ -75,70 +66,66 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    // Auth Logic
-    document.getElementById("loginBtn").onclick = () => {
-        const email = document.getElementById("loginEmail").value;
-        const pass = document.getElementById("loginPass").value;
-        signInWithEmailAndPassword(auth, email, pass).catch(err => alert(err.message));
+    window.login = () => {
+        const e = document.getElementById("email").value;
+        const p = document.getElementById("pass").value;
+        signInWithEmailAndPassword(auth, e, p).catch(err => alert(err.message));
     };
 
-    document.getElementById("logoutBtn").onclick = () => signOut(auth);
+    window.logout = () => signOut(auth);
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            document.getElementById("authPanel").classList.add("hidden");
-            document.getElementById("calcPanel").classList.remove("hidden");
-            loadData(user.uid);
+            document.getElementById("authDiv").classList.add("hidden");
+            document.getElementById("mainDiv").classList.remove("hidden");
+            startApp(user.uid);
         } else {
-            document.getElementById("authPanel").classList.remove("hidden");
-            document.getElementById("calcPanel").classList.add("hidden");
+            document.getElementById("authDiv").classList.remove("hidden");
+            document.getElementById("mainDiv").classList.add("hidden");
         }
     });
 
-    // Data Logic
-    function loadData(uid) {
-        const userRef = ref(db, 'expenses/' + uid);
-        
-        onValue(userRef, (snapshot) => {
-            const data = snapshot.val();
-            const list = document.getElementById("entryList");
-            list.innerHTML = "";
-            let totalMonthly = 0;
+    function startApp(uid) {
+        const dataRef = ref(db, `user_expenses/${uid}`);
 
-            if (data) {
-                Object.keys(data).forEach(key => {
-                    const item = data[key];
-                    totalMonthly += parseFloat(item.amount);
-                    
-                    const div = document.createElement("div");
-                    div.className = "entry-item";
-                    div.innerHTML = `
-                        <span>${item.desc}: <b>₹${item.amount}</b></span>
-                        <button class="btn-del" onclick="window.removeEntry('${key}')">Delete</button>
+        // Add
+        document.getElementById("addBtn").onclick = () => {
+            const n = document.getElementById("name").value;
+            const a = document.getElementById("amt").value;
+            if(n && a) {
+                push(dataRef, { name: n, monthly: parseFloat(a) });
+                document.getElementById("name").value = "";
+                document.getElementById("amt").value = "";
+            }
+        };
+
+        // Sync & Calculate
+        onValue(dataRef, (snap) => {
+            const list = document.getElementById("list");
+            list.innerHTML = "";
+            let total = 0;
+            const data = snap.val();
+
+            if(data) {
+                Object.keys(data).forEach(id => {
+                    const item = data[id];
+                    total += item.monthly;
+                    list.innerHTML += `
+                        <div class="item">
+                            <span>${item.name}: <b>₹${item.monthly}</b></span>
+                            <button class="btn-del" onclick="del('${id}')">Del</button>
+                        </div>
                     `;
-                    list.appendChild(div);
                 });
             }
 
             // Calculations
-            document.getElementById("monthlyVal").innerText = "₹" + totalMonthly.toFixed(2);
-            document.getElementById("dailyVal").innerText = "₹" + (totalMonthly / 30).toFixed(2);
-            document.getElementById("yearlyVal").innerText = "₹" + (totalMonthly * 12).toFixed(2);
+            document.getElementById("monTot").innerText = "₹" + total.toFixed(2);
+            document.getElementById("dayTot").innerText = "₹" + (total / 30).toFixed(2);
+            document.getElementById("yearTot").innerText = "₹" + (total * 12).toFixed(2);
+
+            window.del = (id) => remove(ref(db, `user_expenses/${uid}/${id}`));
         });
-
-        // Add Entry
-        document.getElementById("addBtn").onclick = () => {
-            const desc = document.getElementById("desc").value;
-            const amt = document.getElementById("amount").value;
-            if(desc && amt) {
-                push(userRef, { desc: desc, amount: parseFloat(amt) });
-                document.getElementById("desc").value = "";
-                document.getElementById("amount").value = "";
-            }
-        };
-
-        // Global function for delete
-        window.removeEntry = (key) => remove(ref(db, `expenses/${uid}/${key}`));
     }
 </script>
 </body>
