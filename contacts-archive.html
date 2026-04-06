@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cloud Archive Pro - Editor Enabled</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root { --primary: #2563eb; --bg: #f1f5f9; --text: #0f172a; --edit: #f59e0b; }
+    body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    .hidden { display: none !important; }
+
+    /* Auth UI */
+    #loginScreen { display: flex; align-items: center; justify-content: center; height: 100vh; }
+    .auth-card { background: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
+
+    /* Main UI */
+    .container { max-width: 800px; margin: 20px auto; padding: 0 20px; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    
+    /* Form */
+    .archive-form { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 30px; transition: border-color 0.3s; }
+    .editing-mode { border: 2px solid var(--edit); background: #fffbeb; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    input, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+    textarea { grid-column: span 2; height: 80px; resize: none; }
+    .btn-row { margin-top: 15px; display: flex; gap: 10px; }
+
+    /* List Display */
+    .archive-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .archive-info h4 { margin: 0 0 8px 0; font-size: 18px; color: #1e293b; }
+    .archive-info p { margin: 5px 0; font-size: 14px; color: #64748b; display: flex; align-items: center; }
+    
+    .dial-link { color: var(--primary); text-decoration: none; font-weight: 600; }
+    .tags { display: inline-block; background: #e2e8f0; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 8px; color: #475569; font-weight: bold; }
+
+    /* Buttons */
+    button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    .btn-add { background: var(--primary); color: white; flex: 2; padding: 12px; }
+    .btn-update { background: var(--edit); color: white; flex: 2; padding: 12px; }
+    .btn-cancel { background: #94a3b8; color: white; flex: 1; padding: 12px; }
+    .btn-export { background: #059669; color: white; padding: 12px 20px; }
+    
+    .actions { display: flex; gap: 8px; }
+    .btn-icon { width: 36px; height: 36px; border-radius: 50%; transition: 0.2s; }
+    .btn-edit-icon { background: #fef3c7; color: #d97706; }
+    .btn-del-icon { background: #fee2e2; color: #ef4444; }
+    .logout-btn { background: none; color: #64748b; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <div id="loginScreen">
+    <div class="auth-card">
+      <i class="fas fa-box-archive fa-3x" style="color:var(--primary); margin-bottom:15px"></i>
+      <h2>Cloud Archive</h2>
+      <input type="email" id="loginEmail" placeholder="Email">
+      <input type="password" id="loginPassword" placeholder="Password">
+      <button class="btn-add" id="loginBtn" style="width:100%; margin-top:10px">Sign In</button>
+    </div>
+  </div>
+
+  <div id="appUI" class="hidden">
+    <div class="container">
+      <header>
+        <h1>Archive Directory</h1>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+      </header>
+
+      <div class="archive-form" id="archiveForm">
+        <h3 id="formTitle" style="margin-top:0; font-size: 16px;">Add New Archive Entry</h3>
+        <div class="form-grid">
+          <input type="text" id="fName" placeholder="First Name">
+          <input type="text" id="lName" placeholder="Last Name">
+          <input type="tel" id="pWork" placeholder="Work Phone">
+          <input type="tel" id="pHome" placeholder="Home Phone">
+          <input type="email" id="cEmail" placeholder="Email Address" style="grid-column: span 2;">
+          <textarea id="cNotes" placeholder="Archive Notes or Address..."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn-add" id="saveBtn"><i class="fas fa-save"></i> <span id="saveBtnText">Save to Archive</span></button>
+          <button class="btn-cancel hidden" id="cancelBtn">Cancel</button>
+          <button class="btn-export" id="exportBtn"><i class="fas fa-file-export"></i> Export Archive (VCF)</button>
+        </div>
+      </div>
+
+      <div id="archiveList"></div>
+    </div>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
+    authDomain: "striped-acrobat-342207.firebaseapp.com",
+    databaseURL: "https://striped-acrobat-342207-default-rtdb.firebaseio.com",
+    projectId: "striped-acrobat-342207",
+    storageBucket: "striped-acrobat-342207.appspot.com",
+    messagingSenderId: "367114842706",
+    appId: "1:367114842706:web:0f6d504163ed3c72ed658b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  
+  let archiveData = {};
+  let currentEditId = null;
+
+  // Auth Handlers
+  document.getElementById("loginBtn").onclick = () => {
+    signInWithEmailAndPassword(auth, loginEmail.value, loginPassword.value).catch(e => alert(e.message));
+  };
+  document.getElementById("logoutBtn").onclick = () => signOut(auth);
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      loginScreen.classList.add("hidden");
+      appUI.classList.remove("hidden");
+      // Changed path to archive
+      onValue(ref(db, `archive/${user.uid}`), (snap) => {
+        archiveData = snap.val() || {};
+        renderArchive();
+      });
+    } else {
+      loginScreen.classList.remove("hidden");
+      appUI.classList.add("hidden");
+    }
+  });
+
+  // Save/Update Logic
+  document.getElementById("saveBtn").onclick = () => {
+    const data = {
+      firstName: document.getElementById("fName").value,
+      lastName: document.getElementById("lName").value,
+      workPhone: document.getElementById("pWork").value,
+      homePhone: document.getElementById("pHome").value,
+      email: document.getElementById("cEmail").value,
+      notes: document.getElementById("cNotes").value
+    };
+
+    if (data.firstName && (data.workPhone || data.homePhone)) {
+      const path = `archive/${auth.currentUser.uid}`;
+      
+      if (currentEditId) {
+        update(ref(db, `${path}/${currentEditId}`), data);
+        resetForm();
+      } else {
+        push(ref(db, path), data);
+        resetForm();
+      }
+    } else {
+      alert("Required: First Name and one Phone Number.");
+    }
+  };
+
+  window.editEntry = (id) => {
+    currentEditId = id;
+    const a = archiveData[id];
+    
+    document.getElementById("fName").value = a.firstName || "";
+    document.getElementById("lName").value = a.lastName || "";
+    document.getElementById("pWork").value = a.workPhone || "";
+    document.getElementById("pHome").value = a.homePhone || "";
+    document.getElementById("cEmail").value = a.email || "";
+    document.getElementById("cNotes").value = a.notes || "";
+
+    document.getElementById("formTitle").innerText = "Edit Archive Entry";
+    document.getElementById("saveBtnText").innerText = "Update Entry";
+    document.getElementById("saveBtn").className = "btn-update";
+    document.getElementById("archiveForm").classList.add("editing-mode");
+    document.getElementById("cancelBtn").classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const resetForm = () => {
+    currentEditId = null;
+    document.querySelectorAll(".form-grid input, .form-grid textarea").forEach(i => i.value = "");
+    document.getElementById("formTitle").innerText = "Add New Archive Entry";
+    document.getElementById("saveBtnText").innerText = "Save to Archive";
+    document.getElementById("saveBtn").className = "btn-add";
+    document.getElementById("archiveForm").classList.remove("editing-mode");
+    document.getElementById("cancelBtn").classList.add("hidden");
+  };
+
+  document.getElementById("cancelBtn").onclick = resetForm;
+
+  window.deleteEntry = (id) => {
+    if(confirm("Permanently delete from archive?")) {
+        if(currentEditId === id) resetForm();
+        remove(ref(db, `archive/${auth.currentUser.uid}/${id}`));
+    }
+  };
+
+  const createDialLink = (number, type) => {
+    if (!number) return '—';
+    const cleanNum = number.replace(/[^\d+]/g, "");
+    return `<span class="tags">${type}</span><a href="tel:${cleanNum}" class="dial-link">${number}</a>`;
+  };
+
+  function renderArchive() {
+    const list = document.getElementById("archiveList");
+    list.innerHTML = "";
+    Object.keys(archiveData).forEach(id => {
+      const a = archiveData[id];
+      const card = document.createElement("div");
+      card.className = "archive-card";
+      card.innerHTML = `
+        <div class="archive-info">
+          <h4>${a.firstName} ${a.lastName}</h4>
+          <p>${createDialLink(a.workPhone, 'WORK')}</p>
+          <p>${createDialLink(a.homePhone, 'HOME')}</p>
+          <p><i class="fas fa-envelope" style="margin-right:8px"></i> ${a.email || 'N/A'}</p>
+        </div>
+        <div class="actions">
+          <button class="btn-icon btn-edit-icon" onclick="window.editEntry('${id}')" title="Edit"><i class="fas fa-edit"></i></button>
+          <button class="btn-icon btn-del-icon" onclick="window.deleteEntry('${id}')" title="Delete"><i class="fas fa-trash-alt"></i></button>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  // Export Archive
+  document.getElementById("exportBtn").onclick = () => {
+    if (Object.keys(archiveData).length === 0) return alert("Archive is empty.");
+    let vcf = "";
+    Object.values(archiveData).forEach(a => {
+      vcf += `BEGIN:VCARD\nVERSION:3.0\nN:${a.lastName};${a.firstName};;;\nFN:${a.firstName} ${a.lastName}\n`;
+      if(a.workPhone) vcf += `TEL;TYPE=WORK,VOICE:${a.workPhone}\n`;
+      if(a.homePhone) vcf += `TEL;TYPE=HOME,VOICE:${a.homePhone}\n`;
+      if(a.email) vcf += `EMAIL;TYPE=PREF,INTERNET:${a.email}\n`;
+      if(a.notes) vcf += `NOTE:${a.notes.replace(/\n/g, '\\n')}\n`;
+      vcf += "END:VCARD\n";
+    });
+    const blob = new Blob([vcf], { type: "text/vcard" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Archive_Backup.vcf`;
+    link.click();
+  };
+</script>
+</body>
+</html>
