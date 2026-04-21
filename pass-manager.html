@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Secure Vault - Full Edition</title>
+    <title>Secure Vault - Fixed Layout</title>
     <style>
         :root { --primary: #007bff; --danger: #dc3545; --warning: #ffc107; }
         body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f0f2f5; color: #333; }
@@ -12,17 +12,18 @@
         input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         .btn { width: 100%; padding: 12px; color: white; border: none; cursor: pointer; border-radius: 6px; font-weight: bold; margin-top: 10px; }
         .btn-primary { background: var(--primary); }
-        .btn-danger { background: var(--danger); width: auto; font-size: 11px; }
-        .btn-warning { background: var(--warning); color: #000; width: auto; font-size: 11px; }
+        .btn-danger { background: var(--danger); width: auto; font-size: 11px; margin-right: 5px; }
+        .btn-warning { background: var(--warning); color: #000; width: auto; font-size: 11px; margin-right: 5px; }
 
         .hidden { display: none !important; }
         .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         
         .entry-card { background: #fff; border: 1px solid #eee; padding: 15px; margin-top: 15px; border-radius: 8px; }
-        .entry-header { font-weight: bold; color: var(--primary); border-bottom: 1px solid #f0f0f0; margin-bottom: 8px; }
-        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.9em; }
+        .entry-header { font-weight: bold; color: var(--primary); border-bottom: 1px solid #f0f0f0; margin-bottom: 10px; padding-bottom: 5px; font-size: 1.1em; }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.9em; margin-bottom: 10px; }
+        .toggle-text { color: var(--primary); cursor: pointer; font-size: 0.85em; text-decoration: underline; margin-left: 5px; }
 
-        /* Modal Overlay */
+        /* Modal */
         #modalOverlay { 
             position: fixed; top:0; left:0; width:100%; height:100%; 
             background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; 
@@ -43,39 +44,39 @@
 
     <div id="appSection" class="hidden">
         <div style="display:flex; justify-content: space-between; align-items: center;">
-            <h2>Add Entry</h2>
-            <button id="logoutBtn" style="background:none; border:none; color:grey; cursor:pointer;">Logout</button>
+            <h2>Add New Entry</h2>
+            <button id="logoutBtn" style="background:#6c757d; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Logout</button>
         </div>
         
-        <input type="text" id="accName" placeholder="Account Name">
+        <input type="text" id="accName" placeholder="Account Name (e.g. Gmail)">
         <div class="field-group">
             <input type="text" id="accUser" placeholder="Username">
             <input type="password" id="accPass" placeholder="Password">
         </div>
 
         <div class="field-group">
-            <input type="text" id="e1" placeholder="Extra 1">
-            <input type="text" id="e2" placeholder="Extra 2">
+            <input type="text" id="e1" placeholder="Extra Description 1">
+            <input type="text" id="e2" placeholder="Extra Description 2">
         </div>
         <div class="field-group">
-            <input type="text" id="e3" placeholder="Extra 3">
-            <input type="text" id="e4" placeholder="Extra 4">
+            <input type="text" id="e3" placeholder="Extra Description 3">
+            <input type="text" id="e4" placeholder="Extra Description 4">
         </div>
         <div class="field-group">
-            <input type="text" id="e5" placeholder="Extra 5">
-            <input type="text" id="e6" placeholder="Extra 6">
+            <input type="text" id="e5" placeholder="Extra Description 5">
+            <input type="text" id="e6" placeholder="Extra Description 6">
         </div>
 
         <button id="saveBtn" class="btn btn-primary">Save to Vault</button>
-        <hr>
-        <h3>Your Credentials</h3>
+        <hr style="margin:20px 0; border:0; border-top:1px solid #ddd;">
+        <h3>Stored Credentials</h3>
         <div id="passwordList"></div>
     </div>
 </div>
 
 <div id="modalOverlay" class="hidden">
     <div class="modal-content">
-        <h3>Edit Credentials</h3>
+        <h3>Edit Entry</h3>
         <input type="hidden" id="editId">
         <input type="text" id="editName" placeholder="Account Name">
         <div class="field-group">
@@ -91,8 +92,8 @@
             <input type="text" id="editE4" placeholder="Extra 4">
         </div>
         <div class="field-group">
-            <input type="text" id="editE5" placeholder="Extra 1">
-            <input type="text" id="editE6" placeholder="Extra 2">
+            <input type="text" id="editE5" placeholder="Extra 5">
+            <input type="text" id="editE6" placeholder="Extra 6">
         </div>
         <div style="display: flex; gap: 10px; margin-top: 15px;">
             <button id="updateBtn" class="btn btn-primary">Update Entry</button>
@@ -157,13 +158,14 @@
                 card.innerHTML = `
                     <div class="entry-header">${item.name}</div>
                     <div class="details-grid">
-                        <div><strong>U:</strong> ${item.user}</div>
-                        <div><strong>P:</strong> ••••</div>
+                        <div><strong>User:</strong> ${item.user || '-'}</div>
+                        <div><strong>Pass:</strong> <span id="p-${id}">••••••</span> 
+                        <span class="toggle-text" onclick="window.toggleShow('${id}', '${item.pass}')">Show</span></div>
                     </div>
-                    <div class="details-grid" style="color: #666; margin-top:5px; font-size: 0.8em;">
-                        <div>${item.e1 || '-'}</div><div>${item.e2 || '-'}</div>
-                        <div>${item.e3 || '-'}</div><div>${item.e4 || '-'}</div>
-                        <div>${item.e5 || '-'}</div><div>${item.e6 || '-'}</div>
+                    <div class="details-grid" style="color: #666; border-top: 1px dashed #eee; padding-top: 8px;">
+                        <div><strong>E1:</strong> ${item.e1 || '-'}</div><div><strong>E2:</strong> ${item.e2 || '-'}</div>
+                        <div><strong>E3:</strong> ${item.e3 || '-'}</div><div><strong>E4:</strong> ${item.e4 || '-'}</div>
+                        <div><strong>E5:</strong> ${item.e5 || '-'}</div><div><strong>E6:</strong> ${item.e6 || '-'}</div>
                     </div>
                     <button class="btn btn-warning" onclick="window.openEditModal('${id}')">Edit</button>
                     <button class="btn btn-danger" onclick="window.deleteItem('${id}')">Delete</button>
@@ -173,9 +175,14 @@
         });
     }
 
+    window.toggleShow = (id, val) => {
+        const el = document.getElementById('p-' + id);
+        el.innerText = el.innerText === '••••••' ? val : '••••••';
+    };
+
     window.openEditModal = (id) => {
-        onValue(ref(db, `users/${currentUser.uid}/${id}`), (snapshot) => {
-            const d = snapshot.val();
+        onValue(ref(db, `users/${currentUser.uid}/${id}`), (snap) => {
+            const d = snap.val();
             if(!d) return;
             document.getElementById('editId').value = id;
             document.getElementById('editName').value = d.name;
@@ -204,7 +211,7 @@
     };
 
     document.getElementById('closeModal').onclick = () => document.getElementById('modalOverlay').classList.add('hidden');
-    window.deleteItem = (id) => { if(confirm("Delete?")) remove(ref(db, `users/${currentUser.uid}/${id}`)); };
+    window.deleteItem = (id) => { if(confirm("Delete this entry?")) remove(ref(db, `users/${currentUser.uid}/${id}`)); };
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
     
     let isLogin = true;
