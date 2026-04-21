@@ -3,21 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Secure Vault - Expanded</title>
+    <title>My Secure Vault Pro</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f0f2f5; color: #333; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 6px; font-weight: bold; margin-top: 10px; }
-        button:hover { background: #0056b3; }
+        :root { --primary: #007bff; --success: #28a745; --danger: #dc3545; --warning: #ffc107; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #f4f7f6; color: #333; }
+        .container { max-width: 650px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        
+        h2, h3 { margin-top: 0; color: #444; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; transition: border 0.3s; }
+        input:focus { border-color: var(--primary); outline: none; }
+        
+        .btn { width: 100%; padding: 12px; color: white; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; transition: opacity 0.2s; margin-top: 10px; }
+        .btn:hover { opacity: 0.9; }
+        .btn-primary { background: var(--primary); }
+        .btn-secondary { background: #6c757d; }
+        .btn-danger { background: var(--danger); width: auto; font-size: 12px; }
+        .btn-warning { background: var(--warning); color: #212529; width: auto; font-size: 12px; }
+
         .hidden { display: none; }
-        .entry-card { background: #fff; border: 1px solid #eee; padding: 15px; margin-top: 15px; border-radius: 8px; position: relative; }
-        .entry-header { font-weight: bold; color: #007bff; font-size: 1.1em; border-bottom: 1px solid #f0f0f0; margin-bottom: 8px; padding-bottom: 5px; }
-        .delete-btn { width: auto; background: #ff4d4d; padding: 5px 10px; font-size: 11px; margin-top: 10px; margin-right: 5px; }
-        .edit-btn { width: auto; background: #ffc107; color: #000; padding: 5px 10px; font-size: 11px; margin-top: 10px; border-radius: 6px; border:none; cursor:pointer; font-weight: bold; }
-        .toggle-text { color: #007bff; cursor: pointer; font-size: 0.85em; text-decoration: underline; margin-left: 5px; }
-        .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.9em; margin-top: 5px; }
+        .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        /* Entry Card Styling */
+        .entry-card { background: #fff; border: 1px solid #eef; padding: 18px; margin-top: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .entry-header { font-weight: bold; color: var(--primary); font-size: 1.15em; margin-bottom: 10px; border-bottom: 2px solid #f0f4f8; padding-bottom: 5px; }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.92em; }
+        .label { color: #888; font-weight: 600; font-size: 0.8em; text-transform: uppercase; }
+        .toggle-text { color: var(--primary); cursor: pointer; font-size: 0.85em; font-weight: bold; margin-left: 5px; }
+
+        /* Modal Logic */
+        #modalOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -25,40 +40,58 @@
 <div class="container">
     <div id="authSection">
         <h2 id="authTitle">Vault Login</h2>
-        <input type="email" id="email" placeholder="Email">
+        <input type="email" id="email" placeholder="Email Address">
         <input type="password" id="authPassword" placeholder="Master Password">
-        <button id="authBtn">Login</button>
-        <p style="text-align:center; cursor:pointer; font-size: 0.9em; color: #666;" id="toggleAuth">New? Create Account</p>
+        <button id="authBtn" class="btn btn-primary">Login</button>
+        <p style="text-align:center; cursor:pointer; font-size: 0.9em; color: #666; margin-top: 15px;" id="toggleAuth">New here? Create Vault Account</p>
     </div>
 
     <div id="appSection" class="hidden">
-        <h2>Add New Entry</h2>
-        <input type="text" id="accName" placeholder="Account Name (e.g. Personal Gmail)">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>New Entry</h3>
+            <button id="logoutBtn" class="btn btn-secondary" style="width: auto; padding: 5px 15px;">Logout</button>
+        </div>
         
+        <input type="text" id="accName" placeholder="Account Name (e.g., Netflix, Bank)">
         <div class="field-group">
-            <input type="text" id="accUser" placeholder="Username">
+            <input type="text" id="accUser" placeholder="Username/Email">
             <input type="password" id="accPass" placeholder="Password">
         </div>
 
         <div class="field-group">
-            <input type="text" id="extra1" placeholder="Extra Description 1">
-            <input type="text" id="extra2" placeholder="Extra Description 2">
+            <input type="text" id="extra1" placeholder="Extra 1">
+            <input type="text" id="extra2" placeholder="Extra 2">
         </div>
-        <div class="field-group">
-            <input type="text" id="extra3" placeholder="Extra Description 3">
-            <input type="text" id="extra4" placeholder="Extra Description 4">
-        </div>
-        <div class="field-group">
-            <input type="text" id="extra5" placeholder="Extra Description 5">
-            <input type="text" id="extra6" placeholder="Extra Description 6">
-        </div>
+        <button id="saveBtn" class="btn btn-primary">Save to Secure Vault</button>
 
-        <button id="saveBtn">Save to Vault</button>
-
-        <hr style="margin: 25px 0; border: 0; border-top: 1px solid #eee;">
+        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
+        
         <h3>Stored Credentials</h3>
         <div id="passwordList"></div>
-        <button id="logoutBtn" style="background: #6c757d;">Logout</button>
+    </div>
+</div>
+
+<div id="modalOverlay" class="hidden">
+    <div class="modal-content">
+        <h3>Edit Entry</h3>
+        <input type="hidden" id="editId">
+        <label class="label">Account Name</label>
+        <input type="text" id="editName">
+        
+        <div class="field-group">
+            <div><label class="label">Username</label><input type="text" id="editUser"></div>
+            <div><label class="label">Password</label><input type="text" id="editPass"></div>
+        </div>
+
+        <div class="field-group">
+            <div><label class="label">Extra 1</label><input type="text" id="editE1"></div>
+            <div><label class="label">Extra 2</label><input type="text" id="editE2"></div>
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button id="updateBtn" class="btn btn-primary">Update Entry</button>
+            <button id="closeModal" class="btn btn-secondary">Cancel</button>
+        </div>
     </div>
 </div>
 
@@ -68,13 +101,13 @@
     import { getDatabase, ref, push, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
-      authDomain: "striped-acrobat-342207.firebaseapp.com",
-      databaseURL: "https://striped-acrobat-342207-default-rtdb.firebaseio.com",
-      projectId: "striped-acrobat-342207",
-      storageBucket: "striped-acrobat-342207.appspot.com",
-      messagingSenderId: "367114842706",
-      appId: "1:367114842706:web:0f6d504163ed3c72ed658b"
+        apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
+        authDomain: "striped-acrobat-342207.firebaseapp.com",
+        databaseURL: "https://striped-acrobat-342207-default-rtdb.firebaseio.com",
+        projectId: "striped-acrobat-342207",
+        storageBucket: "striped-acrobat-342207.appspot.com",
+        messagingSenderId: "367114842706",
+        appId: "1:367114842706:web:0f6d504163ed3c72ed658b"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -84,10 +117,12 @@
     let isLoginMode = true;
     let currentUser = null;
 
+    // --- AUTH LOGIC ---
     document.getElementById('toggleAuth').onclick = () => {
         isLoginMode = !isLoginMode;
         document.getElementById('authTitle').innerText = isLoginMode ? "Vault Login" : "Create Vault";
         document.getElementById('authBtn').innerText = isLoginMode ? "Login" : "Sign Up";
+        document.getElementById('toggleAuth').innerText = isLoginMode ? "New? Create Account" : "Have an account? Login";
     };
 
     document.getElementById('authBtn').onclick = () => {
@@ -100,46 +135,31 @@
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
 
     onAuthStateChanged(auth, (user) => {
-        if (user) {
-            currentUser = user;
-            document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('appSection').classList.remove('hidden');
-            loadData(user.uid);
-        } else {
-            document.getElementById('authSection').classList.remove('hidden');
-            document.getElementById('appSection').classList.add('hidden');
-        }
+        currentUser = user;
+        document.getElementById('authSection').classList.toggle('hidden', !!user);
+        document.getElementById('appSection').classList.toggle('hidden', !user);
+        if (user) loadData(user.uid);
     });
 
-    // --- SAVE DATA (9 FIELDS TOTAL) ---
+    // --- CRUD OPERATIONS ---
     document.getElementById('saveBtn').onclick = () => {
         const data = {
             name: document.getElementById('accName').value,
             user: document.getElementById('accUser').value,
             pass: document.getElementById('accPass').value,
             e1: document.getElementById('extra1').value,
-            e2: document.getElementById('extra2').value,
-            e3: document.getElementById('extra3').value,
-            e4: document.getElementById('extra4').value,
-            e5: document.getElementById('extra5').value,
-            e6: document.getElementById('extra6').value
+            e2: document.getElementById('extra2').value
         };
 
         if (data.name && currentUser) {
-            const userRef = ref(db, 'users/' + currentUser.uid);
-            push(userRef, data).then(() => {
-                // Clear all inputs
-                ['accName','accUser','accPass','extra1','extra2','extra3','extra4','extra5','extra6'].forEach(id => {
-                    document.getElementById(id).value = '';
-                });
+            push(ref(db, `users/${currentUser.uid}`), data).then(() => {
+                ['accName','accUser','accPass','extra1','extra2'].forEach(id => document.getElementById(id).value = '');
             });
-        } else {
-            alert("Please enter at least an Account Name");
-        }
+        } else alert("Account Name is required");
     };
 
     function loadData(uid) {
-        onValue(ref(db, 'users/' + uid), (snapshot) => {
+        onValue(ref(db, `users/${uid}`), (snapshot) => {
             const list = document.getElementById('passwordList');
             list.innerHTML = '';
             const data = snapshot.val();
@@ -150,56 +170,68 @@
                 card.innerHTML = `
                     <div class="entry-header">${item.name}</div>
                     <div class="details-grid">
-                        <div><strong>User:</strong> ${item.user}</div>
-                        <div><strong>Pass:</strong> <span id="p-${id}">••••••</span> <span class="toggle-text" onclick="toggle('${id}', '${item.pass}')">Show</span></div>
+                        <div><span class="label">User:</span> ${item.user || 'N/A'}</div>
+                        <div><span class="label">Pass:</span> <span id="p-${id}">••••••</span> 
+                             <span class="toggle-text" onclick="window.toggleView('${id}', '${item.pass}')">Show</span></div>
                     </div>
-                    <div class="details-grid" style="border-top: 1px dashed #eee; margin-top: 8px; padding-top: 5px; color: #666;">
-                        <div><strong>E1:</strong> ${item.e1 || '-'}</div>
-                        <div><strong>E2:</strong> ${item.e2 || '-'}</div>
-                        <div><strong>E3:</strong> ${item.e3 || '-'}</div>
-                        <div><strong>E4:</strong> ${item.e4 || '-'}</div>
-                        <div><strong>E5:</strong> ${item.e5 || '-'}</div>
-                        <div><strong>E6:</strong> ${item.e6 || '-'}</div>
+                    <div class="details-grid" style="margin-top:10px; border-top: 1px solid #f9f9f9; padding-top:5px;">
+                        <div><span class="label">E1:</span> ${item.e1 || '-'}</div>
+                        <div><span class="label">E2:</span> ${item.e2 || '-'}</div>
                     </div>
-                    <button class="edit-btn" onclick="editItem('${id}')">Edit All Fields</button>
-                    <button class="delete-btn" onclick="deleteItem('${id}')">Delete</button>
+                    <div style="margin-top: 15px; display: flex; gap: 8px;">
+                        <button class="btn btn-warning" onclick="window.openEditModal('${id}')">Edit</button>
+                        <button class="btn btn-danger" onclick="window.deleteItem('${id}')">Delete</button>
+                    </div>
                 `;
                 list.appendChild(card);
             }
         });
     }
 
-    window.toggle = (id, val) => {
+    // --- WINDOW SCOPED FUNCTIONS FOR DYNAMIC HTML ---
+    window.toggleView = (id, val) => {
         const el = document.getElementById('p-' + id);
         el.innerText = el.innerText === '••••••' ? val : '••••••';
     };
 
     window.deleteItem = (id) => {
-        if(confirm("Delete this entry?")) remove(ref(db, `users/${currentUser.uid}/${id}`));
+        if(confirm("Permanently delete this entry?")) remove(ref(db, `users/${currentUser.uid}/${id}`));
     };
 
-    window.editItem = (id) => {
-        // Fetch current data from DB to pre-fill prompts
+    // --- MODAL LOGIC ---
+    window.openEditModal = (id) => {
         onValue(ref(db, `users/${currentUser.uid}/${id}`), (snapshot) => {
-            const current = snapshot.val();
-            if(!current) return;
-
-            const n = prompt("Account Name:", current.name);
-            const u = prompt("Username:", current.user);
-            const p = prompt("Password:", current.pass);
-            const e1 = prompt("Extra 1:", current.e1);
-            const e2 = prompt("Extra 2:", current.e2);
-            const e3 = prompt("Extra 3:", current.e3);
-            const e4 = prompt("Extra 4:", current.e4);
-            const e5 = prompt("Extra 5:", current.e5);
-            const e6 = prompt("Extra 6:", current.e6);
-
-            if (n !== null) {
-                update(ref(db, `users/${currentUser.uid}/${id}`), {
-                    name: n, user: u, pass: p, e1: e1, e2: e2, e3: e3, e4: e4, e5: e5, e6: e6
-                });
-            }
+            const data = snapshot.val();
+            if(!data) return;
+            
+            document.getElementById('editId').value = id;
+            document.getElementById('editName').value = data.name;
+            document.getElementById('editUser').value = data.user;
+            document.getElementById('editPass').value = data.pass;
+            document.getElementById('editE1').value = data.e1 || '';
+            document.getElementById('editE2').value = data.e2 || '';
+            
+            document.getElementById('modalOverlay').classList.remove('hidden');
         }, { onlyOnce: true });
+    };
+
+    document.getElementById('closeModal').onclick = () => {
+        document.getElementById('modalOverlay').classList.add('hidden');
+    };
+
+    document.getElementById('updateBtn').onclick = () => {
+        const id = document.getElementById('editId').value;
+        const updatedData = {
+            name: document.getElementById('editName').value,
+            user: document.getElementById('editUser').value,
+            pass: document.getElementById('editPass').value,
+            e1: document.getElementById('editE1').value,
+            e2: document.getElementById('editE2').value
+        };
+
+        update(ref(db, `users/${currentUser.uid}/${id}`), updatedData).then(() => {
+            document.getElementById('modalOverlay').classList.add('hidden');
+        });
     };
 </script>
 </body>
