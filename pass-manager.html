@@ -5,68 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Secure Vault Pro</title>
     <style>
-        :root { --primary: #007bff; --success: #28a745; --danger: #dc3545; --warning: #ffc107; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #f4f7f6; color: #333; }
+        :root { --primary: #007bff; --danger: #dc3545; --warning: #ffc107; }
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f4f7f6; color: #333; }
         .container { max-width: 650px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         
-        h2, h3 { margin-top: 0; color: #444; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; transition: border 0.3s; }
-        input:focus { border-color: var(--primary); outline: none; }
-        
-        .btn { width: 100%; padding: 12px; color: white; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; transition: opacity 0.2s; margin-top: 10px; }
-        .btn:hover { opacity: 0.9; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; color: white; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; margin-top: 10px; }
         .btn-primary { background: var(--primary); }
-        .btn-secondary { background: #6c757d; }
         .btn-danger { background: var(--danger); width: auto; font-size: 12px; }
         .btn-warning { background: var(--warning); color: #212529; width: auto; font-size: 12px; }
 
-        .hidden { display: none; }
-        .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        
-        /* Entry Card Styling */
-        .entry-card { background: #fff; border: 1px solid #eef; padding: 18px; margin-top: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
-        .entry-header { font-weight: bold; color: var(--primary); font-size: 1.15em; margin-bottom: 10px; border-bottom: 2px solid #f0f4f8; padding-bottom: 5px; }
-        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.92em; }
-        .label { color: #888; font-weight: 600; font-size: 0.8em; text-transform: uppercase; }
-        .toggle-text { color: var(--primary); cursor: pointer; font-size: 0.85em; font-weight: bold; margin-left: 5px; }
+        /* CRITICAL FIX: Ensure hidden items are truly hidden */
+        .hidden { display: none !important; }
 
-        /* Modal Logic */
-        #modalOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .entry-card { background: #fff; border: 1px solid #eef; padding: 15px; margin-top: 15px; border-radius: 12px; }
+        
+        /* Modal Styling */
+        #modalOverlay { 
+            position: fixed; top:0; left:0; width:100%; height:100%; 
+            background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; 
+        }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="authSection">
-        <h2 id="authTitle">Vault Login</h2>
-        <input type="email" id="email" placeholder="Email Address">
+        <h2>Vault Login</h2>
+        <input type="email" id="email" placeholder="Email">
         <input type="password" id="authPassword" placeholder="Master Password">
         <button id="authBtn" class="btn btn-primary">Login</button>
-        <p style="text-align:center; cursor:pointer; font-size: 0.9em; color: #666; margin-top: 15px;" id="toggleAuth">New here? Create Vault Account</p>
+        <p style="text-align:center; cursor:pointer;" id="toggleAuth">New? Create Account</p>
     </div>
 
     <div id="appSection" class="hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3>New Entry</h3>
-            <button id="logoutBtn" class="btn btn-secondary" style="width: auto; padding: 5px 15px;">Logout</button>
+        <div style="display:flex; justify-content: space-between;">
+            <h3>Add New</h3>
+            <button id="logoutBtn" style="width:auto; background:none; border:none; color:blue; cursor:pointer;">Logout</button>
         </div>
-        
-        <input type="text" id="accName" placeholder="Account Name (e.g., Netflix, Bank)">
+        <input type="text" id="accName" placeholder="Account Name">
         <div class="field-group">
-            <input type="text" id="accUser" placeholder="Username/Email">
+            <input type="text" id="accUser" placeholder="Username">
             <input type="password" id="accPass" placeholder="Password">
         </div>
-
-        <div class="field-group">
-            <input type="text" id="extra1" placeholder="Extra 1">
-            <input type="text" id="extra2" placeholder="Extra 2">
-        </div>
-        <button id="saveBtn" class="btn btn-primary">Save to Secure Vault</button>
-
-        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
-        
-        <h3>Stored Credentials</h3>
+        <button id="saveBtn" class="btn btn-primary">Save to Vault</button>
         <div id="passwordList"></div>
     </div>
 </div>
@@ -75,30 +59,22 @@
     <div class="modal-content">
         <h3>Edit Entry</h3>
         <input type="hidden" id="editId">
-        <label class="label">Account Name</label>
-        <input type="text" id="editName">
-        
+        <input type="text" id="editName" placeholder="Account Name">
         <div class="field-group">
-            <div><label class="label">Username</label><input type="text" id="editUser"></div>
-            <div><label class="label">Password</label><input type="text" id="editPass"></div>
+            <input type="text" id="editUser" placeholder="Username">
+            <input type="text" id="editPass" placeholder="Password">
         </div>
-
-        <div class="field-group">
-            <div><label class="label">Extra 1</label><input type="text" id="editE1"></div>
-            <div><label class="label">Extra 2</label><input type="text" id="editE2"></div>
-        </div>
-        
         <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button id="updateBtn" class="btn btn-primary">Update Entry</button>
-            <button id="closeModal" class="btn btn-secondary">Cancel</button>
+            <button id="updateBtn" class="btn btn-primary">Update</button>
+            <button id="closeModal" class="btn" style="background:#6c757d; color:white;">Cancel</button>
         </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getDatabase, ref, push, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
@@ -113,49 +89,36 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
-
-    let isLoginMode = true;
     let currentUser = null;
 
-    // --- AUTH LOGIC ---
-    document.getElementById('toggleAuth').onclick = () => {
-        isLoginMode = !isLoginMode;
-        document.getElementById('authTitle').innerText = isLoginMode ? "Vault Login" : "Create Vault";
-        document.getElementById('authBtn').innerText = isLoginMode ? "Login" : "Sign Up";
-        document.getElementById('toggleAuth').innerText = isLoginMode ? "New? Create Account" : "Have an account? Login";
-    };
-
-    document.getElementById('authBtn').onclick = () => {
-        const e = document.getElementById('email').value;
-        const p = document.getElementById('authPassword').value;
-        if(isLoginMode) signInWithEmailAndPassword(auth, e, p).catch(err => alert(err.message));
-        else createUserWithEmailAndPassword(auth, e, p).catch(err => alert(err.message));
-    };
-
-    document.getElementById('logoutBtn').onclick = () => signOut(auth);
-
+    // Auth & UI Toggling
     onAuthStateChanged(auth, (user) => {
         currentUser = user;
-        document.getElementById('authSection').classList.toggle('hidden', !!user);
-        document.getElementById('appSection').classList.toggle('hidden', !user);
-        if (user) loadData(user.uid);
+        if (user) {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('appSection').classList.remove('hidden');
+            loadData(user.uid);
+        } else {
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('appSection').classList.add('hidden');
+            document.getElementById('passwordList').innerHTML = '';
+        }
     });
 
-    // --- CRUD OPERATIONS ---
+    // Save Logic
     document.getElementById('saveBtn').onclick = () => {
-        const data = {
-            name: document.getElementById('accName').value,
-            user: document.getElementById('accUser').value,
-            pass: document.getElementById('accPass').value,
-            e1: document.getElementById('extra1').value,
-            e2: document.getElementById('extra2').value
-        };
-
-        if (data.name && currentUser) {
-            push(ref(db, `users/${currentUser.uid}`), data).then(() => {
-                ['accName','accUser','accPass','extra1','extra2'].forEach(id => document.getElementById(id).value = '');
+        const name = document.getElementById('accName').value;
+        if (name && currentUser) {
+            push(ref(db, `users/${currentUser.uid}`), {
+                name,
+                user: document.getElementById('accUser').value,
+                pass: document.getElementById('accPass').value
+            }).then(() => {
+                document.getElementById('accName').value = '';
+                document.getElementById('accUser').value = '';
+                document.getElementById('accPass').value = '';
             });
-        } else alert("Account Name is required");
+        }
     };
 
     function loadData(uid) {
@@ -168,49 +131,26 @@
                 const card = document.createElement('div');
                 card.className = 'entry-card';
                 card.innerHTML = `
-                    <div class="entry-header">${item.name}</div>
-                    <div class="details-grid">
-                        <div><span class="label">User:</span> ${item.user || 'N/A'}</div>
-                        <div><span class="label">Pass:</span> <span id="p-${id}">••••••</span> 
-                             <span class="toggle-text" onclick="window.toggleView('${id}', '${item.pass}')">Show</span></div>
-                    </div>
-                    <div class="details-grid" style="margin-top:10px; border-top: 1px solid #f9f9f9; padding-top:5px;">
-                        <div><span class="label">E1:</span> ${item.e1 || '-'}</div>
-                        <div><span class="label">E2:</span> ${item.e2 || '-'}</div>
-                    </div>
-                    <div style="margin-top: 15px; display: flex; gap: 8px;">
-                        <button class="btn btn-warning" onclick="window.openEditModal('${id}')">Edit</button>
-                        <button class="btn btn-danger" onclick="window.deleteItem('${id}')">Delete</button>
-                    </div>
+                    <div style="font-weight:bold; color:#007bff;">${item.name}</div>
+                    <div style="font-size:0.9em;">User: ${item.user}</div>
+                    <button class="btn btn-warning" onclick="window.openEditModal('${id}')">Edit</button>
+                    <button class="btn btn-danger" onclick="window.deleteItem('${id}')">Delete</button>
                 `;
                 list.appendChild(card);
             }
         });
     }
 
-    // --- WINDOW SCOPED FUNCTIONS FOR DYNAMIC HTML ---
-    window.toggleView = (id, val) => {
-        const el = document.getElementById('p-' + id);
-        el.innerText = el.innerText === '••••••' ? val : '••••••';
-    };
-
-    window.deleteItem = (id) => {
-        if(confirm("Permanently delete this entry?")) remove(ref(db, `users/${currentUser.uid}/${id}`));
-    };
-
-    // --- MODAL LOGIC ---
+    // Modal Controls
     window.openEditModal = (id) => {
         onValue(ref(db, `users/${currentUser.uid}/${id}`), (snapshot) => {
             const data = snapshot.val();
             if(!data) return;
-            
             document.getElementById('editId').value = id;
             document.getElementById('editName').value = data.name;
             document.getElementById('editUser').value = data.user;
             document.getElementById('editPass').value = data.pass;
-            document.getElementById('editE1').value = data.e1 || '';
-            document.getElementById('editE2').value = data.e2 || '';
-            
+            // Only show modal AFTER data is loaded
             document.getElementById('modalOverlay').classList.remove('hidden');
         }, { onlyOnce: true });
     };
@@ -221,17 +161,32 @@
 
     document.getElementById('updateBtn').onclick = () => {
         const id = document.getElementById('editId').value;
-        const updatedData = {
+        update(ref(db, `users/${currentUser.uid}/${id}`), {
             name: document.getElementById('editName').value,
             user: document.getElementById('editUser').value,
-            pass: document.getElementById('editPass').value,
-            e1: document.getElementById('editE1').value,
-            e2: document.getElementById('editE2').value
-        };
-
-        update(ref(db, `users/${currentUser.uid}/${id}`), updatedData).then(() => {
+            pass: document.getElementById('editPass').value
+        }).then(() => {
             document.getElementById('modalOverlay').classList.add('hidden');
         });
+    };
+
+    window.deleteItem = (id) => {
+        if(confirm("Delete this?")) remove(ref(db, `users/${currentUser.uid}/${id}`));
+    };
+
+    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+    
+    // Auth Toggles (Simplified)
+    let loginMode = true;
+    document.getElementById('toggleAuth').onclick = () => {
+        loginMode = !loginMode;
+        document.getElementById('authBtn').innerText = loginMode ? "Login" : "Sign Up";
+    };
+    document.getElementById('authBtn').onclick = () => {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('authPassword').value;
+        if(loginMode) signInWithEmailAndPassword(auth, e, p);
+        else createUserWithEmailAndPassword(auth, e, p);
     };
 </script>
 </body>
