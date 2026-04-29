@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Pay UI</title>
+    <title>Smart Pay Pro</title>
     <style>
         :root {
             --google-blue: #4285F4;
-            --card-glass: rgba(255, 255, 255, 0.1);
+            --bg-color: #000000;
         }
 
         body {
-            background-color: #000000;
+            background-color: var(--bg-color);
             color: #ffffff;
             font-family: 'Google Sans', 'Roboto', sans-serif;
             margin: 0;
@@ -21,38 +21,25 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
+            justify-content: center;
         }
 
-        /* Top Navigation Header */
-        .header {
-            width: 100%;
-            padding: 20px 0;
-            text-align: center;
-            font-size: 1.1rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-
-        /* Card Container */
-        .card-wrapper {
-            margin-top: 40px;
-            perspective: 1000px;
-        }
-
+        /* Increased Card Size */
         .card {
-            width: 320px;
-            height: 200px;
-            border-radius: 16px;
+            width: 360px; /* Increased from 320px */
+            height: 226px; /* Increased from 200px */
+            border-radius: 20px;
             position: relative;
-            background: #1a1a1a;
-            border: 1px solid rgba(255,255,255,0.15);
+            background: #111;
+            border: 1px solid rgba(255,255,255,0.1);
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
-            padding: 20px;
+            padding: 25px;
             box-sizing: border-box;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            transition: transform 0.2s ease;
         }
 
         #card-img {
@@ -66,69 +53,34 @@
             display: none;
         }
 
-        /* Premium Shimmer Overlay */
         .shimmer {
             position: absolute;
             top: 0;
             left: -150%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                120deg,
-                rgba(255,255,255,0) 30%,
-                rgba(255,255,255,0.15) 50%,
-                rgba(255,255,255,0) 70%
-            );
+            background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
             z-index: 1;
-            animation: shine 4s infinite;
+            animation: shine 5s infinite;
         }
 
-        @keyframes shine {
-            0% { left: -150%; }
-            20% { left: 150%; }
-            100% { left: 150%; }
-        }
+        @keyframes shine { 0% { left: -150%; } 20% { left: 150%; } 100% { left: 150%; } }
 
-        .card-info {
-            z-index: 2;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-        }
+        .card-info { z-index: 2; }
+        .card-number { font-size: 1.2rem; letter-spacing: 2px; }
 
-        .card-number {
-            font-size: 1.1rem;
-            letter-spacing: 1.5px;
-            margin-bottom: 5px;
-        }
-
-        /* Upload Area */
-        #upload-area {
-            margin-top: 60px;
-            text-align: center;
-        }
-
-        .custom-btn {
-            background: var(--google-blue);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 25px;
-            border: none;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        /* NFC Transmission Area */
+        /* Larger NFC Transmission Area */
         #nfc-active {
             display: none;
             flex-direction: column;
             align-items: center;
-            margin-top: 50px;
+            margin-top: 60px;
         }
 
         .nfc-rings {
             position: relative;
-            width: 80px;
-            height: 80px;
+            width: 120px; /* Increased from 80px */
+            height: 120px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -136,48 +88,61 @@
 
         .ring {
             position: absolute;
-            border: 2px solid var(--google-blue);
+            border: 3px solid var(--google-blue);
             border-radius: 50%;
-            animation: sonar 2s infinite linear;
+            animation: sonar 2.5s infinite cubic-bezier(0.36, 0.11, 0.89, 0.32);
             opacity: 0;
         }
 
-        .ring:nth-child(2) { animation-delay: 0.5s; }
-        .ring:nth-child(3) { animation-delay: 1s; }
+        .ring:nth-child(2) { animation-delay: 0.8s; }
+        .ring:nth-child(3) { animation-delay: 1.6s; }
 
         @keyframes sonar {
-            0% { width: 20px; height: 20px; opacity: 1; }
-            100% { width: 100px; height: 100px; opacity: 0; }
+            0% { width: 30px; height: 30px; opacity: 1; }
+            100% { width: 150px; height: 150px; opacity: 0; }
         }
 
-        .nfc-text {
-            margin-top: 25px;
-            color: var(--google-blue);
-            font-weight: 500;
+        .nfc-icon-svg {
+            width: 45px; /* Increased from 30px */
+            height: 45px;
+            fill: var(--google-blue);
+            z-index: 5;
+        }
+
+        #upload-area { margin-top: 40px; text-align: center; }
+        .custom-btn {
+            background: #fff;
+            color: #000;
+            padding: 14px 30px;
+            border-radius: 30px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.7rem;
+            opacity: 0.4;
             letter-spacing: 1px;
-            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
 
-    <div class="header">Google Pay</div>
-
-    <div class="card-wrapper">
-        <div class="card" id="main-card">
-            <img id="card-img" src="">
-            <div class="shimmer"></div>
-            <div class="card-info">
-                <div class="card-number">•••• 9902</div>
-                <div style="font-size: 0.75rem; opacity: 0.7;">VALID THRU 12/28</div>
-            </div>
+    <div class="card" id="main-card">
+        <img id="card-img" src="">
+        <div class="shimmer"></div>
+        <div class="card-info">
+            <div class="card-number">•••• 9902</div>
+            <div style="font-size: 0.8rem; opacity: 0.6; margin-top: 5px;">GOOGLE PAY</div>
         </div>
     </div>
 
     <div id="upload-area">
-        <p style="opacity: 0.6; font-size: 0.9rem; margin-bottom: 20px;">Add a card to get started</p>
         <input type="file" id="file-input" hidden accept="image/*">
-        <button class="custom-btn" onclick="document.getElementById('file-input').click()">Choose Image</button>
+        <button class="custom-btn" onclick="document.getElementById('file-input').click()">CHOOSE CARD DESIGN</button>
     </div>
 
     <div id="nfc-active">
@@ -185,12 +150,14 @@
             <div class="ring"></div>
             <div class="ring"></div>
             <div class="ring"></div>
-            <svg width="30" height="30" fill="#4285F4" viewBox="0 0 24 24">
+            <svg class="nfc-icon-svg" viewBox="0 0 24 24">
                 <path d="M20,2H4C2.9,2,2,2.9,2,4v16c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V4C22,2.9,21.1,2,20,2z M20,20H4V4h16V20z M18,6h-5c-1.1,0-2,0.9-2,2v2.28c-0.6,0.35-1,1-1,1.72c0,1.1,0.9,2,2,2s2-0.9,2-2c0-0.72-0.4-1.38-1-1.72V8h3V6z"/>
             </svg>
         </div>
-        <div class="nfc-text">HOLD TO READER</div>
+        <div style="color:var(--google-blue); margin-top: 30px; font-weight: 500;">READY TO PAY</div>
     </div>
+
+    <div class="hint">DOUBLE TAP ANYWHERE FOR FULLSCREEN</div>
 
     <script>
         const fileInput = document.getElementById('file-input');
@@ -198,6 +165,7 @@
         const uploadArea = document.getElementById('upload-area');
         const nfcActive = document.getElementById('nfc-active');
 
+        // Handle Image Upload
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -205,14 +173,39 @@
                 reader.onload = function(event) {
                     cardImg.src = event.target.result;
                     cardImg.style.display = 'block';
-                    
-                    // UX Transition
                     uploadArea.style.display = 'none';
                     nfcActive.style.display = 'flex';
                 }
                 reader.readAsDataURL(file);
             }
         });
+
+        // Double Tap to Toggle Fullscreen
+        let lastTap = 0;
+        document.addEventListener('touchend', function(e) {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 300 && tapLength > 0) {
+                toggleFullScreen();
+                e.preventDefault();
+            }
+            lastTap = currentTime;
+        });
+
+        // Double Click for Desktop
+        document.addEventListener('dblclick', toggleFullScreen);
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
     </script>
 </body>
 </html>
