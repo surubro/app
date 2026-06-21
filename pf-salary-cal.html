@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salary Calculator</title>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    max-width:800px;
+    margin:20px auto;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+}
+
+.card{
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:20px;
+    margin-bottom:20px;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:15px;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    cursor:pointer;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+}
+
+th{
+    background:#f5f5f5;
+}
+</style>
+
+</head>
+<body>
+
+<h1>Salary Calculator</h1>
+
+<div class="card">
+
+<label>Days Worked</label> <input type="number" id="days" value="30" min="0">
+
+<label>Hours Per Day</label> <input type="number" id="hours" value="8" min="1">
+
+<button onclick="calculate()">Calculate Salary</button>
+
+</div>
+
+<div class="card">
+
+<table>
+<tr>
+<th>Item</th>
+<th>Value</th>
+</tr>
+
+<tr>
+<td>Days Worked</td>
+<td id="daysWorked">0</td>
+</tr>
+
+<tr>
+<td>Total Hours</td>
+<td id="totalHours">0</td>
+</tr>
+
+<tr>
+<td>Gross Salary</td>
+<td id="grossSalary">₹0</td>
+</tr>
+
+<tr>
+<td>Employee PF</td>
+<td id="employeePF">₹0</td>
+</tr>
+
+<tr>
+<td>Employer PF</td>
+<td id="employerPF">₹0</td>
+</tr>
+
+<tr>
+<td>Employer ESIC</td>
+<td id="employerESIC">₹0</td>
+</tr>
+
+<tr>
+<td>Gratuity</td>
+<td id="gratuity">₹0</td>
+</tr>
+
+<tr>
+<td><b>Total PF (Employee + Employer)</b></td>
+<td id="totalPF"><b>₹0</b></td>
+</tr>
+
+<tr>
+<td><b>Estimated Net Salary</b></td>
+<td id="netSalary"><b>₹0</b></td>
+</tr>
+
+</table>
+
+</div>
+
+<script>
+
+const BASIC_PER_HOUR = 41.04;
+const GROSS_PER_HOUR = 63.11;
+const EMPLOYER_PF_PER_HOUR = 6.31;
+const EMPLOYER_ESIC_PER_HOUR = 2.05;
+const GRATUITY_PER_HOUR = 2.53;
+
+function calculate(){
+
+    const days =
+        Number(document.getElementById("days").value);
+
+    const hoursPerDay =
+        Number(document.getElementById("hours").value);
+
+    const totalHours =
+        days * hoursPerDay;
+
+    const grossSalary =
+        totalHours * GROSS_PER_HOUR;
+
+    const employeePF =
+        totalHours * BASIC_PER_HOUR * 0.12;
+
+    const employerPF =
+        totalHours * EMPLOYER_PF_PER_HOUR;
+
+    const employerESIC =
+        totalHours * EMPLOYER_ESIC_PER_HOUR;
+
+    const gratuity =
+        totalHours * GRATUITY_PER_HOUR;
+
+    const totalPF =
+        employeePF + employerPF;
+
+    const netSalary =
+        grossSalary - employeePF;
+
+    document.getElementById("daysWorked").textContent =
+        days;
+
+    document.getElementById("totalHours").textContent =
+        totalHours.toFixed(2);
+
+    document.getElementById("grossSalary").textContent =
+        "₹" + grossSalary.toFixed(2);
+
+    document.getElementById("employeePF").textContent =
+        "₹" + employeePF.toFixed(2);
+
+    document.getElementById("employerPF").textContent =
+        "₹" + employerPF.toFixed(2);
+
+    document.getElementById("employerESIC").textContent =
+        "₹" + employerESIC.toFixed(2);
+
+    document.getElementById("gratuity").textContent =
+        "₹" + gratuity.toFixed(2);
+
+    document.getElementById("totalPF").textContent =
+        "₹" + totalPF.toFixed(2);
+
+    document.getElementById("netSalary").textContent =
+        "₹" + netSalary.toFixed(2);
+}
+
+calculate();
+
+</script>
+
+</body>
+</html>
