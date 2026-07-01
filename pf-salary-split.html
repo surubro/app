@@ -1,51 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> pf Salary Split Calculator</title>
-
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f4f4f4;
-        padding: 20px;
-    }
-    .box {
-        max-width: 380px;
-        margin: auto;
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    input, button {
-        width: 100%;
-        padding: 10px;
-        margin-top: 10px;
-        font-size: 16px;
-    }
-    button {
-        background: #007bff;
-        color: white;
-        border: none;
-        cursor: pointer;
-    }
-    button:hover {
-        background: #0056b3;
-    }
-    .result p {
-        margin: 6px 0;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PF Salary Split Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+        .box {
+            max-width: 480px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        label {
+            display: block;
+            margin-top: 12px;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+        .deduction-group {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .result p {
+            margin: 8px 0;
+        }
+        .note {
+            font-size: 14px;
+            color: #555;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 
 <body>
 
 <div class="box">
-    <h2> PF Salary Split Cal</h2>
+    <h2>PF Salary Split Calculator</h2>
 
     <input type="number" id="salary" placeholder="Enter Gross Salary ₹">
+
+    <label>PF Deducted (Employee)</label>
+    <input type="number" id="pfDeducted" value="1650">
+
+    <div class="deduction-group">
+        <h3>Other Fixed Deductions</h3>
+        
+        <label>Professional Tax</label>
+        <input type="number" id="profTax" value="200">
+
+        <label>LWF Deduction</label>
+        <input type="number" id="lwf" value="25">
+
+        <label>ESIC</label>
+        <input type="number" id="esic" value="104">
+
+        <label>Other Deductions (if any)</label>
+        <input type="number" id="otherDeduction" value="0">
+    </div>
 
     <button onclick="calculate()">Calculate</button>
 
@@ -55,30 +94,34 @@
 <script>
 function calculate() {
     let salary = Number(document.getElementById("salary").value);
+    let pfEmployee = Number(document.getElementById("pfDeducted").value) || 1650;
 
     if (salary <= 0) {
-        document.getElementById("output").innerHTML = "Enter a valid salary amount";
+        document.getElementById("output").innerHTML = "<p style='color:red;'>Please enter a valid salary amount</p>";
         return;
     }
 
-    // Deductions
-    let pfEmployee = salary * 0.12;
-    let pfEmployer = salary * 0.12;
-    let esi = salary * 0.05;
+    // Fixed Deductions
+    let profTax = Number(document.getElementById("profTax").value) || 0;
+    let lwf     = Number(document.getElementById("lwf").value) || 0;
+    let esic    = Number(document.getElementById("esic").value) || 0;
+    let other   = Number(document.getElementById("otherDeduction").value) || 0;
 
-    let totalDeductions = pfEmployee + pfEmployer + esi;
+    let totalDeductions = pfEmployee + profTax + lwf + esic + other;
     let remaining = salary - totalDeductions;
 
-    // Remaining split
+    // 50-30-20 Split
     let needs = remaining * 0.50;
     let wants = remaining * 0.30;
     let savings = remaining * 0.20;
 
     document.getElementById("output").innerHTML = `
-        <h3>Deductions</h3>
-        <p>PF (Employee 12%): ₹${pfEmployee.toFixed(2)}</p>
-        <p>PF (Employer 12%): ₹${pfEmployer.toFixed(2)}</p>
-        <p>ESI (5%): ₹${esi.toFixed(2)}</p>
+        <h3>Deductions Breakdown</h3>
+        <p>Provident Fund: ₹${pfEmployee.toFixed(2)} <small>(Custom)</small></p>
+        <p>Professional Tax: ₹${profTax.toFixed(2)}</p>
+        <p>LWF Deduction: ₹${lwf.toFixed(2)}</p>
+        <p>ESIC: ₹${esic.toFixed(2)}</p>
+        <p>Other Deductions: ₹${other.toFixed(2)}</p>
         <p><b>Total Deductions:</b> ₹${totalDeductions.toFixed(2)}</p>
 
         <hr>
@@ -87,6 +130,8 @@ function calculate() {
         <p>Needs (50%): ₹${needs.toFixed(2)}</p>
         <p>Wants (30%): ₹${wants.toFixed(2)}</p>
         <p>Savings (20%): ₹${savings.toFixed(2)}</p>
+
+        <p class="note">Note: Employer PF contribution is not deducted from your salary.</p>
     `;
 }
 </script>
