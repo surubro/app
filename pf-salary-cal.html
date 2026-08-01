@@ -7,50 +7,47 @@
 
 <style>
 body{
-    font-family:Arial,Helvetica,sans-serif;
-    background:#f2f2f2;
-    margin:0;
-    padding:30px;
+    font-family:Arial,sans-serif;
+    background:#f4f4f4;
 }
 
 .container{
-    max-width:500px;
-    margin:auto;
+    width:420px;
+    margin:30px auto;
     background:#fff;
-    padding:25px;
+    padding:20px;
     border-radius:10px;
     box-shadow:0 0 10px rgba(0,0,0,.2);
 }
 
 h2{
     text-align:center;
-    color:#333;
 }
 
 label{
     display:block;
-    margin-top:15px;
+    margin-top:12px;
     font-weight:bold;
 }
 
 input{
     width:100%;
-    padding:10px;
-    margin-top:5px;
+    padding:8px;
     font-size:16px;
+    margin-top:5px;
     box-sizing:border-box;
 }
 
 button{
     width:100%;
-    margin-top:20px;
     padding:12px;
+    margin-top:20px;
+    font-size:16px;
     background:#007bff;
     color:white;
     border:none;
-    border-radius:5px;
-    font-size:18px;
     cursor:pointer;
+    border-radius:5px;
 }
 
 button:hover{
@@ -58,17 +55,18 @@ button:hover{
 }
 
 .result{
-    margin-top:25px;
+    margin-top:20px;
     background:#eef7ff;
     padding:15px;
     border-radius:8px;
 }
 
 .result p{
-    font-size:18px;
     margin:8px 0;
+    font-size:17px;
 }
 </style>
+
 </head>
 <body>
 
@@ -76,62 +74,83 @@ button:hover{
 
 <h2>Salary Calculator</h2>
 
-<label>Hourly Rate (₹)</label>
-<input type="number" id="rate" value="63.11" readonly>
+<label>No. of Days Worked</label>
+<input type="number" id="days" placeholder="Enter days">
 
-<label>Working Hours Per Day</label>
-<input type="number" id="hours" value="8" readonly>
-
-<label>Number of Working Days</label>
-<input type="number" id="days" value="26">
-
-<label>Professional Tax (₹)</label>
-<input type="number" id="pt" value="200">
-
-<label>ESIC (₹)</label>
-<input type="number" id="esic" value="109">
-
-<label>PF Deduction (₹)</label>
+<label>PF Deduction (Optional)</label>
 <input type="number" id="pf" value="0">
 
-<label>Other Deduction (₹)</label>
+<label>Other Deduction</label>
 <input type="number" id="other" value="0">
 
 <button onclick="calculateSalary()">Calculate Salary</button>
 
 <div class="result">
-    <p><strong>Gross Salary:</strong> ₹ <span id="gross">0.00</span></p>
-    <p><strong>Total Deductions:</strong> ₹ <span id="deduction">0.00</span></p>
-    <p><strong>Net Salary:</strong> ₹ <span id="net">0.00</span></p>
+
+<p>Total Hours : <span id="hours">0</span></p>
+
+<p>Gross Salary : ₹<span id="gross">0.00</span></p>
+
+<p>Professional Tax : ₹200</p>
+
+<p>ESIC : ₹109</p>
+
+<p>PF : ₹<span id="pfshow">0</span></p>
+
+<p>Other Deduction : ₹<span id="othershow">0</span></p>
+
+<hr>
+
+<p><b>Total Deduction : ₹<span id="deduction">0.00</span></b></p>
+
+<p style="font-size:20px;color:green;">
+<b>Net Salary : ₹<span id="net">0.00</span></b>
+</p>
+
 </div>
 
 </div>
 
 <script>
+
+const hourlyRate = 63.11;
+const hoursPerDay = 8;
+const professionalTax = 200;
+const esic = 109;
+
 function calculateSalary(){
 
-    let rate = parseFloat(document.getElementById("rate").value);
-    let hours = parseFloat(document.getElementById("hours").value);
-    let days = parseFloat(document.getElementById("days").value);
+let days = Number(document.getElementById("days").value);
+let pf = Number(document.getElementById("pf").value);
+let other = Number(document.getElementById("other").value);
 
-    let pt = parseFloat(document.getElementById("pt").value) || 0;
-    let esic = parseFloat(document.getElementById("esic").value) || 0;
-    let pf = parseFloat(document.getElementById("pf").value) || 0;
-    let other = parseFloat(document.getElementById("other").value) || 0;
+let hours = days * hoursPerDay;
 
-    let gross = rate * hours * days;
+let gross = hours * hourlyRate;
 
-    let totalDeduction = pt + esic + pf + other;
+let totalDeduction = professionalTax + esic + pf + other;
 
-    let net = gross - totalDeduction;
+let net = gross - totalDeduction;
 
-    document.getElementById("gross").innerHTML = gross.toFixed(2);
-    document.getElementById("deduction").innerHTML = totalDeduction.toFixed(2);
-    document.getElementById("net").innerHTML = net.toFixed(2);
+document.getElementById("hours").innerHTML = hours;
+
+document.getElementById("gross").innerHTML =
+gross.toFixed(2);
+
+document.getElementById("pfshow").innerHTML =
+pf.toFixed(2);
+
+document.getElementById("othershow").innerHTML =
+other.toFixed(2);
+
+document.getElementById("deduction").innerHTML =
+totalDeduction.toFixed(2);
+
+document.getElementById("net").innerHTML =
+net.toFixed(2);
+
 }
 
-// Calculate on page load
-calculateSalary();
 </script>
 
 </body>
