@@ -4,250 +4,135 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salary Calculator</title>
+
 <style>
 body{
-    font-family:Arial,sans-serif;
-    max-width:800px;
-    margin:20px auto;
-    padding:20px;
-    background:#f9f9f9;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f2f2f2;
+    margin:0;
+    padding:30px;
 }
-h1{
-    text-align:center;
-    color:#222;
-}
-.card{
-    border:1px solid #ddd;
-    border-radius:8px;
-    padding:20px;
-    margin-bottom:20px;
+
+.container{
+    max-width:500px;
+    margin:auto;
     background:#fff;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,.2);
 }
-label{
-    display:block;
-    font-weight:600;
-    margin-bottom:4px;
+
+h2{
+    text-align:center;
     color:#333;
 }
-input[type="number"], input[type="text"]{
+
+label{
+    display:block;
+    margin-top:15px;
+    font-weight:bold;
+}
+
+input{
     width:100%;
     padding:10px;
-    margin-bottom:15px;
+    margin-top:5px;
+    font-size:16px;
     box-sizing:border-box;
-    border:1px solid #ccc;
-    border-radius:4px;
 }
+
 button{
     width:100%;
+    margin-top:20px;
     padding:12px;
-    cursor:pointer;
-    background:#2563eb;
-    color:#fff;
+    background:#007bff;
+    color:white;
     border:none;
-    border-radius:6px;
-    font-size:16px;
-    font-weight:600;
+    border-radius:5px;
+    font-size:18px;
+    cursor:pointer;
 }
+
 button:hover{
-    background:#1d4ed8;
+    background:#0056b3;
 }
-button.secondary{
-    background:#64748b;
+
+.result{
+    margin-top:25px;
+    background:#eef7ff;
+    padding:15px;
+    border-radius:8px;
 }
-button.secondary:hover{
-    background:#475569;
-}
-button.danger{
-    background:#dc2626;
-    width:auto;
-    padding:8px 14px;
-}
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-th,td{
-    border:1px solid #ddd;
-    padding:10px;
-}
-th{
-    background:#f5f5f5;
-    text-align:left;
-}
-.deduction-row{
-    display:flex;
-    align-items:center;
-    margin-bottom:8px;
-    gap:10px;
-}
-.deduction-row input{
-    flex:1;
-    margin-bottom:0;
-}
-.section-title{
-    margin-top:0;
-    margin-bottom:12px;
-    color:#1e40af;
-}
-.hint{
-    font-size:13px;
-    color:#666;
-    margin-top:-10px;
-    margin-bottom:12px;
+
+.result p{
+    font-size:18px;
+    margin:8px 0;
 }
 </style>
 </head>
 <body>
-<h1>Salary Calculator</h1>
 
-<div class="card">
-    <h3 class="section-title">Work Details</h3>
-    <label>Days Worked</label>
-    <input type="number" id="days" value="30" min="0" step="1">
+<div class="container">
 
-    <label>Hours Per Day</label>
-    <input type="number" id="hours" value="8" min="1" step="0.5">
+<h2>Salary Calculator</h2>
+
+<label>Hourly Rate (₹)</label>
+<input type="number" id="rate" value="63.11" readonly>
+
+<label>Working Hours Per Day</label>
+<input type="number" id="hours" value="8" readonly>
+
+<label>Number of Working Days</label>
+<input type="number" id="days" value="26">
+
+<label>Professional Tax (₹)</label>
+<input type="number" id="pt" value="200">
+
+<label>ESIC (₹)</label>
+<input type="number" id="esic" value="109">
+
+<label>PF Deduction (₹)</label>
+<input type="number" id="pf" value="0">
+
+<label>Other Deduction (₹)</label>
+<input type="number" id="other" value="0">
+
+<button onclick="calculateSalary()">Calculate Salary</button>
+
+<div class="result">
+    <p><strong>Gross Salary:</strong> ₹ <span id="gross">0.00</span></p>
+    <p><strong>Total Deductions:</strong> ₹ <span id="deduction">0.00</span></p>
+    <p><strong>Net Salary:</strong> ₹ <span id="net">0.00</span></p>
 </div>
 
-<div class="card">
-    <h3 class="section-title">Custom Rates / Amounts</h3>
-    <p class="hint">Leave blank or 0 to use default calculation. Enter a value to override.</p>
-
-    <label>Employee PF (₹) — custom amount (optional)</label>
-    <input type="number" id="customEmployeePF" value="" min="0" step="0.01" placeholder="Leave empty for auto (12% of Basic)">
-
-    <label>Employee ESIC (₹) — custom amount (optional)</label>
-    <input type="number" id="customEmployeeESIC" value="" min="0" step="0.01" placeholder="Leave empty for 0 (default)">
-</div>
-
-<div class="card">
-    <h3 class="section-title">Other Deductions</h3>
-    <div id="deductions"></div>
-    <button type="button" class="secondary" onclick="addDeduction()">+ Add Deduction</button>
-</div>
-
-<div class="card">
-    <button onclick="calculate()">Calculate Salary</button>
-</div>
-
-<div class="card">
-    <table>
-        <tr>
-            <th>Item</th>
-            <th>Value</th>
-        </tr>
-        <tr>
-            <td>Days Worked</td>
-            <td id="daysWorked">0</td>
-        </tr>
-        <tr>
-            <td>Total Hours</td>
-            <td id="totalHours">0</td>
-        </tr>
-        <tr>
-            <td>Gross Salary</td>
-            <td id="grossSalary">₹0</td>
-        </tr>
-        <tr>
-            <td>Employee PF</td>
-            <td id="employeePF">₹0</td>
-        </tr>
-        <tr>
-            <td>Employee ESIC</td>
-            <td id="employeeESIC">₹0</td>
-        </tr>
-        <tr>
-            <td>Professional Tax</td>
-            <td id="professionalTax">₹200</td>
-        </tr>
-        <tr>
-            <td><b>Total Other Deductions</b></td>
-            <td id="totalDeductions"><b>₹0</b></td>
-        </tr>
-        <tr>
-            <td><b>In-Hand Salary</b></td>
-            <td id="takeHomeSalary"><b>₹0</b></td>
-        </tr>
-    </table>
 </div>
 
 <script>
-const BASIC_PER_HOUR = 41.04;
-const GROSS_PER_HOUR = 63.11;
-const PROFESSIONAL_TAX = 200; // Fixed Professional Tax
+function calculateSalary(){
 
-function addDeduction() {
-    const container = document.getElementById('deductions');
-    const rowId = 'ded-row-' + Date.now() + Math.random().toString(36).slice(2);
+    let rate = parseFloat(document.getElementById("rate").value);
+    let hours = parseFloat(document.getElementById("hours").value);
+    let days = parseFloat(document.getElementById("days").value);
 
-    const div = document.createElement('div');
-    div.className = 'deduction-row';
-    div.id = rowId;
-    div.innerHTML = `
-        <input type="text" class="ded-name" placeholder="Deduction name" value="Other Deduction">
-        <input type="number" class="ded-amount" placeholder="Amount" value="0" min="0" step="0.01">
-        <button type="button" class="danger" onclick="removeDeduction('${rowId}')">Remove</button>
-    `;
-    container.appendChild(div);
+    let pt = parseFloat(document.getElementById("pt").value) || 0;
+    let esic = parseFloat(document.getElementById("esic").value) || 0;
+    let pf = parseFloat(document.getElementById("pf").value) || 0;
+    let other = parseFloat(document.getElementById("other").value) || 0;
+
+    let gross = rate * hours * days;
+
+    let totalDeduction = pt + esic + pf + other;
+
+    let net = gross - totalDeduction;
+
+    document.getElementById("gross").innerHTML = gross.toFixed(2);
+    document.getElementById("deduction").innerHTML = totalDeduction.toFixed(2);
+    document.getElementById("net").innerHTML = net.toFixed(2);
 }
 
-function removeDeduction(rowId) {
-    const row = document.getElementById(rowId);
-    if (row) row.remove();
-}
-
-function calculate() {
-    const days = Number(document.getElementById("days").value) || 0;
-    const hoursPerDay = Number(document.getElementById("hours").value) || 0;
-    const totalHours = days * hoursPerDay;
-
-    const grossSalary = totalHours * GROSS_PER_HOUR;
-
-    // Employee PF: use custom if provided, otherwise auto-calculate
-    const customPFInput = document.getElementById("customEmployeePF").value;
-    let employeePF;
-    if (customPFInput !== "" && !isNaN(parseFloat(customPFInput))) {
-        employeePF = parseFloat(customPFInput);
-    } else {
-        employeePF = totalHours * BASIC_PER_HOUR * 0.12;
-    }
-
-    // Employee ESIC: use custom if provided, otherwise 0
-    const customESICInput = document.getElementById("customEmployeeESIC").value;
-    let employeeESIC;
-    if (customESICInput !== "" && !isNaN(parseFloat(customESICInput))) {
-        employeeESIC = parseFloat(customESICInput);
-    } else {
-        employeeESIC = 0;
-    }
-
-    const professionalTax = PROFESSIONAL_TAX;
-
-    // Other deductions
-    const deductionRows = document.querySelectorAll('.deduction-row');
-    let totalDeductions = 0;
-    deductionRows.forEach(row => {
-        const amount = parseFloat(row.querySelector('.ded-amount').value) || 0;
-        totalDeductions += amount;
-    });
-
-    // In-Hand = Gross − Emp PF − Emp ESIC − Professional Tax − Other Deductions
-    const takeHomeSalary = grossSalary - employeePF - employeeESIC - professionalTax - totalDeductions;
-
-    // Update UI
-    document.getElementById("daysWorked").textContent = days;
-    document.getElementById("totalHours").textContent = totalHours.toFixed(2);
-    document.getElementById("grossSalary").textContent = "₹" + grossSalary.toFixed(2);
-    document.getElementById("employeePF").textContent = "₹" + employeePF.toFixed(2);
-    document.getElementById("employeeESIC").textContent = "₹" + employeeESIC.toFixed(2);
-    document.getElementById("professionalTax").textContent = "₹" + professionalTax.toFixed(2);
-    document.getElementById("totalDeductions").textContent = "₹" + totalDeductions.toFixed(2);
-    document.getElementById("takeHomeSalary").textContent = "₹" + takeHomeSalary.toFixed(2);
-}
-
-// Start with one empty deduction row
-addDeduction();
-calculate();
+// Calculate on page load
+calculateSalary();
 </script>
+
 </body>
 </html>
