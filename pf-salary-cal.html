@@ -3,58 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Salary Calculator</title>
+<title>Salary Calculator with 50-30-20 Budget Rule</title>
 
 <style>
+*{
+    box-sizing:border-box;
+}
+
 body{
-    font-family:Arial,Helvetica,sans-serif;
-    background:#f4f4f4;
     margin:0;
     padding:30px;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f2f5f9;
 }
+
 .container{
-    max-width:500px;
+    max-width:600px;
     margin:auto;
     background:#fff;
     padding:25px;
     border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,.15);
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
 }
-h2{
+
+h2,h3{
     text-align:center;
     color:#333;
 }
+
 label{
     display:block;
     margin-top:15px;
     font-weight:bold;
 }
+
 input{
     width:100%;
     padding:10px;
     margin-top:5px;
+    font-size:16px;
     border:1px solid #ccc;
     border-radius:5px;
-    font-size:16px;
-    box-sizing:border-box;
 }
+
 .result{
     margin-top:25px;
-    background:#f8f8f8;
-    padding:15px;
+    background:#f8f9fa;
+    padding:20px;
     border-radius:8px;
 }
-.result p{
-    font-size:18px;
+
+.row{
+    display:flex;
+    justify-content:space-between;
     margin:10px 0;
+    font-size:17px;
 }
+
 .total{
     font-size:22px;
     color:green;
     font-weight:bold;
 }
+
+hr{
+    margin:20px 0;
+}
+
+.budget{
+    background:#eef8ee;
+    padding:15px;
+    border-radius:8px;
+    margin-top:15px;
+}
+
+.budget .row{
+    font-size:18px;
+}
 </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -67,29 +95,79 @@ input{
 <label>Hours Per Day</label>
 <input type="number" id="hours" value="8">
 
-<label>Number of Days Worked</label>
+<label>Days Worked</label>
 <input type="number" id="days" value="26">
+
+<label>Professional Tax (₹)</label>
+<input type="number" id="tax" value="200">
+
+<label>ESIC (₹)</label>
+<input type="number" id="esic" value="109">
 
 <label>Other Deduction (₹)</label>
 <input type="number" id="other" value="0">
 
 <div class="result">
 
-<p>Gross Salary: ₹ <span id="gross">0.00</span></p>
+<h3>Salary Details</h3>
 
-<p>PF (12%): ₹ <span id="pf">0.00</span></p>
+<div class="row">
+<span>Gross Salary</span>
+<span>₹ <span id="gross">0.00</span></span>
+</div>
 
-<p>Professional Tax: ₹ <span id="tax">200.00</span></p>
+<div class="row">
+<span>PF (12%)</span>
+<span>₹ <span id="pf">0.00</span></span>
+</div>
 
-<p>ESIC: ₹ <span id="esic">109.00</span></p>
+<div class="row">
+<span>Professional Tax</span>
+<span>₹ <span id="taxShow">0.00</span></span>
+</div>
 
-<p>Other Deduction: ₹ <span id="otherDeduction">0.00</span></p>
+<div class="row">
+<span>ESIC</span>
+<span>₹ <span id="esicShow">0.00</span></span>
+</div>
+
+<div class="row">
+<span>Other Deduction</span>
+<span>₹ <span id="otherShow">0.00</span></span>
+</div>
 
 <hr>
 
-<p>Total Deduction: ₹ <span id="totalDeduction">0.00</span></p>
+<div class="row">
+<strong>Total Deduction</strong>
+<strong>₹ <span id="totalDeduction">0.00</span></strong>
+</div>
 
-<p class="total">Net Salary: ₹ <span id="netSalary">0.00</span></p>
+<div class="row total">
+<span>Net Salary</span>
+<span>₹ <span id="netSalary">0.00</span></span>
+</div>
+
+</div>
+
+<div class="budget">
+
+<h3>50 - 30 - 20 Budget Rule</h3>
+
+<div class="row">
+<span>🏠 Needs (50%)</span>
+<span>₹ <span id="needs">0.00</span></span>
+</div>
+
+<div class="row">
+<span>🎉 Wants (30%)</span>
+<span>₹ <span id="wants">0.00</span></span>
+</div>
+
+<div class="row">
+<span>💰 Savings (20%)</span>
+<span>₹ <span id="savings">0.00</span></span>
+</div>
 
 </div>
 
@@ -102,30 +180,47 @@ function calculate(){
     let rate = parseFloat(document.getElementById("rate").value) || 0;
     let hours = parseFloat(document.getElementById("hours").value) || 0;
     let days = parseFloat(document.getElementById("days").value) || 0;
+
+    let tax = parseFloat(document.getElementById("tax").value) || 0;
+    let esic = parseFloat(document.getElementById("esic").value) || 0;
     let other = parseFloat(document.getElementById("other").value) || 0;
 
+    // Gross Salary
     let gross = rate * hours * days;
 
+    // PF (12%)
     let pf = gross * 0.12;
-    let tax = 200;
-    let esic = 109;
 
+    // Total Deduction
     let totalDeduction = pf + tax + esic + other;
 
+    // Net Salary
     let netSalary = gross - totalDeduction;
 
+    // 50-30-20 Rule
+    let needs = netSalary * 0.50;
+    let wants = netSalary * 0.30;
+    let savings = netSalary * 0.20;
+
+    // Display Salary
     document.getElementById("gross").innerHTML = gross.toFixed(2);
     document.getElementById("pf").innerHTML = pf.toFixed(2);
-    document.getElementById("tax").innerHTML = tax.toFixed(2);
-    document.getElementById("esic").innerHTML = esic.toFixed(2);
-    document.getElementById("otherDeduction").innerHTML = other.toFixed(2);
+    document.getElementById("taxShow").innerHTML = tax.toFixed(2);
+    document.getElementById("esicShow").innerHTML = esic.toFixed(2);
+    document.getElementById("otherShow").innerHTML = other.toFixed(2);
     document.getElementById("totalDeduction").innerHTML = totalDeduction.toFixed(2);
     document.getElementById("netSalary").innerHTML = netSalary.toFixed(2);
 
+    // Display Budget
+    document.getElementById("needs").innerHTML = needs.toFixed(2);
+    document.getElementById("wants").innerHTML = wants.toFixed(2);
+    document.getElementById("savings").innerHTML = savings.toFixed(2);
+
 }
 
-document.querySelectorAll("input").forEach(input=>{
-    input.addEventListener("input",calculate);
+// Auto Calculate
+document.querySelectorAll("input").forEach(function(input){
+    input.addEventListener("input", calculate);
 });
 
 calculate();
