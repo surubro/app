@@ -7,66 +7,53 @@
 
 <style>
 body{
-    font-family:Arial,sans-serif;
+    font-family:Arial,Helvetica,sans-serif;
     background:#f4f4f4;
+    margin:0;
+    padding:30px;
 }
-
 .container{
-    width:420px;
-    margin:30px auto;
+    max-width:500px;
+    margin:auto;
     background:#fff;
-    padding:20px;
+    padding:25px;
     border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,.2);
+    box-shadow:0 0 10px rgba(0,0,0,.15);
 }
-
 h2{
     text-align:center;
+    color:#333;
 }
-
 label{
     display:block;
-    margin-top:12px;
+    margin-top:15px;
     font-weight:bold;
 }
-
 input{
     width:100%;
-    padding:8px;
-    font-size:16px;
+    padding:10px;
     margin-top:5px;
+    border:1px solid #ccc;
+    border-radius:5px;
+    font-size:16px;
     box-sizing:border-box;
 }
-
-button{
-    width:100%;
-    padding:12px;
-    margin-top:20px;
-    font-size:16px;
-    background:#007bff;
-    color:white;
-    border:none;
-    cursor:pointer;
-    border-radius:5px;
-}
-
-button:hover{
-    background:#0056b3;
-}
-
 .result{
-    margin-top:20px;
-    background:#eef7ff;
+    margin-top:25px;
+    background:#f8f8f8;
     padding:15px;
     border-radius:8px;
 }
-
 .result p{
-    margin:8px 0;
-    font-size:17px;
+    font-size:18px;
+    margin:10px 0;
+}
+.total{
+    font-size:22px;
+    color:green;
+    font-weight:bold;
 }
 </style>
-
 </head>
 <body>
 
@@ -74,38 +61,35 @@ button:hover{
 
 <h2>Salary Calculator</h2>
 
-<label>No. of Days Worked</label>
-<input type="number" id="days" placeholder="Enter days">
+<label>Hourly Rate (₹)</label>
+<input type="number" id="rate" value="60">
 
-<label>PF Deduction (Optional)</label>
-<input type="number" id="pf" value="0">
+<label>Hours Per Day</label>
+<input type="number" id="hours" value="8">
 
-<label>Other Deduction</label>
+<label>Number of Days Worked</label>
+<input type="number" id="days" value="26">
+
+<label>Other Deduction (₹)</label>
 <input type="number" id="other" value="0">
-
-<button onclick="calculateSalary()">Calculate Salary</button>
 
 <div class="result">
 
-<p>Total Hours : <span id="hours">0</span></p>
+<p>Gross Salary: ₹ <span id="gross">0.00</span></p>
 
-<p>Gross Salary : ₹<span id="gross">0.00</span></p>
+<p>PF (12%): ₹ <span id="pf">0.00</span></p>
 
-<p>Professional Tax : ₹200</p>
+<p>Professional Tax: ₹ <span id="tax">200.00</span></p>
 
-<p>ESIC : ₹109</p>
+<p>ESIC: ₹ <span id="esic">109.00</span></p>
 
-<p>PF : ₹<span id="pfshow">0</span></p>
-
-<p>Other Deduction : ₹<span id="othershow">0</span></p>
+<p>Other Deduction: ₹ <span id="otherDeduction">0.00</span></p>
 
 <hr>
 
-<p><b>Total Deduction : ₹<span id="deduction">0.00</span></b></p>
+<p>Total Deduction: ₹ <span id="totalDeduction">0.00</span></p>
 
-<p style="font-size:20px;color:green;">
-<b>Net Salary : ₹<span id="net">0.00</span></b>
-</p>
+<p class="total">Net Salary: ₹ <span id="netSalary">0.00</span></p>
 
 </div>
 
@@ -113,43 +97,38 @@ button:hover{
 
 <script>
 
-const hourlyRate = 63.11;
-const hoursPerDay = 8;
-const professionalTax = 200;
-const esic = 109;
+function calculate(){
 
-function calculateSalary(){
+    let rate = parseFloat(document.getElementById("rate").value) || 0;
+    let hours = parseFloat(document.getElementById("hours").value) || 0;
+    let days = parseFloat(document.getElementById("days").value) || 0;
+    let other = parseFloat(document.getElementById("other").value) || 0;
 
-let days = Number(document.getElementById("days").value);
-let pf = Number(document.getElementById("pf").value);
-let other = Number(document.getElementById("other").value);
+    let gross = rate * hours * days;
 
-let hours = days * hoursPerDay;
+    let pf = gross * 0.12;
+    let tax = 200;
+    let esic = 109;
 
-let gross = hours * hourlyRate;
+    let totalDeduction = pf + tax + esic + other;
 
-let totalDeduction = professionalTax + esic + pf + other;
+    let netSalary = gross - totalDeduction;
 
-let net = gross - totalDeduction;
-
-document.getElementById("hours").innerHTML = hours;
-
-document.getElementById("gross").innerHTML =
-gross.toFixed(2);
-
-document.getElementById("pfshow").innerHTML =
-pf.toFixed(2);
-
-document.getElementById("othershow").innerHTML =
-other.toFixed(2);
-
-document.getElementById("deduction").innerHTML =
-totalDeduction.toFixed(2);
-
-document.getElementById("net").innerHTML =
-net.toFixed(2);
+    document.getElementById("gross").innerHTML = gross.toFixed(2);
+    document.getElementById("pf").innerHTML = pf.toFixed(2);
+    document.getElementById("tax").innerHTML = tax.toFixed(2);
+    document.getElementById("esic").innerHTML = esic.toFixed(2);
+    document.getElementById("otherDeduction").innerHTML = other.toFixed(2);
+    document.getElementById("totalDeduction").innerHTML = totalDeduction.toFixed(2);
+    document.getElementById("netSalary").innerHTML = netSalary.toFixed(2);
 
 }
+
+document.querySelectorAll("input").forEach(input=>{
+    input.addEventListener("input",calculate);
+});
+
+calculate();
 
 </script>
 
