@@ -157,23 +157,15 @@ th{
             <td id="employeeESIC">₹0</td>
         </tr>
         <tr>
-            <td>Employer ESIC</td>
-            <td id="employerESIC">₹0</td>
-        </tr>
-        <tr>
-            <td>Gratuity</td>
-            <td id="gratuity">₹0</td>
-        </tr>
-        <tr>
-            <td><b>Estimated Net Salary</b> (Gross − Emp PF − Emp ESIC)</td>
-            <td id="netSalary"><b>₹0</b></td>
+            <td>Professional Tax</td>
+            <td id="professionalTax">₹200</td>
         </tr>
         <tr>
             <td><b>Total Other Deductions</b></td>
             <td id="totalDeductions"><b>₹0</b></td>
         </tr>
         <tr>
-            <td><b>Final Take-Home Salary</b></td>
+            <td><b>In-Hand Salary</b></td>
             <td id="takeHomeSalary"><b>₹0</b></td>
         </tr>
     </table>
@@ -182,8 +174,7 @@ th{
 <script>
 const BASIC_PER_HOUR = 41.04;
 const GROSS_PER_HOUR = 63.11;
-const EMPLOYER_ESIC_PER_HOUR = 2.05;
-const GRATUITY_PER_HOUR = 2.53;
+const PROFESSIONAL_TAX = 200; // Fixed Professional Tax
 
 function addDeduction() {
     const container = document.getElementById('deductions');
@@ -230,12 +221,7 @@ function calculate() {
         employeeESIC = 0;
     }
 
-    // Employer ESIC still calculated (shown for info)
-    const employerESIC = totalHours * EMPLOYER_ESIC_PER_HOUR;
-    const gratuity = totalHours * GRATUITY_PER_HOUR;
-
-    // Net before other deductions
-    const netSalary = grossSalary - employeePF - employeeESIC;
+    const professionalTax = PROFESSIONAL_TAX;
 
     // Other deductions
     const deductionRows = document.querySelectorAll('.deduction-row');
@@ -245,7 +231,8 @@ function calculate() {
         totalDeductions += amount;
     });
 
-    const takeHomeSalary = netSalary - totalDeductions;
+    // In-Hand = Gross − Emp PF − Emp ESIC − Professional Tax − Other Deductions
+    const takeHomeSalary = grossSalary - employeePF - employeeESIC - professionalTax - totalDeductions;
 
     // Update UI
     document.getElementById("daysWorked").textContent = days;
@@ -253,9 +240,7 @@ function calculate() {
     document.getElementById("grossSalary").textContent = "₹" + grossSalary.toFixed(2);
     document.getElementById("employeePF").textContent = "₹" + employeePF.toFixed(2);
     document.getElementById("employeeESIC").textContent = "₹" + employeeESIC.toFixed(2);
-    document.getElementById("employerESIC").textContent = "₹" + employerESIC.toFixed(2);
-    document.getElementById("gratuity").textContent = "₹" + gratuity.toFixed(2);
-    document.getElementById("netSalary").textContent = "₹" + netSalary.toFixed(2);
+    document.getElementById("professionalTax").textContent = "₹" + professionalTax.toFixed(2);
     document.getElementById("totalDeductions").textContent = "₹" + totalDeductions.toFixed(2);
     document.getElementById("takeHomeSalary").textContent = "₹" + takeHomeSalary.toFixed(2);
 }
