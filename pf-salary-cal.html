@@ -1,379 +1,268 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salary Calculator - 8 Hours/Day</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            color: #e0e0e0;
-        }
-
-        .container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            padding: 35px;
-            width: 100%;
-            max-width: 520px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 1.7rem;
-            margin-bottom: 8px;
-            color: #fff;
-            font-weight: 600;
-        }
-
-        .subtitle {
-            text-align: center;
-            font-size: 0.9rem;
-            color: #a0aec0;
-            margin-bottom: 28px;
-        }
-
-        .input-group {
-            margin-bottom: 25px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-            color: #cbd5e0;
-        }
-
-        .input-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        input[type="number"] {
-            flex: 1;
-            padding: 14px 16px;
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.25);
-            color: #fff;
-            font-size: 1.2rem;
-            font-weight: 600;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        input[type="number"]:focus {
-            border-color: #4fd1c5;
-        }
-
-        .unit {
-            font-size: 1rem;
-            color: #a0aec0;
-            white-space: nowrap;
-        }
-
-        .hours-info {
-            text-align: center;
-            margin: 15px 0 25px;
-            padding: 12px;
-            background: rgba(79, 209, 197, 0.1);
-            border-radius: 10px;
-            font-size: 0.95rem;
-            color: #4fd1c5;
-        }
-
-        .hours-info span {
-            font-weight: 700;
-            font-size: 1.15rem;
-        }
-
-        .section {
-            margin-bottom: 22px;
-        }
-
-        .section-title {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #718096;
-            margin-bottom: 12px;
-            padding-bottom: 6px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            font-size: 0.95rem;
-        }
-
-        .row .label {
-            color: #a0aec0;
-        }
-
-        .row .value {
-            font-weight: 600;
-            color: #e2e8f0;
-        }
-
-        .row.highlight {
-            background: rgba(79, 209, 197, 0.08);
-            margin: 0 -12px;
-            padding: 10px 12px;
-            border-radius: 8px;
-        }
-
-        .row.highlight .value {
-            color: #4fd1c5;
-            font-size: 1.1rem;
-        }
-
-        .row.total {
-            margin-top: 8px;
-            padding-top: 12px;
-            border-top: 1px dashed rgba(255, 255, 255, 0.15);
-            font-size: 1.05rem;
-        }
-
-        .row.total .value {
-            color: #68d391;
-            font-size: 1.25rem;
-        }
-
-        .row.deduction .value {
-            color: #fc8181;
-        }
-
-        .net-box {
-            background: linear-gradient(135deg, #2d3748, #1a202c);
-            border-radius: 14px;
-            padding: 18px;
-            text-align: center;
-            margin-top: 10px;
-            border: 1px solid rgba(104, 211, 145, 0.3);
-        }
-
-        .net-box .label {
-            font-size: 0.9rem;
-            color: #a0aec0;
-            margin-bottom: 6px;
-        }
-
-        .net-box .amount {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #68d391;
-        }
-
-        .note {
-            margin-top: 22px;
-            font-size: 0.78rem;
-            color: #718096;
-            line-height: 1.5;
-            text-align: center;
-        }
-
-        .rates {
-            font-size: 0.75rem;
-            color: #4a5568;
-            text-align: center;
-            margin-top: 12px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salary Calculator</title>
+<style>
+body{
+    font-family:Arial,sans-serif;
+    max-width:800px;
+    margin:20px auto;
+    padding:20px;
+    background:#f9f9f9;
+}
+h1{
+    text-align:center;
+    color:#222;
+}
+.card{
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:20px;
+    margin-bottom:20px;
+    background:#fff;
+}
+label{
+    display:block;
+    font-weight:600;
+    margin-bottom:4px;
+    color:#333;
+}
+input[type="number"], input[type="text"]{
+    width:100%;
+    padding:10px;
+    margin-bottom:15px;
+    box-sizing:border-box;
+    border:1px solid #ccc;
+    border-radius:4px;
+}
+button{
+    width:100%;
+    padding:12px;
+    cursor:pointer;
+    background:#2563eb;
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    font-size:16px;
+    font-weight:600;
+}
+button:hover{
+    background:#1d4ed8;
+}
+button.secondary{
+    background:#64748b;
+}
+button.secondary:hover{
+    background:#475569;
+}
+button.danger{
+    background:#dc2626;
+    width:auto;
+    padding:8px 14px;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+}
+th{
+    background:#f5f5f5;
+    text-align:left;
+}
+.deduction-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:8px;
+    gap:10px;
+}
+.deduction-row input{
+    flex:1;
+    margin-bottom:0;
+}
+.section-title{
+    margin-top:0;
+    margin-bottom:12px;
+    color:#1e40af;
+}
+.hint{
+    font-size:13px;
+    color:#666;
+    margin-top:-10px;
+    margin-bottom:12px;
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Salary Calculator</h1>
-        <p class="subtitle">Based on 8 Hours / Day • Hourly Structure</p>
+<h1>Salary Calculator</h1>
 
-        <div class="input-group">
-            <label for="days">Number of Days Worked</label>
-            <div class="input-row">
-                <input type="number" id="days" value="26" min="0" max="31" step="1" oninput="calculate()">
-                <span class="unit">days</span>
-            </div>
-        </div>
+<div class="card">
+    <h3 class="section-title">Work Details</h3>
+    <label>Days Worked</label>
+    <input type="number" id="days" value="30" min="0" step="1">
 
-        <div class="hours-info">
-            Total Hours = <span id="totalHours">208</span> hrs
-            <br>
-            <small style="opacity:0.7">(8 hours × days)</small>
-        </div>
+    <label>Hours Per Day</label>
+    <input type="number" id="hours" value="8" min="1" step="0.5">
+</div>
 
-        <!-- Earnings -->
-        <div class="section">
-            <div class="section-title">Earnings (Gross)</div>
-            <div class="row">
-                <span class="label">Basic Salary</span>
-                <span class="value" id="basic">₹ 0.00</span>
-            </div>
-            <div class="row">
-                <span class="label">Dearness Allowance</span>
-                <span class="value" id="da">₹ 0.00</span>
-            </div>
-            <div class="row">
-                <span class="label">House Rent Allowance</span>
-                <span class="value" id="hra">₹ 0.00</span>
-            </div>
-            <div class="row">
-                <span class="label">Field Allowance</span>
-                <span class="value" id="field">₹ 0.00</span>
-            </div>
-            <div class="row highlight">
-                <span class="label">Gross Salary</span>
-                <span class="value" id="gross">₹ 0.00</span>
-            </div>
-        </div>
+<div class="card">
+    <h3 class="section-title">Custom Rates / Amounts</h3>
+    <p class="hint">Leave blank or 0 to use default calculation. Enter a value to override.</p>
 
-        <!-- Deductions -->
-        <div class="section">
-            <div class="section-title">Employee Deductions</div>
-            <div class="row deduction">
-                <span class="label">Provident Fund (12%)</span>
-                <span class="value" id="empPF">₹ 0.00</span>
-            </div>
-            <div class="row deduction">
-                <span class="label">ESIC (0.75%)</span>
-                <span class="value" id="empESIC">₹ 0.00</span>
-            </div>
-            <div class="row deduction">
-                <span class="label">Profession Tax (approx)</span>
-                <span class="value" id="pt">₹ 200.00</span>
-            </div>
-            <div class="row total">
-                <span class="label">Total Deductions</span>
-                <span class="value" id="totalDed">₹ 0.00</span>
-            </div>
-        </div>
+    <label>Employee PF (₹) — custom amount (optional)</label>
+    <input type="number" id="customEmployeePF" value="" min="0" step="0.01" placeholder="Leave empty for auto (12% of Basic)">
 
-        <!-- Net -->
-        <div class="net-box">
-            <div class="label">Approximate Take-Home</div>
-            <div class="amount" id="net">₹ 0.00</div>
-        </div>
+    <label>Employee ESIC (₹) — custom amount (optional)</label>
+    <input type="number" id="customEmployeeESIC" value="" min="0" step="0.01" placeholder="Leave empty for 0 (default)">
+</div>
 
-        <!-- CTC -->
-        <div class="section" style="margin-top: 25px;">
-            <div class="section-title">Cost to Company (CTC)</div>
-            <div class="row">
-                <span class="label">Employer PF</span>
-                <span class="value" id="erPF">₹ 0.00</span>
-            </div>
-            <div class="row">
-                <span class="label">Employer ESIC</span>
-                <span class="value" id="erESIC">₹ 0.00</span>
-            </div>
-            <div class="row">
-                <span class="label">Gratuity</span>
-                <span class="value" id="gratuity">₹ 0.00</span>
-            </div>
-            <div class="row highlight">
-                <span class="label">Total CTC</span>
-                <span class="value" id="ctc">₹ 0.00</span>
-            </div>
-        </div>
+<div class="card">
+    <h3 class="section-title">Other Deductions</h3>
+    <div id="deductions"></div>
+    <button type="button" class="secondary" onclick="addDeduction()">+ Add Deduction</button>
+</div>
 
-        <p class="note">
-            Profession Tax is fixed ≈ ₹200 (Maharashtra).<br>
-            Income Tax not included (usually nil at this level under New Regime).<br>
-            Uniform or other recoveries (if any) are extra.
-        </p>
+<div class="card">
+    <button onclick="calculate()">Calculate Salary</button>
+</div>
 
-        <p class="rates">
-            Rates used → Basic 41.04 | DA 11.56 | HRA 2.63 | Field 7.88 | Gross 63.11 /hr
-        </p>
-    </div>
+<div class="card">
+    <table>
+        <tr>
+            <th>Item</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>Days Worked</td>
+            <td id="daysWorked">0</td>
+        </tr>
+        <tr>
+            <td>Total Hours</td>
+            <td id="totalHours">0</td>
+        </tr>
+        <tr>
+            <td>Gross Salary</td>
+            <td id="grossSalary">₹0</td>
+        </tr>
+        <tr>
+            <td>Employee PF</td>
+            <td id="employeePF">₹0</td>
+        </tr>
+        <tr>
+            <td>Employee ESIC</td>
+            <td id="employeeESIC">₹0</td>
+        </tr>
+        <tr>
+            <td>Employer ESIC</td>
+            <td id="employerESIC">₹0</td>
+        </tr>
+        <tr>
+            <td>Gratuity</td>
+            <td id="gratuity">₹0</td>
+        </tr>
+        <tr>
+            <td><b>Estimated Net Salary</b> (Gross − Emp PF − Emp ESIC)</td>
+            <td id="netSalary"><b>₹0</b></td>
+        </tr>
+        <tr>
+            <td><b>Total Other Deductions</b></td>
+            <td id="totalDeductions"><b>₹0</b></td>
+        </tr>
+        <tr>
+            <td><b>Final Take-Home Salary</b></td>
+            <td id="takeHomeSalary"><b>₹0</b></td>
+        </tr>
+    </table>
+</div>
 
-    <script>
-        // Hourly rates from original structure
-        const RATES = {
-            basic: 41.04,
-            da: 11.56,
-            hra: 2.63,
-            field: 7.88,
-            gross: 63.11,
-            empPF: 6.31,          // 12% of Basic+DA
-            empESIC: 0.473325,    // 0.75% of Gross
-            erPF: 6.31,
-            erESIC: 2.05,
-            gratuity: 2.53,
-            ctc: 74.01
-        };
+<script>
+const BASIC_PER_HOUR = 41.04;
+const GROSS_PER_HOUR = 63.11;
+const EMPLOYER_ESIC_PER_HOUR = 2.05;
+const GRATUITY_PER_HOUR = 2.53;
 
-        function format(num) {
-            return '₹ ' + num.toLocaleString('en-IN', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-        }
+function addDeduction() {
+    const container = document.getElementById('deductions');
+    const rowId = 'ded-row-' + Date.now() + Math.random().toString(36).slice(2);
 
-        function calculate() {
-            let days = parseFloat(document.getElementById('days').value) || 0;
-            if (days < 0) days = 0;
-            if (days > 31) days = 31;
+    const div = document.createElement('div');
+    div.className = 'deduction-row';
+    div.id = rowId;
+    div.innerHTML = `
+        <input type="text" class="ded-name" placeholder="Deduction name" value="Other Deduction">
+        <input type="number" class="ded-amount" placeholder="Amount" value="0" min="0" step="0.01">
+        <button type="button" class="danger" onclick="removeDeduction('${rowId}')">Remove</button>
+    `;
+    container.appendChild(div);
+}
 
-            const hours = days * 8;
-            document.getElementById('totalHours').textContent = hours;
+function removeDeduction(rowId) {
+    const row = document.getElementById(rowId);
+    if (row) row.remove();
+}
 
-            // Earnings
-            const basic = RATES.basic * hours;
-            const da = RATES.da * hours;
-            const hra = RATES.hra * hours;
-            const field = RATES.field * hours;
-            const gross = RATES.gross * hours;
+function calculate() {
+    const days = Number(document.getElementById("days").value) || 0;
+    const hoursPerDay = Number(document.getElementById("hours").value) || 0;
+    const totalHours = days * hoursPerDay;
 
-            // Deductions
-            const empPF = RATES.empPF * hours;
-            const empESIC = RATES.empESIC * hours;
-            const pt = days > 0 ? 200 : 0;   // fixed monthly
-            const totalDed = empPF + empESIC + pt;
-            const net = gross - totalDed;
+    const grossSalary = totalHours * GROSS_PER_HOUR;
 
-            // CTC side
-            const erPF = RATES.erPF * hours;
-            const erESIC = RATES.erESIC * hours;
-            const gratuity = RATES.gratuity * hours;
-            const ctc = RATES.ctc * hours;
+    // Employee PF: use custom if provided, otherwise auto-calculate
+    const customPFInput = document.getElementById("customEmployeePF").value;
+    let employeePF;
+    if (customPFInput !== "" && !isNaN(parseFloat(customPFInput))) {
+        employeePF = parseFloat(customPFInput);
+    } else {
+        employeePF = totalHours * BASIC_PER_HOUR * 0.12;
+    }
 
-            // Update UI
-            document.getElementById('basic').textContent = format(basic);
-            document.getElementById('da').textContent = format(da);
-            document.getElementById('hra').textContent = format(hra);
-            document.getElementById('field').textContent = format(field);
-            document.getElementById('gross').textContent = format(gross);
+    // Employee ESIC: use custom if provided, otherwise 0
+    const customESICInput = document.getElementById("customEmployeeESIC").value;
+    let employeeESIC;
+    if (customESICInput !== "" && !isNaN(parseFloat(customESICInput))) {
+        employeeESIC = parseFloat(customESICInput);
+    } else {
+        employeeESIC = 0;
+    }
 
-            document.getElementById('empPF').textContent = format(empPF);
-            document.getElementById('empESIC').textContent = format(empESIC);
-            document.getElementById('pt').textContent = format(pt);
-            document.getElementById('totalDed').textContent = format(totalDed);
+    // Employer ESIC still calculated (shown for info)
+    const employerESIC = totalHours * EMPLOYER_ESIC_PER_HOUR;
+    const gratuity = totalHours * GRATUITY_PER_HOUR;
 
-            document.getElementById('net').textContent = format(net);
+    // Net before other deductions
+    const netSalary = grossSalary - employeePF - employeeESIC;
 
-            document.getElementById('erPF').textContent = format(erPF);
-            document.getElementById('erESIC').textContent = format(erESIC);
-            document.getElementById('gratuity').textContent = format(gratuity);
-            document.getElementById('ctc').textContent = format(ctc);
-        }
+    // Other deductions
+    const deductionRows = document.querySelectorAll('.deduction-row');
+    let totalDeductions = 0;
+    deductionRows.forEach(row => {
+        const amount = parseFloat(row.querySelector('.ded-amount').value) || 0;
+        totalDeductions += amount;
+    });
 
-        // Initial calculation
-        calculate();
-    </script>
+    const takeHomeSalary = netSalary - totalDeductions;
+
+    // Update UI
+    document.getElementById("daysWorked").textContent = days;
+    document.getElementById("totalHours").textContent = totalHours.toFixed(2);
+    document.getElementById("grossSalary").textContent = "₹" + grossSalary.toFixed(2);
+    document.getElementById("employeePF").textContent = "₹" + employeePF.toFixed(2);
+    document.getElementById("employeeESIC").textContent = "₹" + employeeESIC.toFixed(2);
+    document.getElementById("employerESIC").textContent = "₹" + employerESIC.toFixed(2);
+    document.getElementById("gratuity").textContent = "₹" + gratuity.toFixed(2);
+    document.getElementById("netSalary").textContent = "₹" + netSalary.toFixed(2);
+    document.getElementById("totalDeductions").textContent = "₹" + totalDeductions.toFixed(2);
+    document.getElementById("takeHomeSalary").textContent = "₹" + takeHomeSalary.toFixed(2);
+}
+
+// Start with one empty deduction row
+addDeduction();
+calculate();
+</script>
 </body>
 </html>
