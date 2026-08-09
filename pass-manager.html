@@ -3,10 +3,14 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Secure Vault</title>
+
 
     <style>
 
@@ -14,208 +18,550 @@
             --primary: #007bff;
             --danger: #dc3545;
             --warning: #ffc107;
+            --success: #28a745;
+            --secondary: #6c757d;
         }
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            padding: 20px;
-            background: #f0f2f5;
-            color: #333;
-        }
 
-        .container {
-            max-width: 650px;
-            margin: auto;
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 6px;
+        * {
             box-sizing: border-box;
         }
 
-        .btn {
-            padding: 12px;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 6px;
-            font-weight: bold;
-            margin-top: 10px;
+
+        body {
+
+            font-family: 'Segoe UI', sans-serif;
+
+            margin: 0;
+
+            padding: 20px;
+
+            background: #f0f2f5;
+
+            color: #333;
+
         }
+
+
+        .container {
+
+            max-width: 650px;
+
+            margin: auto;
+
+            background: white;
+
+            padding: 25px;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 4px 15px rgba(0,0,0,0.1);
+
+        }
+
+
+        input {
+
+            width: 100%;
+
+            padding: 10px;
+
+            margin: 5px 0;
+
+            border: 1px solid #ddd;
+
+            border-radius: 6px;
+
+            font-size: 14px;
+
+        }
+
+
+        input:focus {
+
+            outline: none;
+
+            border-color: var(--primary);
+
+        }
+
+
+        .btn {
+
+            padding: 10px 14px;
+
+            color: white;
+
+            border: none;
+
+            cursor: pointer;
+
+            border-radius: 6px;
+
+            font-weight: bold;
+
+            margin-top: 8px;
+
+        }
+
 
         .btn-primary {
             background: var(--primary);
         }
 
+
         .btn-danger {
             background: var(--danger);
-            width: auto;
-            font-size: 11px;
-            margin-right: 5px;
         }
+
 
         .btn-warning {
+
             background: var(--warning);
+
             color: #000;
-            width: auto;
-            font-size: 11px;
-            margin-right: 5px;
+
         }
 
-        .btn-image {
-            background: #28a745;
-            width: auto;
-            font-size: 11px;
-            margin-right: 5px;
+
+        .btn-success {
+            background: var(--success);
         }
+
+
+        .btn-secondary {
+            background: var(--secondary);
+        }
+
+
+        .btn-image {
+
+            background: var(--success);
+
+        }
+
 
         .hidden {
             display: none !important;
         }
 
-        .field-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+
+        /* =========================
+           ADD ENTRY
+        ========================= */
+
+        .add-entry-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
             gap: 10px;
+
         }
 
-        .entry-card {
-            background: #fff;
-            border: 1px solid #eee;
-            padding: 15px;
+
+        .add-entry-header h2 {
+
+            margin: 0;
+
+        }
+
+
+        #addEntryBtn {
+
+            width: 100%;
+
+            font-size: 15px;
+
+            padding: 13px;
+
+        }
+
+
+        #entryForm {
+
             margin-top: 15px;
-            border-radius: 8px;
+
+            padding: 15px;
+
+            background: #f8f9fa;
+
+            border: 1px solid #e5e5e5;
+
+            border-radius: 10px;
+
         }
 
-        .entry-header {
-            font-weight: bold;
-            color: var(--primary);
-            border-bottom: 1px solid #f0f0f0;
+
+        .form-title {
+
+            margin-top: 0;
+
             margin-bottom: 10px;
-            padding-bottom: 5px;
-            font-size: 1.1em;
+
         }
 
-        .details-grid {
+
+        .field-group {
+
             display: grid;
+
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            font-size: 0.9em;
-            margin-bottom: 10px;
+
+            gap: 10px;
+
         }
 
-        .toggle-text {
-            color: var(--primary);
-            cursor: pointer;
-            font-size: 0.85em;
-            text-decoration: underline;
-            margin-left: 5px;
+
+        .help-text {
+
+            font-size: 12px;
+
+            color: #777;
+
+            margin: 3px 0 8px;
+
         }
 
-        .entry-name {
-            cursor: pointer;
-        }
 
-        /* SEARCH */
+        /* =========================
+           SEARCH
+        ========================= */
 
         .search-container {
+
             position: relative;
+
             margin: 15px 0;
+
         }
+
 
         #searchInput {
-            padding-right: 40px;
+
             margin: 0;
+
+            padding-right: 40px;
+
         }
+
 
         #clearSearch {
+
             position: absolute;
+
             right: 12px;
-            top: 8px;
+
+            top: 7px;
+
             font-size: 22px;
+
             color: #777;
+
             cursor: pointer;
+
             display: none;
+
         }
+
 
         #searchInfo {
+
             font-size: 12px;
+
             color: #777;
-            margin-top: 7px;
+
+            margin-bottom: 10px;
+
         }
 
-        /* IMAGE MODAL */
+
+        /* =========================
+           ENTRY CARD
+        ========================= */
+
+        .entry-card {
+
+            background: white;
+
+            border: 1px solid #e5e5e5;
+
+            padding: 15px;
+
+            margin-top: 12px;
+
+            border-radius: 9px;
+
+        }
+
+
+        .entry-header {
+
+            font-weight: bold;
+
+            color: var(--primary);
+
+            border-bottom: 1px solid #eee;
+
+            margin-bottom: 10px;
+
+            padding-bottom: 7px;
+
+            font-size: 17px;
+
+            word-break: break-word;
+
+        }
+
+
+        .details-grid {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 8px;
+
+            font-size: 14px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .toggle-text {
+
+            color: var(--primary);
+
+            cursor: pointer;
+
+            font-size: 12px;
+
+            text-decoration: underline;
+
+            margin-left: 5px;
+
+        }
+
+
+        .entry-buttons {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 5px;
+
+        }
+
+
+        .entry-buttons .btn {
+
+            margin-top: 5px;
+
+        }
+
+
+        /* =========================
+           IMAGE MODAL
+        ========================= */
 
         #imageModal {
+
             position: fixed;
+
             inset: 0;
-            background: rgba(0,0,0,0.85);
+
+            background: rgba(0,0,0,0.88);
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
-            z-index: 2000;
+
+            z-index: 3000;
+
             padding: 20px;
-            box-sizing: border-box;
+
         }
+
 
         #fullImage {
-            max-width: 95%;
-            max-height: 90vh;
+
+            max-width: 90vw;
+
+            max-height: 75vh;
+
             object-fit: contain;
+
             border-radius: 10px;
+
             background: white;
+
         }
+
 
         .close-image {
+
             position: absolute;
-            top: 10px;
+
+            top: 15px;
+
             right: 20px;
+
             color: white;
+
             font-size: 40px;
+
             cursor: pointer;
+
             line-height: 1;
+
         }
 
-        /* IMAGE ERROR */
 
-        .image-error {
-            color: #dc3545;
-            font-size: 12px;
-            margin-top: 5px;
+        .image-navigation {
+
+            position: absolute;
+
+            bottom: 25px;
+
+            left: 0;
+
+            right: 0;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            gap: 10px;
+
         }
 
-        /* EDIT MODAL */
+
+        .image-navigation button {
+
+            border: none;
+
+            background: white;
+
+            color: #333;
+
+            padding: 10px 18px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+
+        }
+
+
+        #imageCounter {
+
+            color: white;
+
+            font-weight: bold;
+
+            background: rgba(0,0,0,0.5);
+
+            padding: 8px 12px;
+
+            border-radius: 5px;
+
+        }
+
+
+        #imageError {
+
+            position: absolute;
+
+            bottom: 85px;
+
+            color: white;
+
+            background: rgba(220,53,69,0.9);
+
+            padding: 8px 12px;
+
+            border-radius: 5px;
+
+            display: none;
+
+        }
+
+
+        /* =========================
+           EDIT MODAL
+        ========================= */
 
         #modalOverlay {
+
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+
+            inset: 0;
+
             background: rgba(0,0,0,0.7);
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
-            z-index: 1000;
+
+            z-index: 2000;
+
+            padding: 15px;
+
         }
 
+
         .modal-content {
+
             background: white;
-            padding: 25px;
+
+            padding: 20px;
+
             border-radius: 12px;
-            width: 95%;
+
+            width: 100%;
+
             max-width: 500px;
+
             max-height: 90vh;
+
             overflow-y: auto;
+
         }
+
+
+        .modal-buttons {
+
+            display: flex;
+
+            gap: 8px;
+
+        }
+
+
+        .modal-buttons .btn {
+
+            flex: 1;
+
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
 
         @media (max-width: 600px) {
 
@@ -223,13 +569,33 @@
                 padding: 10px;
             }
 
+
             .container {
                 padding: 15px;
             }
 
+
             .field-group,
             .details-grid {
+
                 grid-template-columns: 1fr;
+
+            }
+
+
+            .entry-buttons {
+
+                display: grid;
+
+                grid-template-columns: 1fr 1fr;
+
+            }
+
+
+            .entry-buttons .btn {
+
+                width: 100%;
+
             }
 
         }
@@ -245,7 +611,9 @@
 <div class="container">
 
 
-    <!-- ================= LOGIN ================= -->
+    <!-- ==========================================
+         LOGIN
+    =========================================== -->
 
     <div id="authSection">
 
@@ -253,17 +621,20 @@
             Vault Login
         </h2>
 
+
         <input
             type="email"
             id="email"
             placeholder="Email"
         >
 
+
         <input
             type="password"
             id="authPassword"
             placeholder="Master Password"
         >
+
 
         <button
             id="authBtn"
@@ -273,13 +644,14 @@
             Login
         </button>
 
+
         <p
+            id="toggleAuth"
             style="
                 text-align:center;
                 cursor:pointer;
-                font-size:0.9em;
+                font-size:14px;
             "
-            id="toggleAuth"
         >
             New? Create Account
         </p>
@@ -288,33 +660,35 @@
 
 
 
-    <!-- ================= APPLICATION ================= -->
+    <!-- ==========================================
+         APPLICATION
+    =========================================== -->
 
-    <div id="appSection" class="hidden">
+    <div
+        id="appSection"
+        class="hidden"
+    >
 
+
+        <!-- TOP -->
 
         <div
             style="
                 display:flex;
                 justify-content:space-between;
                 align-items:center;
+                margin-bottom:15px;
             "
         >
 
-            <h2>
-                Add New Entry
+            <h2 style="margin:0;">
+                Secure Vault
             </h2>
+
 
             <button
                 id="logoutBtn"
-                style="
-                    background:#6c757d;
-                    color:white;
-                    border:none;
-                    padding:5px 10px;
-                    border-radius:4px;
-                    cursor:pointer;
-                "
+                class="btn btn-secondary"
             >
                 Logout
             </button>
@@ -322,115 +696,173 @@
         </div>
 
 
-        <!-- ACCOUNT NAME -->
 
-        <input
-            type="text"
-            id="accName"
-            placeholder="Account Name (e.g. Gmail)"
-        >
-
-
-        <!-- USER + PASSWORD -->
-
-        <div class="field-group">
-
-            <input
-                type="text"
-                id="accUser"
-                placeholder="Username"
-            >
-
-            <input
-                type="password"
-                id="accPass"
-                placeholder="Password"
-            >
-
-        </div>
-
-
-        <!-- ================= IMAGE ================= -->
-
-        <input
-            type="text"
-            id="accImage"
-            placeholder="Image filename (e.g. image1.jpg)"
-        >
-
-        <div
-            style="
-                font-size:12px;
-                color:#777;
-                margin-bottom:8px;
-            "
-        >
-            Example: <b>image1.jpg</b>
-            or
-            <b>images/gmail.jpg</b>
-        </div>
-
-
-        <!-- EXTRA FIELDS -->
-
-        <div class="field-group">
-
-            <input
-                type="text"
-                id="e1"
-                placeholder="Extra Description 1"
-            >
-
-            <input
-                type="text"
-                id="e2"
-                placeholder="Extra Description 2"
-            >
-
-        </div>
-
-
-        <div class="field-group">
-
-            <input
-                type="text"
-                id="e3"
-                placeholder="Extra Description 3"
-            >
-
-            <input
-                type="text"
-                id="e4"
-                placeholder="Extra Description 4"
-            >
-
-        </div>
-
-
-        <div class="field-group">
-
-            <input
-                type="text"
-                id="e5"
-                placeholder="Extra Description 5"
-            >
-
-            <input
-                type="text"
-                id="e6"
-                placeholder="Extra Description 6"
-            >
-
-        </div>
-
+        <!-- ======================================
+             ADD NEW ENTRY BUTTON
+        ======================================= -->
 
         <button
-            id="saveBtn"
+            id="addEntryBtn"
             class="btn btn-primary"
-            style="width:100%;"
         >
-            Save to Vault
+            ➕ Add New Entry
         </button>
+
+
+
+        <!-- ======================================
+             COLLAPSIBLE FORM
+        ======================================= -->
+
+        <div
+            id="entryForm"
+            class="hidden"
+        >
+
+            <h3 class="form-title">
+                Add New Entry
+            </h3>
+
+
+            <!-- NAME -->
+
+            <input
+                type="text"
+                id="accName"
+                placeholder="Account Name (e.g. Gmail)"
+            >
+
+
+            <!-- USER + PASSWORD -->
+
+            <div class="field-group">
+
+                <input
+                    type="text"
+                    id="accUser"
+                    placeholder="Username"
+                >
+
+
+                <input
+                    type="password"
+                    id="accPass"
+                    placeholder="Password"
+                >
+
+            </div>
+
+
+
+            <!-- ==================================
+                 MULTIPLE IMAGES
+            =================================== -->
+
+            <input
+                type="text"
+                id="accImage"
+                placeholder="Images: image1.jpg,image2.jpg"
+            >
+
+
+            <div class="help-text">
+
+                Repository images example:
+                <b>image1.jpg,image2.jpg</b>
+
+                <br>
+
+                Folder example:
+                <b>images/gmail1.jpg,images/gmail2.jpg</b>
+
+            </div>
+
+
+
+            <!-- EXTRA FIELDS -->
+
+            <div class="field-group">
+
+                <input
+                    type="text"
+                    id="e1"
+                    placeholder="Extra Description 1"
+                >
+
+                <input
+                    type="text"
+                    id="e2"
+                    placeholder="Extra Description 2"
+                >
+
+            </div>
+
+
+            <div class="field-group">
+
+                <input
+                    type="text"
+                    id="e3"
+                    placeholder="Extra Description 3"
+                >
+
+                <input
+                    type="text"
+                    id="e4"
+                    placeholder="Extra Description 4"
+                >
+
+            </div>
+
+
+            <div class="field-group">
+
+                <input
+                    type="text"
+                    id="e5"
+                    placeholder="Extra Description 5"
+                >
+
+                <input
+                    type="text"
+                    id="e6"
+                    placeholder="Extra Description 6"
+                >
+
+            </div>
+
+
+
+            <!-- FORM BUTTONS -->
+
+            <div
+                style="
+                    display:flex;
+                    gap:8px;
+                "
+            >
+
+                <button
+                    id="saveBtn"
+                    class="btn btn-primary"
+                    style="flex:1;"
+                >
+                    Save to Vault
+                </button>
+
+
+                <button
+                    id="cancelAddBtn"
+                    class="btn btn-secondary"
+                    style="flex:1;"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </div>
+
 
 
         <hr
@@ -442,7 +874,10 @@
         >
 
 
-        <!-- ================= SEARCH ================= -->
+
+        <!-- ======================================
+             SEARCH
+        ======================================= -->
 
         <h3>
             Stored Credentials
@@ -454,9 +889,10 @@
             <input
                 type="search"
                 id="searchInput"
-                placeholder="Search account, username or details..."
+                placeholder="Search account, username, image or details..."
                 autocomplete="off"
             >
+
 
             <span id="clearSearch">
                 ×
@@ -469,11 +905,8 @@
         </div>
 
 
-        <!-- LIST -->
-
         <div id="passwordList">
         </div>
-
 
     </div>
 
@@ -481,7 +914,9 @@
 
 
 
-<!-- ================= EDIT MODAL ================= -->
+<!-- ==========================================
+     EDIT MODAL
+=========================================== -->
 
 <div
     id="modalOverlay"
@@ -517,6 +952,7 @@
                 placeholder="Username"
             >
 
+
             <input
                 type="text"
                 id="editPass"
@@ -526,26 +962,20 @@
         </div>
 
 
-        <!-- EDIT IMAGE -->
+        <!-- MULTIPLE IMAGES -->
 
         <input
             type="text"
             id="editImage"
-            placeholder="Image filename (e.g. image1.jpg)"
+            placeholder="Images: image1.jpg,image2.jpg"
         >
 
 
-        <div
-            style="
-                font-size:12px;
-                color:#777;
-                margin-bottom:8px;
-            "
-        >
+        <div class="help-text">
+
             Example:
-            <b>image1.jpg</b>
-            or
-            <b>images/gmail.jpg</b>
+            <b>image1.jpg,image2.jpg</b>
+
         </div>
 
 
@@ -600,37 +1030,24 @@
         </div>
 
 
-        <div
-            style="
-                display:flex;
-                gap:10px;
-                margin-top:15px;
-            "
-        >
+        <div class="modal-buttons">
 
             <button
                 id="updateBtn"
                 class="btn btn-primary"
-                style="flex:1;"
             >
-                Update Entry
+                Update
             </button>
 
 
             <button
                 id="closeModal"
-                class="btn"
-                style="
-                    flex:1;
-                    background:#6c757d;
-                    color:white;
-                "
+                class="btn btn-secondary"
             >
                 Cancel
             </button>
 
         </div>
-
 
     </div>
 
@@ -638,16 +1055,19 @@
 
 
 
-<!-- ================= IMAGE MODAL ================= -->
+<!-- ==========================================
+     IMAGE VIEWER
+=========================================== -->
 
 <div
     id="imageModal"
     class="hidden"
-    onclick="window.closeImageModal()"
 >
+
 
     <span
         class="close-image"
+        id="closeImageBtn"
     >
         ×
     </span>
@@ -657,8 +1077,36 @@
         id="fullImage"
         src=""
         alt="Account Image"
-        onclick="event.stopPropagation()"
     >
+
+
+    <div id="imageError">
+        Image not found
+    </div>
+
+
+    <div class="image-navigation">
+
+
+        <button
+            id="prevImageBtn"
+        >
+            ← Previous
+        </button>
+
+
+        <span id="imageCounter">
+            1 / 1
+        </span>
+
+
+        <button
+            id="nextImageBtn"
+        >
+            Next →
+        </button>
+
+    </div>
 
 </div>
 
@@ -667,9 +1115,9 @@
 <script type="module">
 
 
-    /* =====================================================
-       FIREBASE
-    ===================================================== */
+    /* ==========================================
+       FIREBASE IMPORTS
+    =========================================== */
 
     import {
         initializeApp
@@ -701,6 +1149,10 @@
     "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 
+
+    /* ==========================================
+       FIREBASE CONFIG
+    =========================================== */
 
     const firebaseConfig = {
 
@@ -742,24 +1194,107 @@
 
     let currentUser = null;
 
-
     let allData = {};
 
 
 
-    /* =====================================================
+    /* ==========================================
+       IMAGE VARIABLES
+    =========================================== */
+
+    let currentImages = [];
+
+    let currentImageIndex = 0;
+
+
+
+    /* ==========================================
+       ADD ENTRY COLLAPSE
+    =========================================== */
+
+    const addEntryBtn =
+        document.getElementById(
+            'addEntryBtn'
+        );
+
+
+    const entryForm =
+        document.getElementById(
+            'entryForm'
+        );
+
+
+    const cancelAddBtn =
+        document.getElementById(
+            'cancelAddBtn'
+        );
+
+
+    addEntryBtn.onclick = () => {
+
+
+        const isHidden =
+            entryForm.classList
+                .contains('hidden');
+
+
+        if (isHidden) {
+
+            entryForm
+                .classList
+                .remove('hidden');
+
+            addEntryBtn.textContent =
+                '➖ Close Add Entry';
+
+        }
+        else {
+
+            closeAddEntryForm();
+
+        }
+
+    };
+
+
+
+    cancelAddBtn.onclick = () => {
+
+        closeAddEntryForm();
+
+    };
+
+
+
+    function closeAddEntryForm() {
+
+        entryForm
+            .classList
+            .add('hidden');
+
+        addEntryBtn.textContent =
+            '➕ Add New Entry';
+
+    }
+
+
+
+    /* ==========================================
        AUTH STATE
-    ===================================================== */
+    =========================================== */
 
     onAuthStateChanged(
         auth,
         (user) => {
 
+
             currentUser = user;
 
 
             document
-                .getElementById('authSection')
+                .getElementById(
+                    'authSection'
+                )
                 .classList
                 .toggle(
                     'hidden',
@@ -768,7 +1303,9 @@
 
 
             document
-                .getElementById('appSection')
+                .getElementById(
+                    'appSection'
+                )
                 .classList
                 .toggle(
                     'hidden',
@@ -789,9 +1326,9 @@
 
 
 
-    /* =====================================================
-       SAVE
-    ===================================================== */
+    /* ==========================================
+       SAVE ENTRY
+    =========================================== */
 
     document
         .getElementById('saveBtn')
@@ -799,15 +1336,15 @@
 
 
             if (!currentUser) {
-
                 return;
-
             }
 
 
             const name =
                 document
-                    .getElementById('accName')
+                    .getElementById(
+                        'accName'
+                    )
                     .value
                     .trim();
 
@@ -815,7 +1352,7 @@
             if (!name) {
 
                 alert(
-                    "Please enter Account Name."
+                    'Please enter Account Name.'
                 );
 
                 return;
@@ -830,62 +1367,76 @@
 
                 user:
                     document
-                        .getElementById('accUser')
+                        .getElementById(
+                            'accUser'
+                        )
                         .value
                         .trim(),
 
                 pass:
                     document
-                        .getElementById('accPass')
+                        .getElementById(
+                            'accPass'
+                        )
                         .value,
 
                 /*
-                    IMPORTANT:
-
-                    Only the filename/path is stored.
+                    Store multiple image
+                    filenames as comma-separated text.
 
                     Example:
-                    image1.jpg
 
-                    OR:
-
-                    images/image1.jpg
+                    image1.jpg,image2.jpg
                 */
 
                 image:
                     document
-                        .getElementById('accImage')
+                        .getElementById(
+                            'accImage'
+                        )
                         .value
                         .trim(),
 
                 e1:
                     document
-                        .getElementById('e1')
+                        .getElementById(
+                            'e1'
+                        )
                         .value,
 
                 e2:
                     document
-                        .getElementById('e2')
+                        .getElementById(
+                            'e2'
+                        )
                         .value,
 
                 e3:
                     document
-                        .getElementById('e3')
+                        .getElementById(
+                            'e3'
+                        )
                         .value,
 
                 e4:
                     document
-                        .getElementById('e4')
+                        .getElementById(
+                            'e4'
+                        )
                         .value,
 
                 e5:
                     document
-                        .getElementById('e5')
+                        .getElementById(
+                            'e5'
+                        )
                         .value,
 
                 e6:
                     document
-                        .getElementById('e6')
+                        .getElementById(
+                            'e6'
+                        )
                         .value
 
             };
@@ -898,37 +1449,22 @@
                 ),
                 data
             )
-            .then(() => {
+            .then(
+                () => {
 
 
-                [
-                    'accName',
-                    'accUser',
-                    'accPass',
-                    'accImage',
-                    'e1',
-                    'e2',
-                    'e3',
-                    'e4',
-                    'e5',
-                    'e6'
-                ]
-                .forEach(
-                    id => {
-
-                        document
-                            .getElementById(id)
-                            .value = '';
-
-                    }
-                );
+                    clearAddForm();
 
 
-                alert(
-                    "Entry saved successfully."
-                );
+                    closeAddEntryForm();
 
-            })
+
+                    alert(
+                        'Entry saved successfully.'
+                    );
+
+                }
+            )
             .catch(
                 error => {
 
@@ -943,9 +1479,41 @@
 
 
 
-    /* =====================================================
+    /* ==========================================
+       CLEAR ADD FORM
+    =========================================== */
+
+    function clearAddForm() {
+
+        [
+            'accName',
+            'accUser',
+            'accPass',
+            'accImage',
+            'e1',
+            'e2',
+            'e3',
+            'e4',
+            'e5',
+            'e6'
+        ]
+        .forEach(
+            id => {
+
+                document
+                    .getElementById(id)
+                    .value = '';
+
+            }
+        );
+
+    }
+
+
+
+    /* ==========================================
        LOAD DATA
-    ===================================================== */
+    =========================================== */
 
     function loadData(uid) {
 
@@ -955,7 +1523,7 @@
                 db,
                 `users/${uid}`
             ),
-            (snapshot) => {
+            snapshot => {
 
 
                 allData =
@@ -971,17 +1539,19 @@
 
 
 
-    /* =====================================================
+    /* ==========================================
        SEARCH
-    ===================================================== */
+    =========================================== */
 
     document
-        .getElementById('searchInput')
+        .getElementById(
+            'searchInput'
+        )
         .addEventListener(
             'input',
             () => {
 
-                updateClearButton();
+                updateSearchButton();
 
                 renderData();
 
@@ -990,19 +1560,24 @@
 
 
 
-    function updateClearButton() {
+    function updateSearchButton() {
 
-
-        const input =
+        const value =
             document
-                .getElementById('searchInput');
+                .getElementById(
+                    'searchInput'
+                )
+                .value
+                .trim();
 
 
         document
-            .getElementById('clearSearch')
+            .getElementById(
+                'clearSearch'
+            )
             .style
             .display =
-                input.value.trim()
+                value
                     ? 'block'
                     : 'none';
 
@@ -1011,16 +1586,20 @@
 
 
     document
-        .getElementById('clearSearch')
+        .getElementById(
+            'clearSearch'
+        )
         .onclick = () => {
 
 
             document
-                .getElementById('searchInput')
+                .getElementById(
+                    'searchInput'
+                )
                 .value = '';
 
 
-            updateClearButton();
+            updateSearchButton();
 
 
             renderData();
@@ -1029,16 +1608,18 @@
 
 
 
-    /* =====================================================
+    /* ==========================================
        RENDER DATA
-    ===================================================== */
+    =========================================== */
 
     function renderData() {
 
 
         const list =
             document
-                .getElementById('passwordList');
+                .getElementById(
+                    'passwordList'
+                );
 
 
         list.innerHTML = '';
@@ -1046,7 +1627,9 @@
 
         const search =
             document
-                .getElementById('searchInput')
+                .getElementById(
+                    'searchInput'
+                )
                 .value
                 .toLowerCase()
                 .trim();
@@ -1063,10 +1646,6 @@
             const item =
                 allData[id];
 
-
-            /*
-                SEARCH ALL IMPORTANT FIELDS
-            */
 
             const searchableText = [
 
@@ -1107,13 +1686,16 @@
             count++;
 
 
-            /* =================================================
+
+            /* ==================================
                CARD
-            ================================================= */
+            =================================== */
 
             const card =
                 document
-                    .createElement('div');
+                    .createElement(
+                        'div'
+                    );
 
 
             card.className =
@@ -1121,36 +1703,24 @@
 
 
 
-            /* =================================================
-               ACCOUNT NAME
-            ================================================= */
+            /* ==================================
+               NAME
+            =================================== */
 
             const header =
                 document
-                    .createElement('div');
+                    .createElement(
+                        'div'
+                    );
 
 
             header.className =
                 'entry-header';
 
 
-            const name =
-                document
-                    .createElement('span');
-
-
-            name.className =
-                'entry-name';
-
-
-            name.textContent =
+            header.textContent =
                 item.name ||
                 'Unnamed';
-
-
-            header.appendChild(
-                name
-            );
 
 
             card.appendChild(
@@ -1159,13 +1729,15 @@
 
 
 
-            /* =================================================
-               USER + PASSWORD
-            ================================================= */
+            /* ==================================
+               DETAILS
+            =================================== */
 
             const details =
                 document
-                    .createElement('div');
+                    .createElement(
+                        'div'
+                    );
 
 
             details.className =
@@ -1177,29 +1749,20 @@
 
             const userDiv =
                 document
-                    .createElement('div');
+                    .createElement(
+                        'div'
+                    );
 
 
-            const userStrong =
-                document
-                    .createElement('strong');
+            userDiv.innerHTML =
+                '<strong>User:</strong> ' +
+                escapeHTML(
+                    item.user || '-'
+                );
 
 
-            userStrong.textContent =
-                'User:';
-
-
-            userDiv.appendChild(
-                userStrong
-            );
-
-
-            userDiv.appendChild(
-                document
-                    .createTextNode(
-                        ' ' +
-                        (item.user || '-')
-                    )
+            details.appendChild(
+                userDiv
             );
 
 
@@ -1208,12 +1771,16 @@
 
             const passDiv =
                 document
-                    .createElement('div');
+                    .createElement(
+                        'div'
+                    );
 
 
             const passStrong =
                 document
-                    .createElement('strong');
+                    .createElement(
+                        'strong'
+                    );
 
 
             passStrong.textContent =
@@ -1222,7 +1789,9 @@
 
             const passSpan =
                 document
-                    .createElement('span');
+                    .createElement(
+                        'span'
+                    );
 
 
             passSpan.textContent =
@@ -1231,7 +1800,9 @@
 
             const toggle =
                 document
-                    .createElement('span');
+                    .createElement(
+                        'span'
+                    );
 
 
             toggle.className =
@@ -1277,7 +1848,9 @@
 
             passDiv.appendChild(
                 document
-                    .createTextNode(' ')
+                    .createTextNode(
+                        ' '
+                    )
             );
 
 
@@ -1292,11 +1865,6 @@
 
 
             details.appendChild(
-                userDiv
-            );
-
-
-            details.appendChild(
                 passDiv
             );
 
@@ -1307,13 +1875,15 @@
 
 
 
-            /* =================================================
+            /* ==================================
                EXTRA FIELDS
-            ================================================= */
+            =================================== */
 
             const extras =
                 document
-                    .createElement('div');
+                    .createElement(
+                        'div'
+                    );
 
 
             extras.className =
@@ -1351,30 +1921,18 @@
 
                     const div =
                         document
-                            .createElement('div');
+                            .createElement(
+                                'div'
+                            );
 
 
-                    const strong =
-                        document
-                            .createElement('strong');
-
-
-                    strong.textContent =
-                        label + ':';
-
-
-                    div.appendChild(
-                        strong
-                    );
-
-
-                    div.appendChild(
-                        document
-                            .createTextNode(
-                                ' ' +
-                                (value || '-')
-                            )
-                    );
+                    div.innerHTML =
+                        '<strong>' +
+                        label +
+                        ':</strong> ' +
+                        escapeHTML(
+                            value || '-'
+                        );
 
 
                     extras.appendChild(
@@ -1391,9 +1949,23 @@
 
 
 
-            /* =================================================
-               IMAGE BUTTON
-            ================================================= */
+            /* ==================================
+               BUTTONS
+            =================================== */
+
+            const buttons =
+                document
+                    .createElement(
+                        'div'
+                    );
+
+
+            buttons.className =
+                'entry-buttons';
+
+
+
+            /* IMAGE BUTTON */
 
             if (
                 item.image &&
@@ -1403,28 +1975,36 @@
 
                 const imageButton =
                     document
-                        .createElement('button');
+                        .createElement(
+                            'button'
+                        );
 
 
                 imageButton.className =
                     'btn btn-image';
 
 
+                const images =
+                    getImageList(
+                        item.image
+                    );
+
+
                 imageButton.textContent =
-                    '🖼️ Show Image';
+                    `🖼️ Show Images (${images.length})`;
 
 
                 imageButton.onclick =
                     () => {
 
-                        window.showImage(
-                            item.image
+                        window.showImages(
+                            images
                         );
 
                     };
 
 
-                card.appendChild(
+                buttons.appendChild(
                     imageButton
                 );
 
@@ -1432,13 +2012,13 @@
 
 
 
-            /* =================================================
-               EDIT BUTTON
-            ================================================= */
+            /* EDIT */
 
             const editButton =
                 document
-                    .createElement('button');
+                    .createElement(
+                        'button'
+                    );
 
 
             editButton.className =
@@ -1459,19 +2039,19 @@
                 };
 
 
-            card.appendChild(
+            buttons.appendChild(
                 editButton
             );
 
 
 
-            /* =================================================
-               DELETE BUTTON
-            ================================================= */
+            /* DELETE */
 
             const deleteButton =
                 document
-                    .createElement('button');
+                    .createElement(
+                        'button'
+                    );
 
 
             deleteButton.className =
@@ -1492,8 +2072,13 @@
                 };
 
 
-            card.appendChild(
+            buttons.appendChild(
                 deleteButton
+            );
+
+
+            card.appendChild(
+                buttons
             );
 
 
@@ -1505,12 +2090,12 @@
 
 
 
-        /* =================================================
-           SEARCH INFO
-        ================================================= */
+        /* SEARCH INFO */
 
         document
-            .getElementById('searchInfo')
+            .getElementById(
+                'searchInfo'
+            )
             .textContent =
                 search
                     ? `${count} result(s) found`
@@ -1542,200 +2127,189 @@
 
 
 
-    /* =====================================================
-       SHOW IMAGE
-    ===================================================== */
+    /* ==========================================
+       GET IMAGE LIST
+    =========================================== */
 
-    window.showImage =
-        (imageName) => {
+    function getImageList(imageValue) {
 
 
-            if (!imageName) {
+        if (
+            !imageValue
+        ) {
 
-                alert(
-                    "No image filename saved."
+            return [];
+
+        }
+
+
+        /*
+            Supports:
+
+            image1.jpg,image2.jpg
+
+            and:
+
+            image1.jpg, image2.jpg
+        */
+
+        return imageValue
+            .split(',')
+            .map(
+                image =>
+                    image.trim()
+            )
+            .filter(
+                image =>
+                    image.length > 0
+            );
+
+    }
+
+
+
+    /* ==========================================
+       SHOW MULTIPLE IMAGES
+    =========================================== */
+
+    window.showImages =
+        (images) => {
+
+
+            if (
+                !images ||
+                images.length === 0
+            ) {
+
+                return;
+
+            }
+
+
+            currentImages =
+                images;
+
+
+            currentImageIndex =
+                0;
+
+
+            showCurrentImage();
+
+        };
+
+
+
+    /* ==========================================
+       SHOW CURRENT IMAGE
+    =========================================== */
+
+    function showCurrentImage() {
+
+
+        if (
+            currentImages.length === 0
+        ) {
+
+            return;
+
+        }
+
+
+        const image =
+            document
+                .getElementById(
+                    'fullImage'
                 );
 
-                return;
 
-            }
-
-
-            imageName =
-                imageName.trim();
-
-
-            /*
-                IMPORTANT:
-
-                If Firebase contains:
-
-                image1.jpg
-
-                browser loads:
-
-                ./image1.jpg
-
-
-                If Firebase contains:
-
-                images/image1.jpg
-
-                browser loads:
-
-                ./images/image1.jpg
-            */
-
-            const imagePath =
-                './' + imageName;
-
-
-            const image =
-                document
-                    .getElementById('fullImage');
-
-
-            image.src =
-                imagePath;
-
-
-            image.onerror =
-                () => {
-
-                    alert(
-                        "Image not found:\n\n" +
-                        imagePath +
-                        "\n\n" +
-                        "Make sure the image exists in your repository."
-                    );
-
-                    window.closeImageModal();
-
-                };
-
-
-            image.onload =
-                () => {
-
-                    document
-                        .getElementById('imageModal')
-                        .classList
-                        .remove('hidden');
-
-                };
-
-        };
-
-
-
-    /* =====================================================
-       CLOSE IMAGE
-    ===================================================== */
-
-    window.closeImageModal =
-        () => {
-
-
+        const modal =
             document
-                .getElementById('imageModal')
-                .classList
-                .add('hidden');
+                .getElementById(
+                    'imageModal'
+                );
 
 
+        const error =
             document
-                .getElementById('fullImage')
-                .src = '';
-
-        };
-
+                .getElementById(
+                    'imageError'
+                );
 
 
-    /* =====================================================
-       EDIT MODAL
-    ===================================================== */
-
-    window.openEditModal =
-        (id) => {
-
-
-            const d =
-                allData[id];
-
-
-            if (!d) {
-
-                return;
-
-            }
-
-
+        const counter =
             document
-                .getElementById('editId')
-                .value = id;
+                .getElementById(
+                    'imageCounter'
+                );
 
 
+        const previous =
             document
-                .getElementById('editName')
-                .value =
-                    d.name || '';
+                .getElementById(
+                    'prevImageBtn'
+                );
 
 
+        const next =
             document
-                .getElementById('editUser')
-                .value =
-                    d.user || '';
+                .getElementById(
+                    'nextImageBtn'
+                );
 
 
-            document
-                .getElementById('editPass')
-                .value =
-                    d.pass || '';
+        /*
+            Completely reset old image state.
+        */
+
+        image.onload = null;
+
+        image.onerror = null;
+
+        image.src = '';
 
 
-            document
-                .getElementById('editImage')
-                .value =
-                    d.image || '';
+        error.style.display =
+            'none';
 
 
-            document
-                .getElementById('editE1')
-                .value =
-                    d.e1 || '';
+        const imageName =
+            currentImages[
+                currentImageIndex
+            ];
 
 
-            document
-                .getElementById('editE2')
-                .value =
-                    d.e2 || '';
+        const imagePath =
+            './' + imageName;
 
 
-            document
-                .getElementById('editE3')
-                .value =
-                    d.e3 || '';
+        counter.textContent =
+            `${currentImageIndex + 1} / ${currentImages.length}`;
 
 
-            document
-                .getElementById('editE4')
-                .value =
-                    d.e4 || '';
+        previous.style.display =
+            currentImages.length > 1
+                ? 'block'
+                : 'none';
 
 
-            document
-                .getElementById('editE5')
-                .value =
-                    d.e5 || '';
+        next.style.display =
+            currentImages.length > 1
+                ? 'block'
+                : 'none';
 
 
-            document
-                .getElementById('editE6')
-                .value =
-                    d.e6 || '';
 
+        /*
+            IMAGE SUCCESS
+        */
 
-            document
-                .getElementById('modalOverlay')
+        image.onload = () => {
+
+            error.style.display =
+                'none';
+
+            modal
                 .classList
                 .remove('hidden');
 
@@ -1743,81 +2317,438 @@
 
 
 
-    /* =====================================================
-       UPDATE
-    ===================================================== */
+        /*
+            IMAGE NOT FOUND
+
+            IMPORTANT:
+            No repeated alert.
+
+            The modal closes and the
+            error message is shown once.
+        */
+
+        image.onerror = () => {
+
+
+            image.onload = null;
+
+            image.onerror = null;
+
+
+            image.src = '';
+
+
+            modal
+                .classList
+                .add('hidden');
+
+
+            error.style.display =
+                'none';
+
+
+            alert(
+                'Image not found:\n\n' +
+                imagePath +
+                '\n\n' +
+                'Check the filename and repository path.'
+            );
+
+
+            /*
+                Clear everything after OK.
+            */
+
+            currentImages = [];
+
+            currentImageIndex = 0;
+
+
+            counter.textContent =
+                '1 / 1';
+
+        };
+
+
+        /*
+            Start loading.
+        */
+
+        image.src =
+            imagePath;
+
+    }
+
+
+
+    /* ==========================================
+       NEXT IMAGE
+    =========================================== */
 
     document
-        .getElementById('updateBtn')
+        .getElementById(
+            'nextImageBtn'
+        )
         .onclick = () => {
 
 
-            const id =
-                document
-                    .getElementById('editId')
-                    .value;
-
-
-            if (!id || !currentUser) {
+            if (
+                currentImages.length <= 1
+            ) {
 
                 return;
 
             }
 
 
+            currentImageIndex++;
+
+
+            if (
+                currentImageIndex >=
+                currentImages.length
+            ) {
+
+                currentImageIndex = 0;
+
+            }
+
+
+            showCurrentImage();
+
+        };
+
+
+
+    /* ==========================================
+       PREVIOUS IMAGE
+    =========================================== */
+
+    document
+        .getElementById(
+            'prevImageBtn'
+        )
+        .onclick = () => {
+
+
+            if (
+                currentImages.length <= 1
+            ) {
+
+                return;
+
+            }
+
+
+            currentImageIndex--;
+
+
+            if (
+                currentImageIndex < 0
+            ) {
+
+                currentImageIndex =
+                    currentImages.length - 1;
+
+            }
+
+
+            showCurrentImage();
+
+        };
+
+
+
+    /* ==========================================
+       CLOSE IMAGE
+    =========================================== */
+
+    function closeImageViewer() {
+
+
+        const modal =
+            document
+                .getElementById(
+                    'imageModal'
+                );
+
+
+        const image =
+            document
+                .getElementById(
+                    'fullImage'
+                );
+
+
+        image.onload = null;
+
+        image.onerror = null;
+
+        image.src = '';
+
+
+        modal
+            .classList
+            .add('hidden');
+
+
+        currentImages = [];
+
+        currentImageIndex = 0;
+
+    }
+
+
+    document
+        .getElementById(
+            'closeImageBtn'
+        )
+        .onclick =
+            closeImageViewer;
+
+
+
+    /* ==========================================
+       CLICK IMAGE BACKGROUND TO CLOSE
+    =========================================== */
+
+    document
+        .getElementById(
+            'imageModal'
+        )
+        .onclick =
+            (event) => {
+
+
+                if (
+                    event.target.id ===
+                    'imageModal'
+                ) {
+
+                    closeImageViewer();
+
+                }
+
+            };
+
+
+
+    /* ==========================================
+       EDIT MODAL
+    ========================================== */
+
+    window.openEditModal =
+        (id) => {
+
+
+            const item =
+                allData[id];
+
+
+            if (!item) {
+
+                return;
+
+            }
+
+
+            document
+                .getElementById(
+                    'editId'
+                )
+                .value = id;
+
+
+            document
+                .getElementById(
+                    'editName'
+                )
+                .value =
+                    item.name || '';
+
+
+            document
+                .getElementById(
+                    'editUser'
+                )
+                .value =
+                    item.user || '';
+
+
+            document
+                .getElementById(
+                    'editPass'
+                )
+                .value =
+                    item.pass || '';
+
+
+            document
+                .getElementById(
+                    'editImage'
+                )
+                .value =
+                    item.image || '';
+
+
+            document
+                .getElementById(
+                    'editE1'
+                )
+                .value =
+                    item.e1 || '';
+
+
+            document
+                .getElementById(
+                    'editE2'
+                )
+                .value =
+                    item.e2 || '';
+
+
+            document
+                .getElementById(
+                    'editE3'
+                )
+                .value =
+                    item.e3 || '';
+
+
+            document
+                .getElementById(
+                    'editE4'
+                )
+                .value =
+                    item.e4 || '';
+
+
+            document
+                .getElementById(
+                    'editE5'
+                )
+                .value =
+                    item.e5 || '';
+
+
+            document
+                .getElementById(
+                    'editE6'
+                )
+                .value =
+                    item.e6 || '';
+
+
+            document
+                .getElementById(
+                    'modalOverlay'
+                )
+                .classList
+                .remove('hidden');
+
+        };
+
+
+
+    /* ==========================================
+       UPDATE
+    =========================================== */
+
+    document
+        .getElementById(
+            'updateBtn'
+        )
+        .onclick = () => {
+
+
+            if (!currentUser) {
+
+                return;
+
+            }
+
+
+            const id =
+                document
+                    .getElementById(
+                        'editId'
+                    )
+                    .value;
+
+
             const updatedData = {
 
                 name:
                     document
-                        .getElementById('editName')
+                        .getElementById(
+                            'editName'
+                        )
                         .value
                         .trim(),
 
                 user:
                     document
-                        .getElementById('editUser')
+                        .getElementById(
+                            'editUser'
+                        )
                         .value
                         .trim(),
 
                 pass:
                     document
-                        .getElementById('editPass')
+                        .getElementById(
+                            'editPass'
+                        )
                         .value,
 
                 image:
                     document
-                        .getElementById('editImage')
+                        .getElementById(
+                            'editImage'
+                        )
                         .value
                         .trim(),
 
                 e1:
                     document
-                        .getElementById('editE1')
+                        .getElementById(
+                            'editE1'
+                        )
                         .value,
 
                 e2:
                     document
-                        .getElementById('editE2')
+                        .getElementById(
+                            'editE2'
+                        )
                         .value,
 
                 e3:
                     document
-                        .getElementById('editE3')
+                        .getElementById(
+                            'editE3'
+                        )
                         .value,
 
                 e4:
                     document
-                        .getElementById('editE4')
+                        .getElementById(
+                            'editE4'
+                        )
                         .value,
 
                 e5:
                     document
-                        .getElementById('editE5')
+                        .getElementById(
+                            'editE5'
+                        )
                         .value,
 
                 e6:
                     document
-                        .getElementById('editE6')
+                        .getElementById(
+                            'editE6'
+                        )
                         .value
 
             };
@@ -1834,7 +2765,9 @@
                 () => {
 
                     document
-                        .getElementById('modalOverlay')
+                        .getElementById(
+                            'modalOverlay'
+                        )
                         .classList
                         .add('hidden');
 
@@ -1854,16 +2787,21 @@
 
 
 
-    /* =====================================================
-       CLOSE EDIT
-    ===================================================== */
+    /* ==========================================
+       CLOSE EDIT MODAL
+    =========================================== */
 
     document
-        .getElementById('closeModal')
+        .getElementById(
+            'closeModal'
+        )
         .onclick = () => {
 
+
             document
-                .getElementById('modalOverlay')
+                .getElementById(
+                    'modalOverlay'
+                )
                 .classList
                 .add('hidden');
 
@@ -1871,17 +2809,15 @@
 
 
 
-    /* =====================================================
+    /* ==========================================
        DELETE
-    ===================================================== */
+    =========================================== */
 
     window.deleteItem =
         (id) => {
 
 
-            if (
-                !currentUser
-            ) {
+            if (!currentUser) {
 
                 return;
 
@@ -1890,9 +2826,10 @@
 
             if (
                 confirm(
-                    "Delete this entry?"
+                    'Delete this entry?'
                 )
             ) {
+
 
                 remove(
                     ref(
@@ -1916,12 +2853,14 @@
 
 
 
-    /* =====================================================
+    /* ==========================================
        LOGOUT
-    ===================================================== */
+    =========================================== */
 
     document
-        .getElementById('logoutBtn')
+        .getElementById(
+            'logoutBtn'
+        )
         .onclick = () => {
 
             signOut(auth);
@@ -1930,15 +2869,17 @@
 
 
 
-    /* =====================================================
-       LOGIN / SIGNUP
-    ===================================================== */
+    /* ==========================================
+       LOGIN / SIGNUP SWITCH
+    =========================================== */
 
     let isLogin = true;
 
 
     document
-        .getElementById('toggleAuth')
+        .getElementById(
+            'toggleAuth'
+        )
         .onclick = () => {
 
 
@@ -1947,58 +2888,73 @@
 
 
             document
-                .getElementById('authTitle')
-                .innerText =
+                .getElementById(
+                    'authTitle'
+                )
+                .textContent =
                     isLogin
-                        ? "Vault Login"
-                        : "Create Account";
+                        ? 'Vault Login'
+                        : 'Create Account';
 
 
             document
-                .getElementById('authBtn')
-                .innerText =
+                .getElementById(
+                    'authBtn'
+                )
+                .textContent =
                     isLogin
-                        ? "Login"
-                        : "Sign Up";
+                        ? 'Login'
+                        : 'Sign Up';
 
 
             document
-                .getElementById('toggleAuth')
-                .innerText =
+                .getElementById(
+                    'toggleAuth'
+                )
+                .textContent =
                     isLogin
-                        ? "New? Create Account"
-                        : "Already have an account? Login";
+                        ? 'New? Create Account'
+                        : 'Already have an account? Login';
 
         };
 
 
 
-    /* =====================================================
-       AUTH BUTTON
-    ===================================================== */
+    /* ==========================================
+       LOGIN / SIGNUP
+    =========================================== */
 
     document
-        .getElementById('authBtn')
+        .getElementById(
+            'authBtn'
+        )
         .onclick = () => {
 
 
-            const e =
+            const email =
                 document
-                    .getElementById('email')
+                    .getElementById(
+                        'email'
+                    )
                     .value
                     .trim();
 
 
-            const p =
+            const password =
                 document
-                    .getElementById('authPassword')
+                    .getElementById(
+                        'authPassword'
+                    )
                     .value;
 
 
-            if (!e || !p) {
+            if (
+                !email ||
+                !password
+            ) {
 
                 alert(
-                    "Please enter email and password."
+                    'Please enter email and password.'
                 );
 
                 return;
@@ -2011,8 +2967,8 @@
 
                 signInWithEmailAndPassword(
                     auth,
-                    e,
-                    p
+                    email,
+                    password
                 )
                 .catch(
                     error => {
@@ -2031,8 +2987,8 @@
 
                 createUserWithEmailAndPassword(
                     auth,
-                    e,
-                    p
+                    email,
+                    password
                 )
                 .catch(
                     error => {
@@ -2050,30 +3006,72 @@
 
 
 
-    /* =====================================================
+    /* ==========================================
        ESC KEY
-    ===================================================== */
+    =========================================== */
 
-    document.addEventListener(
-        'keydown',
-        (event) => {
+    document
+        .addEventListener(
+            'keydown',
+            event => {
 
-            if (
-                event.key === 'Escape'
-            ) {
 
-                window.closeImageModal();
+                if (
+                    event.key === 'Escape'
+                ) {
 
-                document
-                    .getElementById('modalOverlay')
-                    .classList
-                    .add('hidden');
+
+                    closeImageViewer();
+
+
+                    document
+                        .getElementById(
+                            'modalOverlay'
+                        )
+                        .classList
+                        .add('hidden');
+
+                }
 
             }
+        );
 
-        }
-    );
 
+
+    /* ==========================================
+       HTML ESCAPE
+    =========================================== */
+
+    function escapeHTML(value) {
+
+        return String(value)
+
+            .replace(
+                /&/g,
+                '&amp;'
+            )
+
+            .replace(
+                /</g,
+                '&lt;'
+            )
+
+            .replace(
+                />/g,
+                '&gt;'
+            )
+
+            .replace(
+                /"/g,
+                '&quot;'
+            )
+
+            .replace(
+                /'/g,
+                '&#039;'
+            );
+
+    }
 
 </script>
 
