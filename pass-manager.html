@@ -1,12 +1,15 @@
 ```html
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Secure Vault</title>
 
     <style>
+
         :root {
             --primary: #007bff;
             --danger: #dc3545;
@@ -39,7 +42,6 @@
         }
 
         .btn {
-            width: 100%;
             padding: 12px;
             color: white;
             border: none;
@@ -63,6 +65,13 @@
         .btn-warning {
             background: var(--warning);
             color: #000;
+            width: auto;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+
+        .btn-image {
+            background: #28a745;
             width: auto;
             font-size: 11px;
             margin-right: 5px;
@@ -95,15 +104,6 @@
             font-size: 1.1em;
         }
 
-        .entry-name {
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .entry-name:hover {
-            opacity: 0.7;
-        }
-
         .details-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -120,47 +120,80 @@
             margin-left: 5px;
         }
 
-        .image-preview {
-            display: none;
-            margin: 10px 0;
-            text-align: center;
+        .entry-name {
+            cursor: pointer;
         }
 
-        .image-preview img {
-            max-width: 100%;
-            max-height: 350px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            object-fit: contain;
-        }
+        /* SEARCH */
 
-        .image-label {
-            font-size: 12px;
-            color: #777;
-            margin-bottom: 5px;
-        }
-
-        .search-box {
+        .search-container {
             position: relative;
             margin: 15px 0;
         }
 
-        .search-box input {
+        #searchInput {
             padding-right: 40px;
             margin: 0;
         }
 
-        .clear-search {
+        #clearSearch {
             position: absolute;
-            right: 10px;
+            right: 12px;
             top: 8px;
-            cursor: pointer;
+            font-size: 22px;
             color: #777;
-            font-size: 18px;
+            cursor: pointer;
             display: none;
         }
 
-        /* Modal */
+        #searchInfo {
+            font-size: 12px;
+            color: #777;
+            margin-top: 7px;
+        }
+
+        /* IMAGE MODAL */
+
+        #imageModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #fullImage {
+            max-width: 95%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .close-image {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        /* IMAGE ERROR */
+
+        .image-error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        /* EDIT MODAL */
+
         #modalOverlay {
             position: fixed;
             top: 0;
@@ -184,36 +217,8 @@
             overflow-y: auto;
         }
 
-        /* Full image modal */
-        #imageModal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        #imageModal img {
-            max-width: 95%;
-            max-height: 90vh;
-            object-fit: contain;
-            border-radius: 10px;
-        }
-
-        .close-image {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            color: white;
-            font-size: 35px;
-            cursor: pointer;
-        }
-
         @media (max-width: 600px) {
+
             body {
                 padding: 10px;
             }
@@ -226,18 +231,27 @@
             .details-grid {
                 grid-template-columns: 1fr;
             }
+
         }
+
     </style>
+
 </head>
+
 
 <body>
 
+
 <div class="container">
 
-    <!-- LOGIN -->
+
+    <!-- ================= LOGIN ================= -->
+
     <div id="authSection">
 
-        <h2 id="authTitle">Vault Login</h2>
+        <h2 id="authTitle">
+            Vault Login
+        </h2>
 
         <input
             type="email"
@@ -253,29 +267,43 @@
 
         <button
             id="authBtn"
-            class="btn btn-primary">
+            class="btn btn-primary"
+            style="width:100%;"
+        >
             Login
         </button>
 
         <p
-            style="text-align:center; cursor:pointer; font-size:0.9em;"
-            id="toggleAuth">
+            style="
+                text-align:center;
+                cursor:pointer;
+                font-size:0.9em;
+            "
+            id="toggleAuth"
+        >
             New? Create Account
         </p>
 
     </div>
 
 
-    <!-- APPLICATION -->
+
+    <!-- ================= APPLICATION ================= -->
+
     <div id="appSection" class="hidden">
 
-        <div style="
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-        ">
 
-            <h2>Add New Entry</h2>
+        <div
+            style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+            "
+        >
+
+            <h2>
+                Add New Entry
+            </h2>
 
             <button
                 id="logoutBtn"
@@ -286,20 +314,24 @@
                     padding:5px 10px;
                     border-radius:4px;
                     cursor:pointer;
-                ">
+                "
+            >
                 Logout
             </button>
 
         </div>
 
 
-        <!-- ADD ENTRY -->
+        <!-- ACCOUNT NAME -->
 
         <input
             type="text"
             id="accName"
             placeholder="Account Name (e.g. Gmail)"
         >
+
+
+        <!-- USER + PASSWORD -->
 
         <div class="field-group">
 
@@ -318,14 +350,28 @@
         </div>
 
 
-        <!-- IMAGE URL -->
+        <!-- ================= IMAGE ================= -->
 
         <input
-            type="url"
+            type="text"
             id="accImage"
-            placeholder="Image URL (https://example.com/image.jpg)"
+            placeholder="Image filename (e.g. image1.jpg)"
         >
 
+        <div
+            style="
+                font-size:12px;
+                color:#777;
+                margin-bottom:8px;
+            "
+        >
+            Example: <b>image1.jpg</b>
+            or
+            <b>images/gmail.jpg</b>
+        </div>
+
+
+        <!-- EXTRA FIELDS -->
 
         <div class="field-group">
 
@@ -343,6 +389,7 @@
 
         </div>
 
+
         <div class="field-group">
 
             <input
@@ -358,6 +405,7 @@
             >
 
         </div>
+
 
         <div class="field-group">
 
@@ -378,7 +426,9 @@
 
         <button
             id="saveBtn"
-            class="btn btn-primary">
+            class="btn btn-primary"
+            style="width:100%;"
+        >
             Save to Vault
         </button>
 
@@ -388,14 +438,18 @@
                 margin:20px 0;
                 border:0;
                 border-top:1px solid #ddd;
-            ">
+            "
+        >
 
 
-        <!-- SEARCH -->
+        <!-- ================= SEARCH ================= -->
 
-        <h3>Stored Credentials</h3>
+        <h3>
+            Stored Credentials
+        </h3>
 
-        <div class="search-box">
+
+        <div class="search-container">
 
             <input
                 type="search"
@@ -404,50 +458,56 @@
                 autocomplete="off"
             >
 
-            <span
-                id="clearSearch"
-                class="clear-search">
+            <span id="clearSearch">
                 ×
             </span>
 
         </div>
 
 
-        <div
-            id="searchCount"
-            style="
-                font-size:12px;
-                color:#777;
-                margin-bottom:10px;
-            ">
+        <div id="searchInfo">
         </div>
 
 
-        <div id="passwordList"></div>
+        <!-- LIST -->
+
+        <div id="passwordList">
+        </div>
+
 
     </div>
 
 </div>
 
 
-<!-- EDIT MODAL -->
 
-<div id="modalOverlay" class="hidden">
+<!-- ================= EDIT MODAL ================= -->
+
+<div
+    id="modalOverlay"
+    class="hidden"
+>
 
     <div class="modal-content">
 
-        <h3>Edit Entry</h3>
+
+        <h3>
+            Edit Entry
+        </h3>
+
 
         <input
             type="hidden"
             id="editId"
         >
 
+
         <input
             type="text"
             id="editName"
             placeholder="Account Name"
         >
+
 
         <div class="field-group">
 
@@ -466,11 +526,27 @@
         </div>
 
 
+        <!-- EDIT IMAGE -->
+
         <input
-            type="url"
+            type="text"
             id="editImage"
-            placeholder="Image URL"
+            placeholder="Image filename (e.g. image1.jpg)"
         >
+
+
+        <div
+            style="
+                font-size:12px;
+                color:#777;
+                margin-bottom:8px;
+            "
+        >
+            Example:
+            <b>image1.jpg</b>
+            or
+            <b>images/gmail.jpg</b>
+        </div>
 
 
         <div class="field-group">
@@ -489,6 +565,7 @@
 
         </div>
 
+
         <div class="field-group">
 
             <input
@@ -504,6 +581,7 @@
             >
 
         </div>
+
 
         <div class="field-group">
 
@@ -522,43 +600,58 @@
         </div>
 
 
-        <div style="
-            display:flex;
-            gap:10px;
-            margin-top:15px;
-        ">
+        <div
+            style="
+                display:flex;
+                gap:10px;
+                margin-top:15px;
+            "
+        >
 
             <button
                 id="updateBtn"
-                class="btn btn-primary">
+                class="btn btn-primary"
+                style="flex:1;"
+            >
                 Update Entry
             </button>
+
 
             <button
                 id="closeModal"
                 class="btn"
                 style="
+                    flex:1;
                     background:#6c757d;
                     color:white;
-                ">
+                "
+            >
                 Cancel
             </button>
 
         </div>
+
 
     </div>
 
 </div>
 
 
-<!-- IMAGE VIEWER -->
+
+<!-- ================= IMAGE MODAL ================= -->
 
 <div
     id="imageModal"
     class="hidden"
-    onclick="window.closeImageModal()">
+    onclick="window.closeImageModal()"
+>
 
-    <span class="close-image">×</span>
+    <span
+        class="close-image"
+    >
+        ×
+    </span>
+
 
     <img
         id="fullImage"
@@ -570,11 +663,20 @@
 </div>
 
 
+
 <script type="module">
+
+
+    /* =====================================================
+       FIREBASE
+    ===================================================== */
 
     import {
         initializeApp
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    }
+    from
+    "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+
 
     import {
         getAuth,
@@ -582,7 +684,10 @@
         createUserWithEmailAndPassword,
         onAuthStateChanged,
         signOut
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    }
+    from
+    "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
 
     import {
         getDatabase,
@@ -591,12 +696,16 @@
         onValue,
         remove,
         update
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    }
+    from
+    "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
 
 
     const firebaseConfig = {
 
-        apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
+        apiKey:
+            "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
 
         authDomain:
             "striped-acrobat-342207.firebaseapp.com",
@@ -619,105 +728,178 @@
     };
 
 
-    const app = initializeApp(firebaseConfig);
+    const app =
+        initializeApp(firebaseConfig);
 
-    const auth = getAuth(app);
 
-    const db = getDatabase(app);
+    const auth =
+        getAuth(app);
+
+
+    const db =
+        getDatabase(app);
+
 
     let currentUser = null;
+
 
     let allData = {};
 
 
-    /*
-        AUTH STATE
-    */
 
-    onAuthStateChanged(auth, (user) => {
+    /* =====================================================
+       AUTH STATE
+    ===================================================== */
 
-        currentUser = user;
+    onAuthStateChanged(
+        auth,
+        (user) => {
 
-        document
-            .getElementById('authSection')
-            .classList
-            .toggle('hidden', !!user);
+            currentUser = user;
 
-        document
-            .getElementById('appSection')
-            .classList
-            .toggle('hidden', !user);
 
-        if (user) {
+            document
+                .getElementById('authSection')
+                .classList
+                .toggle(
+                    'hidden',
+                    !!user
+                );
 
-            loadData(user.uid);
+
+            document
+                .getElementById('appSection')
+                .classList
+                .toggle(
+                    'hidden',
+                    !user
+                );
+
+
+            if (user) {
+
+                loadData(
+                    user.uid
+                );
+
+            }
 
         }
+    );
 
-    });
 
 
-    /*
-        SAVE ENTRY
-    */
+    /* =====================================================
+       SAVE
+    ===================================================== */
 
     document
         .getElementById('saveBtn')
         .onclick = () => {
 
-            const name =
-                document.getElementById('accName').value.trim();
 
-            if (!name) {
-
-                alert("Please enter Account Name.");
+            if (!currentUser) {
 
                 return;
 
             }
 
-            if (!currentUser) return;
+
+            const name =
+                document
+                    .getElementById('accName')
+                    .value
+                    .trim();
+
+
+            if (!name) {
+
+                alert(
+                    "Please enter Account Name."
+                );
+
+                return;
+
+            }
 
 
             const data = {
 
-                name: name,
+                name:
+                    name,
 
                 user:
-                    document.getElementById('accUser').value,
+                    document
+                        .getElementById('accUser')
+                        .value
+                        .trim(),
 
                 pass:
-                    document.getElementById('accPass').value,
+                    document
+                        .getElementById('accPass')
+                        .value,
+
+                /*
+                    IMPORTANT:
+
+                    Only the filename/path is stored.
+
+                    Example:
+                    image1.jpg
+
+                    OR:
+
+                    images/image1.jpg
+                */
 
                 image:
-                    document.getElementById('accImage').value.trim(),
+                    document
+                        .getElementById('accImage')
+                        .value
+                        .trim(),
 
                 e1:
-                    document.getElementById('e1').value,
+                    document
+                        .getElementById('e1')
+                        .value,
 
                 e2:
-                    document.getElementById('e2').value,
+                    document
+                        .getElementById('e2')
+                        .value,
 
                 e3:
-                    document.getElementById('e3').value,
+                    document
+                        .getElementById('e3')
+                        .value,
 
                 e4:
-                    document.getElementById('e4').value,
+                    document
+                        .getElementById('e4')
+                        .value,
 
                 e5:
-                    document.getElementById('e5').value,
+                    document
+                        .getElementById('e5')
+                        .value,
 
                 e6:
-                    document.getElementById('e6').value
+                    document
+                        .getElementById('e6')
+                        .value
 
             };
 
 
             push(
-                ref(db, `users/${currentUser.uid}`),
+                ref(
+                    db,
+                    `users/${currentUser.uid}`
+                ),
                 data
             )
             .then(() => {
+
 
                 [
                     'accName',
@@ -731,36 +913,54 @@
                     'e5',
                     'e6'
                 ]
-                .forEach(id => {
+                .forEach(
+                    id => {
 
-                    document
-                        .getElementById(id)
-                        .value = '';
+                        document
+                            .getElementById(id)
+                            .value = '';
 
-                });
+                    }
+                );
+
+
+                alert(
+                    "Entry saved successfully."
+                );
 
             })
-            .catch(error => {
+            .catch(
+                error => {
 
-                alert(error.message);
+                    alert(
+                        error.message
+                    );
 
-            });
+                }
+            );
 
         };
 
 
-    /*
-        LOAD DATA
-    */
+
+    /* =====================================================
+       LOAD DATA
+    ===================================================== */
 
     function loadData(uid) {
 
+
         onValue(
-            ref(db, `users/${uid}`),
+            ref(
+                db,
+                `users/${uid}`
+            ),
             (snapshot) => {
+
 
                 allData =
                     snapshot.val() || {};
+
 
                 renderData();
 
@@ -770,58 +970,79 @@
     }
 
 
-    /*
-        SEARCH
-    */
+
+    /* =====================================================
+       SEARCH
+    ===================================================== */
 
     document
         .getElementById('searchInput')
-        .addEventListener('input', function() {
+        .addEventListener(
+            'input',
+            () => {
 
-            const value =
-                this.value.toLowerCase().trim();
+                updateClearButton();
 
+                renderData();
+
+            }
+        );
+
+
+
+    function updateClearButton() {
+
+
+        const input =
             document
-                .getElementById('clearSearch')
-                .style.display =
-                    value ? 'block' : 'none';
-
-            renderData();
-
-        });
+                .getElementById('searchInput');
 
 
-    /*
-        CLEAR SEARCH
-    */
+        document
+            .getElementById('clearSearch')
+            .style
+            .display =
+                input.value.trim()
+                    ? 'block'
+                    : 'none';
+
+    }
+
+
 
     document
         .getElementById('clearSearch')
         .onclick = () => {
 
+
             document
                 .getElementById('searchInput')
                 .value = '';
 
-            document
-                .getElementById('clearSearch')
-                .style.display = 'none';
+
+            updateClearButton();
+
 
             renderData();
 
         };
 
 
-    /*
-        RENDER DATA
-    */
+
+    /* =====================================================
+       RENDER DATA
+    ===================================================== */
 
     function renderData() {
 
+
         const list =
-            document.getElementById('passwordList');
+            document
+                .getElementById('passwordList');
+
 
         list.innerHTML = '';
+
 
         const search =
             document
@@ -834,25 +1055,38 @@
         let count = 0;
 
 
-        for (let id in allData) {
+        for (
+            const id in allData
+        ) {
 
-            const item = allData[id];
+
+            const item =
+                allData[id];
 
 
             /*
-                SEARCH THROUGH ALL FIELDS
+                SEARCH ALL IMPORTANT FIELDS
             */
 
             const searchableText = [
 
-                item.name,
-                item.user,
-                item.e1,
-                item.e2,
-                item.e3,
-                item.e4,
-                item.e5,
-                item.e6
+                item.name || '',
+
+                item.user || '',
+
+                item.image || '',
+
+                item.e1 || '',
+
+                item.e2 || '',
+
+                item.e3 || '',
+
+                item.e4 || '',
+
+                item.e5 || '',
+
+                item.e6 || ''
 
             ]
             .join(' ')
@@ -861,7 +1095,8 @@
 
             if (
                 search &&
-                !searchableText.includes(search)
+                !searchableText
+                    .includes(search)
             ) {
 
                 continue;
@@ -872,162 +1107,143 @@
             count++;
 
 
+            /* =================================================
+               CARD
+            ================================================= */
+
             const card =
-                document.createElement('div');
+                document
+                    .createElement('div');
+
 
             card.className =
                 'entry-card';
 
 
-            /*
-                HEADER
-            */
+
+            /* =================================================
+               ACCOUNT NAME
+            ================================================= */
 
             const header =
-                document.createElement('div');
+                document
+                    .createElement('div');
+
 
             header.className =
                 'entry-header';
 
 
             const name =
-                document.createElement('span');
+                document
+                    .createElement('span');
+
 
             name.className =
                 'entry-name';
 
+
             name.textContent =
-                item.name || 'Unnamed';
+                item.name ||
+                'Unnamed';
 
 
-            /*
-                CLICK NAME TO SHOW IMAGE
-            */
-
-            if (item.image) {
-
-                name.title =
-                    'Click to view image';
-
-                name.onclick = () => {
-
-                    window.showImage(item.image);
-
-                };
-
-            }
+            header.appendChild(
+                name
+            );
 
 
-            header.appendChild(name);
-
-            card.appendChild(header);
-
-
-            /*
-                IMAGE PREVIEW
-            */
-
-            const imagePreview =
-                document.createElement('div');
-
-            imagePreview.className =
-                'image-preview';
-
-            imagePreview.id =
-                'image-' + id;
+            card.appendChild(
+                header
+            );
 
 
-            if (item.image) {
 
-                const label =
-                    document.createElement('div');
-
-                label.className =
-                    'image-label';
-
-                label.textContent =
-                    'Account Image';
-
-
-                const img =
-                    document.createElement('img');
-
-                img.src =
-                    item.image;
-
-                img.alt =
-                    item.name || 'Image';
-
-
-                img.onerror = () => {
-
-                    label.textContent =
-                        'Image could not be loaded';
-
-                };
-
-
-                imagePreview.appendChild(label);
-
-                imagePreview.appendChild(img);
-
-            }
-
-
-            card.appendChild(imagePreview);
-
-
-            /*
-                USERNAME + PASSWORD
-            */
+            /* =================================================
+               USER + PASSWORD
+            ================================================= */
 
             const details =
-                document.createElement('div');
+                document
+                    .createElement('div');
+
 
             details.className =
                 'details-grid';
 
 
+
+            /* USER */
+
             const userDiv =
-                document.createElement('div');
+                document
+                    .createElement('div');
 
-            userDiv.innerHTML =
-                `<strong>User:</strong> ` +
-                escapeHTML(item.user || '-');
 
+            const userStrong =
+                document
+                    .createElement('strong');
+
+
+            userStrong.textContent =
+                'User:';
+
+
+            userDiv.appendChild(
+                userStrong
+            );
+
+
+            userDiv.appendChild(
+                document
+                    .createTextNode(
+                        ' ' +
+                        (item.user || '-')
+                    )
+            );
+
+
+
+            /* PASSWORD */
 
             const passDiv =
-                document.createElement('div');
+                document
+                    .createElement('div');
 
 
-            const passLabel =
-                document.createElement('strong');
+            const passStrong =
+                document
+                    .createElement('strong');
 
-            passLabel.textContent =
+
+            passStrong.textContent =
                 'Pass:';
 
 
             const passSpan =
-                document.createElement('span');
+                document
+                    .createElement('span');
 
-            passSpan.id =
-                'p-' + id;
 
             passSpan.textContent =
                 '••••••';
 
 
             const toggle =
-                document.createElement('span');
+                document
+                    .createElement('span');
+
 
             toggle.className =
                 'toggle-text';
+
 
             toggle.textContent =
                 'Show';
 
 
             toggle.onclick = () => {
+
 
                 if (
                     passSpan.textContent ===
@@ -1040,7 +1256,8 @@
                     toggle.textContent =
                         'Hide';
 
-                } else {
+                }
+                else {
 
                     passSpan.textContent =
                         '••••••';
@@ -1053,243 +1270,487 @@
             };
 
 
-            passDiv.appendChild(passLabel);
-
             passDiv.appendChild(
-                document.createTextNode(' ')
+                passStrong
             );
 
-            passDiv.appendChild(passSpan);
 
-            passDiv.appendChild(toggle);
-
-
-            details.appendChild(userDiv);
-
-            details.appendChild(passDiv);
-
-            card.appendChild(details);
+            passDiv.appendChild(
+                document
+                    .createTextNode(' ')
+            );
 
 
-            /*
-                EXTRA DETAILS
-            */
+            passDiv.appendChild(
+                passSpan
+            );
+
+
+            passDiv.appendChild(
+                toggle
+            );
+
+
+            details.appendChild(
+                userDiv
+            );
+
+
+            details.appendChild(
+                passDiv
+            );
+
+
+            card.appendChild(
+                details
+            );
+
+
+
+            /* =================================================
+               EXTRA FIELDS
+            ================================================= */
 
             const extras =
-                document.createElement('div');
+                document
+                    .createElement('div');
+
 
             extras.className =
                 'details-grid';
 
+
             extras.style =
-                'color:#666; border-top:1px dashed #eee; padding-top:8px;';
+                `
+                color:#666;
+                border-top:1px dashed #eee;
+                padding-top:8px;
+                `;
 
 
             const extraFields = [
+
                 ['E1', item.e1],
+
                 ['E2', item.e2],
+
                 ['E3', item.e3],
+
                 ['E4', item.e4],
+
                 ['E5', item.e5],
+
                 ['E6', item.e6]
+
             ];
 
 
-            extraFields.forEach(([label, value]) => {
+            extraFields.forEach(
+                ([label, value]) => {
 
-                const div =
-                    document.createElement('div');
 
-                const strong =
-                    document.createElement('strong');
+                    const div =
+                        document
+                            .createElement('div');
 
-                strong.textContent =
-                    label + ':';
 
-                div.appendChild(strong);
+                    const strong =
+                        document
+                            .createElement('strong');
 
-                div.appendChild(
-                    document.createTextNode(
-                        ' ' + (value || '-')
-                    )
+
+                    strong.textContent =
+                        label + ':';
+
+
+                    div.appendChild(
+                        strong
+                    );
+
+
+                    div.appendChild(
+                        document
+                            .createTextNode(
+                                ' ' +
+                                (value || '-')
+                            )
+                    );
+
+
+                    extras.appendChild(
+                        div
+                    );
+
+                }
+            );
+
+
+            card.appendChild(
+                extras
+            );
+
+
+
+            /* =================================================
+               IMAGE BUTTON
+            ================================================= */
+
+            if (
+                item.image &&
+                item.image.trim()
+            ) {
+
+
+                const imageButton =
+                    document
+                        .createElement('button');
+
+
+                imageButton.className =
+                    'btn btn-image';
+
+
+                imageButton.textContent =
+                    '🖼️ Show Image';
+
+
+                imageButton.onclick =
+                    () => {
+
+                        window.showImage(
+                            item.image
+                        );
+
+                    };
+
+
+                card.appendChild(
+                    imageButton
                 );
 
-                extras.appendChild(div);
-
-            });
+            }
 
 
-            card.appendChild(extras);
 
-
-            /*
-                BUTTONS
-            */
+            /* =================================================
+               EDIT BUTTON
+            ================================================= */
 
             const editButton =
-                document.createElement('button');
+                document
+                    .createElement('button');
+
 
             editButton.className =
                 'btn btn-warning';
 
+
             editButton.textContent =
                 'Edit';
 
-            editButton.onclick = () => {
 
-                window.openEditModal(id);
+            editButton.onclick =
+                () => {
 
-            };
+                    window.openEditModal(
+                        id
+                    );
 
+                };
+
+
+            card.appendChild(
+                editButton
+            );
+
+
+
+            /* =================================================
+               DELETE BUTTON
+            ================================================= */
 
             const deleteButton =
-                document.createElement('button');
+                document
+                    .createElement('button');
+
 
             deleteButton.className =
                 'btn btn-danger';
 
+
             deleteButton.textContent =
                 'Delete';
 
-            deleteButton.onclick = () => {
 
-                window.deleteItem(id);
+            deleteButton.onclick =
+                () => {
 
-            };
+                    window.deleteItem(
+                        id
+                    );
+
+                };
 
 
-            card.appendChild(editButton);
+            card.appendChild(
+                deleteButton
+            );
 
-            card.appendChild(deleteButton);
 
-
-            list.appendChild(card);
+            list.appendChild(
+                card
+            );
 
         }
 
 
+
+        /* =================================================
+           SEARCH INFO
+        ================================================= */
+
         document
-            .getElementById('searchCount')
+            .getElementById('searchInfo')
             .textContent =
                 search
                     ? `${count} result(s) found`
                     : `${count} stored entr${count === 1 ? 'y' : 'ies'}`;
 
+
+        if (
+            count === 0 &&
+            search
+        ) {
+
+            list.innerHTML = `
+
+                <div
+                    style="
+                        text-align:center;
+                        padding:25px;
+                        color:#777;
+                    "
+                >
+                    No matching entries found.
+                </div>
+
+            `;
+
+        }
+
     }
 
 
-    /*
-        SHOW FULL IMAGE
-    */
 
-    window.showImage = (imageURL) => {
+    /* =====================================================
+       SHOW IMAGE
+    ===================================================== */
 
-        if (!imageURL) return;
-
-        const modal =
-            document.getElementById('imageModal');
-
-        const image =
-            document.getElementById('fullImage');
-
-        image.src =
-            imageURL;
-
-        modal.classList.remove('hidden');
-
-    };
+    window.showImage =
+        (imageName) => {
 
 
-    /*
-        CLOSE IMAGE
-    */
+            if (!imageName) {
 
-    window.closeImageModal = () => {
+                alert(
+                    "No image filename saved."
+                );
 
-        document
-            .getElementById('imageModal')
-            .classList
-            .add('hidden');
+                return;
 
-        document
-            .getElementById('fullImage')
-            .src = '';
-
-    };
+            }
 
 
-    /*
-        EDIT MODAL
-    */
-
-    window.openEditModal = (id) => {
-
-        const d =
-            allData[id];
-
-        if (!d) return;
+            imageName =
+                imageName.trim();
 
 
-        document
-            .getElementById('editId')
-            .value = id;
+            /*
+                IMPORTANT:
 
-        document
-            .getElementById('editName')
-            .value = d.name || '';
+                If Firebase contains:
 
-        document
-            .getElementById('editUser')
-            .value = d.user || '';
+                image1.jpg
 
-        document
-            .getElementById('editPass')
-            .value = d.pass || '';
+                browser loads:
 
-        document
-            .getElementById('editImage')
-            .value = d.image || '';
-
-        document
-            .getElementById('editE1')
-            .value = d.e1 || '';
-
-        document
-            .getElementById('editE2')
-            .value = d.e2 || '';
-
-        document
-            .getElementById('editE3')
-            .value = d.e3 || '';
-
-        document
-            .getElementById('editE4')
-            .value = d.e4 || '';
-
-        document
-            .getElementById('editE5')
-            .value = d.e5 || '';
-
-        document
-            .getElementById('editE6')
-            .value = d.e6 || '';
+                ./image1.jpg
 
 
-        document
-            .getElementById('modalOverlay')
-            .classList
-            .remove('hidden');
+                If Firebase contains:
 
-    };
+                images/image1.jpg
+
+                browser loads:
+
+                ./images/image1.jpg
+            */
+
+            const imagePath =
+                './' + imageName;
 
 
-    /*
-        UPDATE ENTRY
-    */
+            const image =
+                document
+                    .getElementById('fullImage');
+
+
+            image.src =
+                imagePath;
+
+
+            image.onerror =
+                () => {
+
+                    alert(
+                        "Image not found:\n\n" +
+                        imagePath +
+                        "\n\n" +
+                        "Make sure the image exists in your repository."
+                    );
+
+                    window.closeImageModal();
+
+                };
+
+
+            image.onload =
+                () => {
+
+                    document
+                        .getElementById('imageModal')
+                        .classList
+                        .remove('hidden');
+
+                };
+
+        };
+
+
+
+    /* =====================================================
+       CLOSE IMAGE
+    ===================================================== */
+
+    window.closeImageModal =
+        () => {
+
+
+            document
+                .getElementById('imageModal')
+                .classList
+                .add('hidden');
+
+
+            document
+                .getElementById('fullImage')
+                .src = '';
+
+        };
+
+
+
+    /* =====================================================
+       EDIT MODAL
+    ===================================================== */
+
+    window.openEditModal =
+        (id) => {
+
+
+            const d =
+                allData[id];
+
+
+            if (!d) {
+
+                return;
+
+            }
+
+
+            document
+                .getElementById('editId')
+                .value = id;
+
+
+            document
+                .getElementById('editName')
+                .value =
+                    d.name || '';
+
+
+            document
+                .getElementById('editUser')
+                .value =
+                    d.user || '';
+
+
+            document
+                .getElementById('editPass')
+                .value =
+                    d.pass || '';
+
+
+            document
+                .getElementById('editImage')
+                .value =
+                    d.image || '';
+
+
+            document
+                .getElementById('editE1')
+                .value =
+                    d.e1 || '';
+
+
+            document
+                .getElementById('editE2')
+                .value =
+                    d.e2 || '';
+
+
+            document
+                .getElementById('editE3')
+                .value =
+                    d.e3 || '';
+
+
+            document
+                .getElementById('editE4')
+                .value =
+                    d.e4 || '';
+
+
+            document
+                .getElementById('editE5')
+                .value =
+                    d.e5 || '';
+
+
+            document
+                .getElementById('editE6')
+                .value =
+                    d.e6 || '';
+
+
+            document
+                .getElementById('modalOverlay')
+                .classList
+                .remove('hidden');
+
+        };
+
+
+
+    /* =====================================================
+       UPDATE
+    ===================================================== */
 
     document
         .getElementById('updateBtn')
         .onclick = () => {
+
 
             const id =
                 document
@@ -1297,85 +1758,105 @@
                     .value;
 
 
+            if (!id || !currentUser) {
+
+                return;
+
+            }
+
+
+            const updatedData = {
+
+                name:
+                    document
+                        .getElementById('editName')
+                        .value
+                        .trim(),
+
+                user:
+                    document
+                        .getElementById('editUser')
+                        .value
+                        .trim(),
+
+                pass:
+                    document
+                        .getElementById('editPass')
+                        .value,
+
+                image:
+                    document
+                        .getElementById('editImage')
+                        .value
+                        .trim(),
+
+                e1:
+                    document
+                        .getElementById('editE1')
+                        .value,
+
+                e2:
+                    document
+                        .getElementById('editE2')
+                        .value,
+
+                e3:
+                    document
+                        .getElementById('editE3')
+                        .value,
+
+                e4:
+                    document
+                        .getElementById('editE4')
+                        .value,
+
+                e5:
+                    document
+                        .getElementById('editE5')
+                        .value,
+
+                e6:
+                    document
+                        .getElementById('editE6')
+                        .value
+
+            };
+
+
             update(
                 ref(
                     db,
                     `users/${currentUser.uid}/${id}`
                 ),
-                {
+                updatedData
+            )
+            .then(
+                () => {
 
-                    name:
-                        document
-                            .getElementById('editName')
-                            .value,
-
-                    user:
-                        document
-                            .getElementById('editUser')
-                            .value,
-
-                    pass:
-                        document
-                            .getElementById('editPass')
-                            .value,
-
-                    image:
-                        document
-                            .getElementById('editImage')
-                            .value,
-
-                    e1:
-                        document
-                            .getElementById('editE1')
-                            .value,
-
-                    e2:
-                        document
-                            .getElementById('editE2')
-                            .value,
-
-                    e3:
-                        document
-                            .getElementById('editE3')
-                            .value,
-
-                    e4:
-                        document
-                            .getElementById('editE4')
-                            .value,
-
-                    e5:
-                        document
-                            .getElementById('editE5')
-                            .value,
-
-                    e6:
-                        document
-                            .getElementById('editE6')
-                            .value
+                    document
+                        .getElementById('modalOverlay')
+                        .classList
+                        .add('hidden');
 
                 }
             )
-            .then(() => {
+            .catch(
+                error => {
 
-                document
-                    .getElementById('modalOverlay')
-                    .classList
-                    .add('hidden');
+                    alert(
+                        error.message
+                    );
 
-            })
-            .catch(error => {
-
-                alert(error.message);
-
-            });
+                }
+            );
 
         };
 
 
-    /*
-        CLOSE EDIT MODAL
-    */
+
+    /* =====================================================
+       CLOSE EDIT
+    ===================================================== */
 
     document
         .getElementById('closeModal')
@@ -1389,31 +1870,55 @@
         };
 
 
-    /*
-        DELETE
-    */
 
-    window.deleteItem = (id) => {
+    /* =====================================================
+       DELETE
+    ===================================================== */
 
-        if (
-            confirm("Delete this entry?")
-        ) {
+    window.deleteItem =
+        (id) => {
 
-            remove(
-                ref(
-                    db,
-                    `users/${currentUser.uid}/${id}`
+
+            if (
+                !currentUser
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                confirm(
+                    "Delete this entry?"
                 )
-            );
+            ) {
 
-        }
+                remove(
+                    ref(
+                        db,
+                        `users/${currentUser.uid}/${id}`
+                    )
+                )
+                .catch(
+                    error => {
 
-    };
+                        alert(
+                            error.message
+                        );
+
+                    }
+                );
+
+            }
+
+        };
 
 
-    /*
-        LOGOUT
-    */
+
+    /* =====================================================
+       LOGOUT
+    ===================================================== */
 
     document
         .getElementById('logoutBtn')
@@ -1424,9 +1929,10 @@
         };
 
 
-    /*
-        LOGIN / SIGNUP
-    */
+
+    /* =====================================================
+       LOGIN / SIGNUP
+    ===================================================== */
 
     let isLogin = true;
 
@@ -1435,7 +1941,10 @@
         .getElementById('toggleAuth')
         .onclick = () => {
 
-            isLogin = !isLogin;
+
+            isLogin =
+                !isLogin;
+
 
             document
                 .getElementById('authTitle')
@@ -1444,12 +1953,14 @@
                         ? "Vault Login"
                         : "Create Account";
 
+
             document
                 .getElementById('authBtn')
                 .innerText =
                     isLogin
                         ? "Login"
                         : "Sign Up";
+
 
             document
                 .getElementById('toggleAuth')
@@ -1461,14 +1972,22 @@
         };
 
 
+
+    /* =====================================================
+       AUTH BUTTON
+    ===================================================== */
+
     document
         .getElementById('authBtn')
         .onclick = () => {
 
+
             const e =
                 document
                     .getElementById('email')
-                    .value;
+                    .value
+                    .trim();
+
 
             const p =
                 document
@@ -1476,66 +1995,90 @@
                     .value;
 
 
+            if (!e || !p) {
+
+                alert(
+                    "Please enter email and password."
+                );
+
+                return;
+
+            }
+
+
             if (isLogin) {
+
 
                 signInWithEmailAndPassword(
                     auth,
                     e,
                     p
                 )
-                .catch(a => alert(a.message));
+                .catch(
+                    error => {
 
-            } else {
+                        alert(
+                            error.message
+                        );
+
+                    }
+                );
+
+
+            }
+            else {
+
 
                 createUserWithEmailAndPassword(
                     auth,
                     e,
                     p
                 )
-                .catch(a => alert(a.message));
+                .catch(
+                    error => {
+
+                        alert(
+                            error.message
+                        );
+
+                    }
+                );
 
             }
 
         };
 
 
-    /*
-        ESCAPE HTML
-        Prevent stored text from being interpreted
-        as HTML.
-    */
 
-    function escapeHTML(value) {
-
-        return String(value)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-
-    }
-
-
-    /*
-        ESC KEY CLOSES IMAGE
-    */
+    /* =====================================================
+       ESC KEY
+    ===================================================== */
 
     document.addEventListener(
         'keydown',
         (event) => {
 
-            if (event.key === 'Escape') {
+            if (
+                event.key === 'Escape'
+            ) {
 
                 window.closeImageModal();
+
+                document
+                    .getElementById('modalOverlay')
+                    .classList
+                    .add('hidden');
 
             }
 
         }
     );
 
+
 </script>
 
+
 </body>
+
 </html>
 ```
