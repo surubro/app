@@ -1,230 +1,1541 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Vault - Fixed Layout</title>
-    <style>
-        :root { --primary: #007bff; --danger: #dc3545; --warning: #ffc107; }
-        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f0f2f5; color: #333; }
-        .container { max-width: 650px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        
-        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; color: white; border: none; cursor: pointer; border-radius: 6px; font-weight: bold; margin-top: 10px; }
-        .btn-primary { background: var(--primary); }
-        .btn-danger { background: var(--danger); width: auto; font-size: 11px; margin-right: 5px; }
-        .btn-warning { background: var(--warning); color: #000; width: auto; font-size: 11px; margin-right: 5px; }
+    <title>Secure Vault</title>
 
-        .hidden { display: none !important; }
-        .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        
-        .entry-card { background: #fff; border: 1px solid #eee; padding: 15px; margin-top: 15px; border-radius: 8px; }
-        .entry-header { font-weight: bold; color: var(--primary); border-bottom: 1px solid #f0f0f0; margin-bottom: 10px; padding-bottom: 5px; font-size: 1.1em; }
-        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.9em; margin-bottom: 10px; }
-        .toggle-text { color: var(--primary); cursor: pointer; font-size: 0.85em; text-decoration: underline; margin-left: 5px; }
+    <style>
+        :root {
+            --primary: #007bff;
+            --danger: #dc3545;
+            --warning: #ffc107;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
+            background: #f0f2f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            width: auto;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: #000;
+            width: auto;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .field-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .entry-card {
+            background: #fff;
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        .entry-header {
+            font-weight: bold;
+            color: var(--primary);
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        .entry-name {
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .entry-name:hover {
+            opacity: 0.7;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .toggle-text {
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.85em;
+            text-decoration: underline;
+            margin-left: 5px;
+        }
+
+        .image-preview {
+            display: none;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 350px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            object-fit: contain;
+        }
+
+        .image-label {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 5px;
+        }
+
+        .search-box {
+            position: relative;
+            margin: 15px 0;
+        }
+
+        .search-box input {
+            padding-right: 40px;
+            margin: 0;
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 10px;
+            top: 8px;
+            cursor: pointer;
+            color: #777;
+            font-size: 18px;
+            display: none;
+        }
 
         /* Modal */
-        #modalOverlay { 
-            position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; 
+        #modalOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 95%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 95%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Full image modal */
+        #imageModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #imageModal img {
+            max-width: 95%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .close-image {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: white;
+            font-size: 35px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .field-group,
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
+
 <body>
 
 <div class="container">
+
+    <!-- LOGIN -->
     <div id="authSection">
+
         <h2 id="authTitle">Vault Login</h2>
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="authPassword" placeholder="Master Password">
-        <button id="authBtn" class="btn btn-primary">Login</button>
-        <p style="text-align:center; cursor:pointer; font-size: 0.9em;" id="toggleAuth">New? Create Account</p>
+
+        <input
+            type="email"
+            id="email"
+            placeholder="Email"
+        >
+
+        <input
+            type="password"
+            id="authPassword"
+            placeholder="Master Password"
+        >
+
+        <button
+            id="authBtn"
+            class="btn btn-primary">
+            Login
+        </button>
+
+        <p
+            style="text-align:center; cursor:pointer; font-size:0.9em;"
+            id="toggleAuth">
+            New? Create Account
+        </p>
+
     </div>
 
+
+    <!-- APPLICATION -->
     <div id="appSection" class="hidden">
-        <div style="display:flex; justify-content: space-between; align-items: center;">
+
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        ">
+
             <h2>Add New Entry</h2>
-            <button id="logoutBtn" style="background:#6c757d; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Logout</button>
+
+            <button
+                id="logoutBtn"
+                style="
+                    background:#6c757d;
+                    color:white;
+                    border:none;
+                    padding:5px 10px;
+                    border-radius:4px;
+                    cursor:pointer;
+                ">
+                Logout
+            </button>
+
         </div>
-        
-        <input type="text" id="accName" placeholder="Account Name (e.g. Gmail)">
+
+
+        <!-- ADD ENTRY -->
+
+        <input
+            type="text"
+            id="accName"
+            placeholder="Account Name (e.g. Gmail)"
+        >
+
         <div class="field-group">
-            <input type="text" id="accUser" placeholder="Username">
-            <input type="password" id="accPass" placeholder="Password">
+
+            <input
+                type="text"
+                id="accUser"
+                placeholder="Username"
+            >
+
+            <input
+                type="password"
+                id="accPass"
+                placeholder="Password"
+            >
+
+        </div>
+
+
+        <!-- IMAGE URL -->
+
+        <input
+            type="url"
+            id="accImage"
+            placeholder="Image URL (https://example.com/image.jpg)"
+        >
+
+
+        <div class="field-group">
+
+            <input
+                type="text"
+                id="e1"
+                placeholder="Extra Description 1"
+            >
+
+            <input
+                type="text"
+                id="e2"
+                placeholder="Extra Description 2"
+            >
+
         </div>
 
         <div class="field-group">
-            <input type="text" id="e1" placeholder="Extra Description 1">
-            <input type="text" id="e2" placeholder="Extra Description 2">
-        </div>
-        <div class="field-group">
-            <input type="text" id="e3" placeholder="Extra Description 3">
-            <input type="text" id="e4" placeholder="Extra Description 4">
-        </div>
-        <div class="field-group">
-            <input type="text" id="e5" placeholder="Extra Description 5">
-            <input type="text" id="e6" placeholder="Extra Description 6">
+
+            <input
+                type="text"
+                id="e3"
+                placeholder="Extra Description 3"
+            >
+
+            <input
+                type="text"
+                id="e4"
+                placeholder="Extra Description 4"
+            >
+
         </div>
 
-        <button id="saveBtn" class="btn btn-primary">Save to Vault</button>
-        <hr style="margin:20px 0; border:0; border-top:1px solid #ddd;">
+        <div class="field-group">
+
+            <input
+                type="text"
+                id="e5"
+                placeholder="Extra Description 5"
+            >
+
+            <input
+                type="text"
+                id="e6"
+                placeholder="Extra Description 6"
+            >
+
+        </div>
+
+
+        <button
+            id="saveBtn"
+            class="btn btn-primary">
+            Save to Vault
+        </button>
+
+
+        <hr
+            style="
+                margin:20px 0;
+                border:0;
+                border-top:1px solid #ddd;
+            ">
+
+
+        <!-- SEARCH -->
+
         <h3>Stored Credentials</h3>
+
+        <div class="search-box">
+
+            <input
+                type="search"
+                id="searchInput"
+                placeholder="Search account, username or details..."
+                autocomplete="off"
+            >
+
+            <span
+                id="clearSearch"
+                class="clear-search">
+                ×
+            </span>
+
+        </div>
+
+
+        <div
+            id="searchCount"
+            style="
+                font-size:12px;
+                color:#777;
+                margin-bottom:10px;
+            ">
+        </div>
+
+
         <div id="passwordList"></div>
+
     </div>
+
 </div>
+
+
+<!-- EDIT MODAL -->
 
 <div id="modalOverlay" class="hidden">
+
     <div class="modal-content">
+
         <h3>Edit Entry</h3>
-        <input type="hidden" id="editId">
-        <input type="text" id="editName" placeholder="Account Name">
+
+        <input
+            type="hidden"
+            id="editId"
+        >
+
+        <input
+            type="text"
+            id="editName"
+            placeholder="Account Name"
+        >
+
         <div class="field-group">
-            <input type="text" id="editUser" placeholder="Username">
-            <input type="text" id="editPass" placeholder="Password">
+
+            <input
+                type="text"
+                id="editUser"
+                placeholder="Username"
+            >
+
+            <input
+                type="text"
+                id="editPass"
+                placeholder="Password"
+            >
+
         </div>
+
+
+        <input
+            type="url"
+            id="editImage"
+            placeholder="Image URL"
+        >
+
+
         <div class="field-group">
-            <input type="text" id="editE1" placeholder="Extra 1">
-            <input type="text" id="editE2" placeholder="Extra 2">
+
+            <input
+                type="text"
+                id="editE1"
+                placeholder="Extra 1"
+            >
+
+            <input
+                type="text"
+                id="editE2"
+                placeholder="Extra 2"
+            >
+
         </div>
+
         <div class="field-group">
-            <input type="text" id="editE3" placeholder="Extra 3">
-            <input type="text" id="editE4" placeholder="Extra 4">
+
+            <input
+                type="text"
+                id="editE3"
+                placeholder="Extra 3"
+            >
+
+            <input
+                type="text"
+                id="editE4"
+                placeholder="Extra 4"
+            >
+
         </div>
+
         <div class="field-group">
-            <input type="text" id="editE5" placeholder="Extra 5">
-            <input type="text" id="editE6" placeholder="Extra 6">
+
+            <input
+                type="text"
+                id="editE5"
+                placeholder="Extra 5"
+            >
+
+            <input
+                type="text"
+                id="editE6"
+                placeholder="Extra 6"
+            >
+
         </div>
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button id="updateBtn" class="btn btn-primary">Update Entry</button>
-            <button id="closeModal" class="btn" style="background:#6c757d; color:white;">Cancel</button>
+
+
+        <div style="
+            display:flex;
+            gap:10px;
+            margin-top:15px;
+        ">
+
+            <button
+                id="updateBtn"
+                class="btn btn-primary">
+                Update Entry
+            </button>
+
+            <button
+                id="closeModal"
+                class="btn"
+                style="
+                    background:#6c757d;
+                    color:white;
+                ">
+                Cancel
+            </button>
+
         </div>
+
     </div>
+
 </div>
 
+
+<!-- IMAGE VIEWER -->
+
+<div
+    id="imageModal"
+    class="hidden"
+    onclick="window.closeImageModal()">
+
+    <span class="close-image">×</span>
+
+    <img
+        id="fullImage"
+        src=""
+        alt="Account Image"
+        onclick="event.stopPropagation()"
+    >
+
+</div>
+
+
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    import {
+        initializeApp
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+
+    import {
+        getAuth,
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+        onAuthStateChanged,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    import {
+        getDatabase,
+        ref,
+        push,
+        onValue,
+        remove,
+        update
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
 
     const firebaseConfig = {
+
         apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
-        authDomain: "striped-acrobat-342207.firebaseapp.com",
-        databaseURL: "https://striped-acrobat-342207-default-rtdb.firebaseio.com",
-        projectId: "striped-acrobat-342207",
-        storageBucket: "striped-acrobat-342207.appspot.com",
-        messagingSenderId: "367114842706",
-        appId: "1:367114842706:web:0f6d504163ed3c72ed658b"
+
+        authDomain:
+            "striped-acrobat-342207.firebaseapp.com",
+
+        databaseURL:
+            "https://striped-acrobat-342207-default-rtdb.firebaseio.com",
+
+        projectId:
+            "striped-acrobat-342207",
+
+        storageBucket:
+            "striped-acrobat-342207.appspot.com",
+
+        messagingSenderId:
+            "367114842706",
+
+        appId:
+            "1:367114842706:web:0f6d504163ed3c72ed658b"
+
     };
+
 
     const app = initializeApp(firebaseConfig);
+
     const auth = getAuth(app);
+
     const db = getDatabase(app);
+
     let currentUser = null;
 
+    let allData = {};
+
+
+    /*
+        AUTH STATE
+    */
+
     onAuthStateChanged(auth, (user) => {
+
         currentUser = user;
-        document.getElementById('authSection').classList.toggle('hidden', !!user);
-        document.getElementById('appSection').classList.toggle('hidden', !user);
-        if (user) loadData(user.uid);
+
+        document
+            .getElementById('authSection')
+            .classList
+            .toggle('hidden', !!user);
+
+        document
+            .getElementById('appSection')
+            .classList
+            .toggle('hidden', !user);
+
+        if (user) {
+
+            loadData(user.uid);
+
+        }
+
     });
 
-    document.getElementById('saveBtn').onclick = () => {
-        const name = document.getElementById('accName').value;
-        if (name && currentUser) {
+
+    /*
+        SAVE ENTRY
+    */
+
+    document
+        .getElementById('saveBtn')
+        .onclick = () => {
+
+            const name =
+                document.getElementById('accName').value.trim();
+
+            if (!name) {
+
+                alert("Please enter Account Name.");
+
+                return;
+
+            }
+
+            if (!currentUser) return;
+
+
             const data = {
-                name,
-                user: document.getElementById('accUser').value,
-                pass: document.getElementById('accPass').value,
-                e1: document.getElementById('e1').value, e2: document.getElementById('e2').value,
-                e3: document.getElementById('e3').value, e4: document.getElementById('e4').value,
-                e5: document.getElementById('e5').value, e6: document.getElementById('e6').value
+
+                name: name,
+
+                user:
+                    document.getElementById('accUser').value,
+
+                pass:
+                    document.getElementById('accPass').value,
+
+                image:
+                    document.getElementById('accImage').value.trim(),
+
+                e1:
+                    document.getElementById('e1').value,
+
+                e2:
+                    document.getElementById('e2').value,
+
+                e3:
+                    document.getElementById('e3').value,
+
+                e4:
+                    document.getElementById('e4').value,
+
+                e5:
+                    document.getElementById('e5').value,
+
+                e6:
+                    document.getElementById('e6').value
+
             };
-            push(ref(db, `users/${currentUser.uid}`), data).then(() => {
-                ['accName','accUser','accPass','e1','e2','e3','e4','e5','e6'].forEach(id => document.getElementById(id).value = '');
+
+
+            push(
+                ref(db, `users/${currentUser.uid}`),
+                data
+            )
+            .then(() => {
+
+                [
+                    'accName',
+                    'accUser',
+                    'accPass',
+                    'accImage',
+                    'e1',
+                    'e2',
+                    'e3',
+                    'e4',
+                    'e5',
+                    'e6'
+                ]
+                .forEach(id => {
+
+                    document
+                        .getElementById(id)
+                        .value = '';
+
+                });
+
+            })
+            .catch(error => {
+
+                alert(error.message);
+
             });
-        }
-    };
+
+        };
+
+
+    /*
+        LOAD DATA
+    */
 
     function loadData(uid) {
-        onValue(ref(db, `users/${uid}`), (snapshot) => {
-            const list = document.getElementById('passwordList');
-            list.innerHTML = '';
-            const data = snapshot.val();
-            for (let id in data) {
-                const item = data[id];
-                const card = document.createElement('div');
-                card.className = 'entry-card';
-                card.innerHTML = `
-                    <div class="entry-header">${item.name}</div>
-                    <div class="details-grid">
-                        <div><strong>User:</strong> ${item.user || '-'}</div>
-                        <div><strong>Pass:</strong> <span id="p-${id}">••••••</span> 
-                        <span class="toggle-text" onclick="window.toggleShow('${id}', '${item.pass}')">Show</span></div>
-                    </div>
-                    <div class="details-grid" style="color: #666; border-top: 1px dashed #eee; padding-top: 8px;">
-                        <div><strong>E1:</strong> ${item.e1 || '-'}</div><div><strong>E2:</strong> ${item.e2 || '-'}</div>
-                        <div><strong>E3:</strong> ${item.e3 || '-'}</div><div><strong>E4:</strong> ${item.e4 || '-'}</div>
-                        <div><strong>E5:</strong> ${item.e5 || '-'}</div><div><strong>E6:</strong> ${item.e6 || '-'}</div>
-                    </div>
-                    <button class="btn btn-warning" onclick="window.openEditModal('${id}')">Edit</button>
-                    <button class="btn btn-danger" onclick="window.deleteItem('${id}')">Delete</button>
-                `;
-                list.appendChild(card);
+
+        onValue(
+            ref(db, `users/${uid}`),
+            (snapshot) => {
+
+                allData =
+                    snapshot.val() || {};
+
+                renderData();
+
             }
-        });
+        );
+
     }
 
-    window.toggleShow = (id, val) => {
-        const el = document.getElementById('p-' + id);
-        el.innerText = el.innerText === '••••••' ? val : '••••••';
+
+    /*
+        SEARCH
+    */
+
+    document
+        .getElementById('searchInput')
+        .addEventListener('input', function() {
+
+            const value =
+                this.value.toLowerCase().trim();
+
+            document
+                .getElementById('clearSearch')
+                .style.display =
+                    value ? 'block' : 'none';
+
+            renderData();
+
+        });
+
+
+    /*
+        CLEAR SEARCH
+    */
+
+    document
+        .getElementById('clearSearch')
+        .onclick = () => {
+
+            document
+                .getElementById('searchInput')
+                .value = '';
+
+            document
+                .getElementById('clearSearch')
+                .style.display = 'none';
+
+            renderData();
+
+        };
+
+
+    /*
+        RENDER DATA
+    */
+
+    function renderData() {
+
+        const list =
+            document.getElementById('passwordList');
+
+        list.innerHTML = '';
+
+        const search =
+            document
+                .getElementById('searchInput')
+                .value
+                .toLowerCase()
+                .trim();
+
+
+        let count = 0;
+
+
+        for (let id in allData) {
+
+            const item = allData[id];
+
+
+            /*
+                SEARCH THROUGH ALL FIELDS
+            */
+
+            const searchableText = [
+
+                item.name,
+                item.user,
+                item.e1,
+                item.e2,
+                item.e3,
+                item.e4,
+                item.e5,
+                item.e6
+
+            ]
+            .join(' ')
+            .toLowerCase();
+
+
+            if (
+                search &&
+                !searchableText.includes(search)
+            ) {
+
+                continue;
+
+            }
+
+
+            count++;
+
+
+            const card =
+                document.createElement('div');
+
+            card.className =
+                'entry-card';
+
+
+            /*
+                HEADER
+            */
+
+            const header =
+                document.createElement('div');
+
+            header.className =
+                'entry-header';
+
+
+            const name =
+                document.createElement('span');
+
+            name.className =
+                'entry-name';
+
+            name.textContent =
+                item.name || 'Unnamed';
+
+
+            /*
+                CLICK NAME TO SHOW IMAGE
+            */
+
+            if (item.image) {
+
+                name.title =
+                    'Click to view image';
+
+                name.onclick = () => {
+
+                    window.showImage(item.image);
+
+                };
+
+            }
+
+
+            header.appendChild(name);
+
+            card.appendChild(header);
+
+
+            /*
+                IMAGE PREVIEW
+            */
+
+            const imagePreview =
+                document.createElement('div');
+
+            imagePreview.className =
+                'image-preview';
+
+            imagePreview.id =
+                'image-' + id;
+
+
+            if (item.image) {
+
+                const label =
+                    document.createElement('div');
+
+                label.className =
+                    'image-label';
+
+                label.textContent =
+                    'Account Image';
+
+
+                const img =
+                    document.createElement('img');
+
+                img.src =
+                    item.image;
+
+                img.alt =
+                    item.name || 'Image';
+
+
+                img.onerror = () => {
+
+                    label.textContent =
+                        'Image could not be loaded';
+
+                };
+
+
+                imagePreview.appendChild(label);
+
+                imagePreview.appendChild(img);
+
+            }
+
+
+            card.appendChild(imagePreview);
+
+
+            /*
+                USERNAME + PASSWORD
+            */
+
+            const details =
+                document.createElement('div');
+
+            details.className =
+                'details-grid';
+
+
+            const userDiv =
+                document.createElement('div');
+
+            userDiv.innerHTML =
+                `<strong>User:</strong> ` +
+                escapeHTML(item.user || '-');
+
+
+            const passDiv =
+                document.createElement('div');
+
+
+            const passLabel =
+                document.createElement('strong');
+
+            passLabel.textContent =
+                'Pass:';
+
+
+            const passSpan =
+                document.createElement('span');
+
+            passSpan.id =
+                'p-' + id;
+
+            passSpan.textContent =
+                '••••••';
+
+
+            const toggle =
+                document.createElement('span');
+
+            toggle.className =
+                'toggle-text';
+
+            toggle.textContent =
+                'Show';
+
+
+            toggle.onclick = () => {
+
+                if (
+                    passSpan.textContent ===
+                    '••••••'
+                ) {
+
+                    passSpan.textContent =
+                        item.pass || '';
+
+                    toggle.textContent =
+                        'Hide';
+
+                } else {
+
+                    passSpan.textContent =
+                        '••••••';
+
+                    toggle.textContent =
+                        'Show';
+
+                }
+
+            };
+
+
+            passDiv.appendChild(passLabel);
+
+            passDiv.appendChild(
+                document.createTextNode(' ')
+            );
+
+            passDiv.appendChild(passSpan);
+
+            passDiv.appendChild(toggle);
+
+
+            details.appendChild(userDiv);
+
+            details.appendChild(passDiv);
+
+            card.appendChild(details);
+
+
+            /*
+                EXTRA DETAILS
+            */
+
+            const extras =
+                document.createElement('div');
+
+            extras.className =
+                'details-grid';
+
+            extras.style =
+                'color:#666; border-top:1px dashed #eee; padding-top:8px;';
+
+
+            const extraFields = [
+                ['E1', item.e1],
+                ['E2', item.e2],
+                ['E3', item.e3],
+                ['E4', item.e4],
+                ['E5', item.e5],
+                ['E6', item.e6]
+            ];
+
+
+            extraFields.forEach(([label, value]) => {
+
+                const div =
+                    document.createElement('div');
+
+                const strong =
+                    document.createElement('strong');
+
+                strong.textContent =
+                    label + ':';
+
+                div.appendChild(strong);
+
+                div.appendChild(
+                    document.createTextNode(
+                        ' ' + (value || '-')
+                    )
+                );
+
+                extras.appendChild(div);
+
+            });
+
+
+            card.appendChild(extras);
+
+
+            /*
+                BUTTONS
+            */
+
+            const editButton =
+                document.createElement('button');
+
+            editButton.className =
+                'btn btn-warning';
+
+            editButton.textContent =
+                'Edit';
+
+            editButton.onclick = () => {
+
+                window.openEditModal(id);
+
+            };
+
+
+            const deleteButton =
+                document.createElement('button');
+
+            deleteButton.className =
+                'btn btn-danger';
+
+            deleteButton.textContent =
+                'Delete';
+
+            deleteButton.onclick = () => {
+
+                window.deleteItem(id);
+
+            };
+
+
+            card.appendChild(editButton);
+
+            card.appendChild(deleteButton);
+
+
+            list.appendChild(card);
+
+        }
+
+
+        document
+            .getElementById('searchCount')
+            .textContent =
+                search
+                    ? `${count} result(s) found`
+                    : `${count} stored entr${count === 1 ? 'y' : 'ies'}`;
+
+    }
+
+
+    /*
+        SHOW FULL IMAGE
+    */
+
+    window.showImage = (imageURL) => {
+
+        if (!imageURL) return;
+
+        const modal =
+            document.getElementById('imageModal');
+
+        const image =
+            document.getElementById('fullImage');
+
+        image.src =
+            imageURL;
+
+        modal.classList.remove('hidden');
+
     };
+
+
+    /*
+        CLOSE IMAGE
+    */
+
+    window.closeImageModal = () => {
+
+        document
+            .getElementById('imageModal')
+            .classList
+            .add('hidden');
+
+        document
+            .getElementById('fullImage')
+            .src = '';
+
+    };
+
+
+    /*
+        EDIT MODAL
+    */
 
     window.openEditModal = (id) => {
-        onValue(ref(db, `users/${currentUser.uid}/${id}`), (snap) => {
-            const d = snap.val();
-            if(!d) return;
-            document.getElementById('editId').value = id;
-            document.getElementById('editName').value = d.name;
-            document.getElementById('editUser').value = d.user;
-            document.getElementById('editPass').value = d.pass;
-            document.getElementById('editE1').value = d.e1 || '';
-            document.getElementById('editE2').value = d.e2 || '';
-            document.getElementById('editE3').value = d.e3 || '';
-            document.getElementById('editE4').value = d.e4 || '';
-            document.getElementById('editE5').value = d.e5 || '';
-            document.getElementById('editE6').value = d.e6 || '';
-            document.getElementById('modalOverlay').classList.remove('hidden');
-        }, { onlyOnce: true });
+
+        const d =
+            allData[id];
+
+        if (!d) return;
+
+
+        document
+            .getElementById('editId')
+            .value = id;
+
+        document
+            .getElementById('editName')
+            .value = d.name || '';
+
+        document
+            .getElementById('editUser')
+            .value = d.user || '';
+
+        document
+            .getElementById('editPass')
+            .value = d.pass || '';
+
+        document
+            .getElementById('editImage')
+            .value = d.image || '';
+
+        document
+            .getElementById('editE1')
+            .value = d.e1 || '';
+
+        document
+            .getElementById('editE2')
+            .value = d.e2 || '';
+
+        document
+            .getElementById('editE3')
+            .value = d.e3 || '';
+
+        document
+            .getElementById('editE4')
+            .value = d.e4 || '';
+
+        document
+            .getElementById('editE5')
+            .value = d.e5 || '';
+
+        document
+            .getElementById('editE6')
+            .value = d.e6 || '';
+
+
+        document
+            .getElementById('modalOverlay')
+            .classList
+            .remove('hidden');
+
     };
 
-    document.getElementById('updateBtn').onclick = () => {
-        const id = document.getElementById('editId').value;
-        update(ref(db, `users/${currentUser.uid}/${id}`), {
-            name: document.getElementById('editName').value,
-            user: document.getElementById('editUser').value,
-            pass: document.getElementById('editPass').value,
-            e1: document.getElementById('editE1').value, e2: document.getElementById('editE2').value,
-            e3: document.getElementById('editE3').value, e4: document.getElementById('editE4').value,
-            e5: document.getElementById('editE5').value, e6: document.getElementById('editE6').value
-        }).then(() => document.getElementById('modalOverlay').classList.add('hidden'));
+
+    /*
+        UPDATE ENTRY
+    */
+
+    document
+        .getElementById('updateBtn')
+        .onclick = () => {
+
+            const id =
+                document
+                    .getElementById('editId')
+                    .value;
+
+
+            update(
+                ref(
+                    db,
+                    `users/${currentUser.uid}/${id}`
+                ),
+                {
+
+                    name:
+                        document
+                            .getElementById('editName')
+                            .value,
+
+                    user:
+                        document
+                            .getElementById('editUser')
+                            .value,
+
+                    pass:
+                        document
+                            .getElementById('editPass')
+                            .value,
+
+                    image:
+                        document
+                            .getElementById('editImage')
+                            .value,
+
+                    e1:
+                        document
+                            .getElementById('editE1')
+                            .value,
+
+                    e2:
+                        document
+                            .getElementById('editE2')
+                            .value,
+
+                    e3:
+                        document
+                            .getElementById('editE3')
+                            .value,
+
+                    e4:
+                        document
+                            .getElementById('editE4')
+                            .value,
+
+                    e5:
+                        document
+                            .getElementById('editE5')
+                            .value,
+
+                    e6:
+                        document
+                            .getElementById('editE6')
+                            .value
+
+                }
+            )
+            .then(() => {
+
+                document
+                    .getElementById('modalOverlay')
+                    .classList
+                    .add('hidden');
+
+            })
+            .catch(error => {
+
+                alert(error.message);
+
+            });
+
+        };
+
+
+    /*
+        CLOSE EDIT MODAL
+    */
+
+    document
+        .getElementById('closeModal')
+        .onclick = () => {
+
+            document
+                .getElementById('modalOverlay')
+                .classList
+                .add('hidden');
+
+        };
+
+
+    /*
+        DELETE
+    */
+
+    window.deleteItem = (id) => {
+
+        if (
+            confirm("Delete this entry?")
+        ) {
+
+            remove(
+                ref(
+                    db,
+                    `users/${currentUser.uid}/${id}`
+                )
+            );
+
+        }
+
     };
 
-    document.getElementById('closeModal').onclick = () => document.getElementById('modalOverlay').classList.add('hidden');
-    window.deleteItem = (id) => { if(confirm("Delete this entry?")) remove(ref(db, `users/${currentUser.uid}/${id}`)); };
-    document.getElementById('logoutBtn').onclick = () => signOut(auth);
-    
+
+    /*
+        LOGOUT
+    */
+
+    document
+        .getElementById('logoutBtn')
+        .onclick = () => {
+
+            signOut(auth);
+
+        };
+
+
+    /*
+        LOGIN / SIGNUP
+    */
+
     let isLogin = true;
-    document.getElementById('toggleAuth').onclick = () => {
-        isLogin = !isLogin;
-        document.getElementById('authTitle').innerText = isLogin ? "Vault Login" : "Create Account";
-        document.getElementById('authBtn').innerText = isLogin ? "Login" : "Sign Up";
-    };
-    document.getElementById('authBtn').onclick = () => {
-        const e = document.getElementById('email').value, p = document.getElementById('authPassword').value;
-        if(isLogin) signInWithEmailAndPassword(auth, e, p).catch(a => alert(a.message));
-        else createUserWithEmailAndPassword(auth, e, p).catch(a => alert(a.message));
-    };
+
+
+    document
+        .getElementById('toggleAuth')
+        .onclick = () => {
+
+            isLogin = !isLogin;
+
+            document
+                .getElementById('authTitle')
+                .innerText =
+                    isLogin
+                        ? "Vault Login"
+                        : "Create Account";
+
+            document
+                .getElementById('authBtn')
+                .innerText =
+                    isLogin
+                        ? "Login"
+                        : "Sign Up";
+
+            document
+                .getElementById('toggleAuth')
+                .innerText =
+                    isLogin
+                        ? "New? Create Account"
+                        : "Already have an account? Login";
+
+        };
+
+
+    document
+        .getElementById('authBtn')
+        .onclick = () => {
+
+            const e =
+                document
+                    .getElementById('email')
+                    .value;
+
+            const p =
+                document
+                    .getElementById('authPassword')
+                    .value;
+
+
+            if (isLogin) {
+
+                signInWithEmailAndPassword(
+                    auth,
+                    e,
+                    p
+                )
+                .catch(a => alert(a.message));
+
+            } else {
+
+                createUserWithEmailAndPassword(
+                    auth,
+                    e,
+                    p
+                )
+                .catch(a => alert(a.message));
+
+            }
+
+        };
+
+
+    /*
+        ESCAPE HTML
+        Prevent stored text from being interpreted
+        as HTML.
+    */
+
+    function escapeHTML(value) {
+
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+    }
+
+
+    /*
+        ESC KEY CLOSES IMAGE
+    */
+
+    document.addEventListener(
+        'keydown',
+        (event) => {
+
+            if (event.key === 'Escape') {
+
+                window.closeImageModal();
+
+            }
+
+        }
+    );
+
 </script>
+
 </body>
 </html>
+```
