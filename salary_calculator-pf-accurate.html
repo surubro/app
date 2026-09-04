@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salary Calculator – Sapphire Foods / KFC</title>
+  <style>
+    :root {
+      --primary: #C8102E;
+      --header-bg: #1a1a2e;
+      --input-bg: #FFF8E1;
+      --result-bg: #E8F5E9;
+      --deduction-bg: #FFEBEE;
+      --gross-bg: #E3F2FD;
+      --inhand: #1B5E20;
+      --border: #CFD8DC;
+      --text: #212121;
+      --muted: #607D8B;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, Arial, sans-serif;
+      background: linear-gradient(160deg, #fce4ec 0%, #f5f5f5 50%, #e3f2fd 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px 12px;
+    }
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+      overflow: hidden;
+    }
+    header {
+      background: var(--header-bg);
+      color: #fff;
+      padding: 18px 22px;
+      text-align: center;
+    }
+    header h1 { font-size: 1.35rem; font-weight: 650; letter-spacing: 0.3px; }
+    header p { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
+    .badge {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-top: 8px;
+      font-weight: 600;
+    }
+    .content { padding: 20px 22px 28px; }
+    .section { margin-bottom: 22px; }
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 650;
+      color: #fff;
+      background: var(--header-bg);
+      padding: 8px 14px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    .section-title.earnings { background: #1565C0; }
+    .section-title.deductions { background: #C62828; }
+    .section-title.summary { background: #2E7D32; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 18px;
+    }
+    @media (max-width: 560px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .field label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .field input {
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-size: 0.95rem;
+      text-align: right;
+      background: var(--input-bg);
+      color: #0D47A1;
+      font-weight: 600;
+      width: 100%;
+    }
+    .field input:focus {
+      outline: none;
+      border-color: #1565C0;
+      box-shadow: 0 0 0 3px rgba(21,101,192,0.18);
+    }
+    .field.readonly input {
+      background: #F5F5F5;
+      color: #424242;
+      font-weight: 500;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    th {
+      background: #37474F;
+      color: #fff;
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 500;
+    }
+    th:last-child, td:last-child { text-align: right; }
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #ECEFF1;
+    }
+    tr:last-child td { border-bottom: none; }
+    .amount { font-variant-numeric: tabular-nums; font-weight: 500; }
+    .total-row {
+      background: #E3F2FD;
+      font-weight: 700;
+    }
+    .total-row.ded {
+      background: #FFCDD2;
+    }
+    .rate-input {
+      width: 110px;
+      padding: 5px 8px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      text-align: right;
+      background: var(--input-bg);
+      color: #0D47A1;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 500px) {
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      padding: 16px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .card .lbl {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .card .val {
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .card.gross { background: var(--gross-bg); }
+    .card.ded { background: var(--deduction-bg); }
+    .card.inhand {
+      background: var(--inhand);
+      color: #fff;
+      grid-column: 1 / -1;
+    }
+    .card.inhand .lbl { color: rgba(255,255,255,0.85); }
+
+    .notes {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-top: 18px;
+      padding: 14px 16px;
+      background: #FAFAFA;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary);
+    }
+    .notes strong { color: #333; }
+    .notes ul { padding-left: 18px; margin-top: 6px; }
+    .notes li { margin-bottom: 3px; }
+
+    .match-banner {
+      background: #E8F5E9;
+      border: 1px solid #A5D6A7;
+      color: #1B5E20;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 18px;
+      display: none;
+    }
+    .match-banner.show { display: block; }
+
+    footer {
+      text-align: center;
+      padding: 12px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      background: #F5F5F5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Salary Calculator</h1>
+      <p>Based on actual Sapphire Foods / KFC Payslip structure</p>
+      <div class="badge">Team Member – Hourly · August 2026 reference</div>
+    </header>
+
+    <div class="content">
+      <div class="match-banner" id="matchBanner">
+        ✓ Matches August 2026 Payslip exactly → Net Salary ₹14,351.00
+      </div>
+
+      <!-- ATTENDANCE -->
+      <div class="section">
+        <div class="section-title">Attendance &amp; Reference</div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Days Worked</label>
+            <input type="number" id="days" value="31" min="0" max="31" step="1" oninput="calculate()" />
+          </div>
+          <div class="field">
+            <label>LWP (Loss of Pay days)</label>
+            <input type="number" id="lwp" value="0" min="0" max="31" step="1" oninput="calculate()" />
+          </div>
+          <div class="field">
+            <label>Calendar Days in Month</label>
+            <input type="number" id="calDays" value="31" min="28" max="31" step="1" oninput="calculate()" />
+          </div>
+          <div class="field readonly">
+            <label>Payable Days (Days − LWP)</label>
+            <input type="text" id="payableDays" value="31" readonly />
+          </div>
+        </div>
+      </div>
+
+      <!-- EARNINGS -->
+      <div class="section">
+        <div class="section-title earnings">Earnings</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Particulars</th>
+              <th style="text-align:right">Rates / Month (₹)</th>
+              <th>Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Basic Salary</td>
+              <td style="text-align:right">
+                <input class="rate-input" type="number" id="basicRate" value="14680" step="1" oninput="calculate()" />
+              </td>
+              <td class="amount" id="basicAmt">14,680.00</td>
+            </tr>
+            <tr>
+              <td>Arrears of Basic Salary</td>
+              <td style="text-align:right">
+                <input class="rate-input" type="number" id="arrBasic" value="256" step="1" oninput="calculate()" />
+              </td>
+              <td class="amount" id="arrBasicAmt">256.00</td>
+            </tr>
+            <tr>
+              <td>House Rent Allowance (HRA)</td>
+              <td style="text-align:right">
+                <input class="rate-input" type="number" id="hraRate" value="734" step="1" oninput="calculate()" />
+              </td>
+              <td class="amount" id="hraAmt">734.00</td>
+            </tr>
+            <tr>
+              <td>Arrears of House Rent Allowance</td>
+              <td style="text-align:right">
+                <input class="rate-input" type="number" id="arrHra" value="292" step="1" oninput="calculate()" />
+              </td>
+              <td class="amount" id="arrHraAmt">292.00</td>
+            </tr>
+            <tr>
+              <td>Paid Holiday</td>
+              <td style="text-align:right">
+                <input class="rate-input" type="number" id="paidHol" value="497" step="1" oninput="calculate()" />
+              </td>
+              <td class="amount" id="paidHolAmt">497.00</td>
+            </tr>
+            <tr class="total-row">
+              <td><strong>TOTAL EARNINGS (Gross)</strong></td>
+              <td style="text-align:right" id="grossRate">15,414.00</td>
+              <td class="amount" id="grossAmt"><strong>16,459.00</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.75rem;color:var(--muted);margin-top:8px;">
+          Note: Basic &amp; HRA are pro-rated by Payable Days / Calendar Days when LWP &gt; 0. Arrears &amp; Paid Holiday are fixed amounts.
+        </p>
+      </div>
+
+      <!-- DEDUCTIONS -->
+      <div class="section">
+        <div class="section-title deductions">Deductions</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Particulars</th>
+              <th style="text-align:right">Calculation / Value</th>
+              <th>Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Profession Tax</td>
+              <td style="text-align:right">
+                <input class="rate-input" type="number" id="ptax" value="200" step="1" oninput="calculate()" />
+              </td>
+              <td class="amount" id="ptaxAmt">200.00</td>
+            </tr>
+            <tr>
+              <td>ESIC (Employee)</td>
+              <td style="text-align:right">
+                <input class="rate-input" type="number" id="esic" value="116" step="1" oninput="calculate()" />
+                <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">(editable – payslip value)</div>
+              </td>
+              <td class="amount" id="esicAmt">116.00</td>
+            </tr>
+            <tr>
+              <td>Provident Fund (12% of Basic + Arrears Basic)</td>
+              <td style="text-align:right;font-size:0.8rem;color:var(--muted)">
+                Auto = 12%
+              </td>
+              <td class="amount" id="pfAmt">1,792.00</td>
+            </tr>
+            <tr>
+              <td>Other Deductions</td>
+              <td style="text-align:right">
+                <input class="rate-input" type="number" id="otherDed" value="0" step="1" min="0" oninput="calculate()" />
+                <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">(loan, advance, canteen, etc.)</div>
+              </td>
+              <td class="amount" id="otherDedAmt">0.00</td>
+            </tr>
+            <tr class="total-row ded">
+              <td><strong>TOTAL DEDUCTIONS</strong></td>
+              <td></td>
+              <td class="amount" id="totalDed"><strong>2,108.00</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SUMMARY -->
+      <div class="section">
+        <div class="section-title summary">Salary Summary</div>
+        <div class="summary-grid">
+          <div class="card gross">
+            <div class="lbl">Gross Earnings</div>
+            <div class="val" id="sumGross">₹16,459.00</div>
+          </div>
+          <div class="card ded">
+            <div class="lbl">Total Deductions</div>
+            <div class="val" id="sumDed">₹2,108.00</div>
+          </div>
+          <div class="card inhand">
+            <div class="lbl">In-Hand / Net Salary</div>
+            <div class="val" id="sumInhand">₹14,351.00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <strong>How this matches the August 2026 Payslip</strong>
+        <ul>
+          <li><strong>Basic + Arrears Basic</strong> = 14,680 + 256 = 14,936 → PF @ 12% = <strong>₹1,792</strong> (exact match)</li>
+          <li>Gross = 14,680 + 256 + 734 + 292 + 497 = <strong>₹16,459</strong></li>
+          <li>Deductions = 200 + 116 + 1,792 = <strong>₹2,108</strong></li>
+          <li>Net = 16,459 − 2,108 = <strong>₹14,351</strong> ✓</li>
+          <li>ESIC is editable (payslip shows ₹116; theoretical 0.75% of gross ≈ ₹123.44 — small difference may be company rounding or component rules).</li>
+          <li><strong>Other Deductions</strong> – enter any extra amount (loan recovery, advance, canteen, uniform, etc.). Default 0.</li>
+          <li>Change <strong>LWP</strong> to pro-rate Basic &amp; HRA. Arrears &amp; Paid Holiday stay as entered amounts.</li>
+          <li>Yellow fields are editable for other months / scenarios.</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      Built from actual Sapphire Foods India Limited payslip · Team Member – Hourly
+    </footer>
+  </div>
+
+  <script>
+    function fmt(n) {
+      return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function calculate() {
+      const days = parseFloat(document.getElementById('days').value) || 0;
+      const lwp = parseFloat(document.getElementById('lwp').value) || 0;
+      const calDays = parseFloat(document.getElementById('calDays').value) || 31;
+      const payable = Math.max(0, days - lwp);
+      document.getElementById('payableDays').value = payable;
+
+      const basicRate = parseFloat(document.getElementById('basicRate').value) || 0;
+      const hraRate = parseFloat(document.getElementById('hraRate').value) || 0;
+      const arrBasic = parseFloat(document.getElementById('arrBasic').value) || 0;
+      const arrHra = parseFloat(document.getElementById('arrHra').value) || 0;
+      const paidHol = parseFloat(document.getElementById('paidHol').value) || 0;
+
+      // Pro-rate Basic & HRA by payable / calendar days
+      const factor = calDays > 0 ? (payable / calDays) : 0;
+      const basicAmt = +(basicRate * factor).toFixed(2);
+      const hraAmt = +(hraRate * factor).toFixed(2);
+
+      const arrBasicAmt = arrBasic;
+      const arrHraAmt = arrHra;
+      const paidHolAmt = paidHol;
+
+      const gross = basicAmt + arrBasicAmt + hraAmt + arrHraAmt + paidHolAmt;
+      const grossRate = basicRate + hraRate;
+
+      document.getElementById('basicAmt').textContent = fmt(basicAmt);
+      document.getElementById('arrBasicAmt').textContent = fmt(arrBasicAmt);
+      document.getElementById('hraAmt').textContent = fmt(hraAmt);
+      document.getElementById('arrHraAmt').textContent = fmt(arrHraAmt);
+      document.getElementById('paidHolAmt').textContent = fmt(paidHolAmt);
+      document.getElementById('grossRate').textContent = fmt(grossRate);
+      document.getElementById('grossAmt').innerHTML = '<strong>' + fmt(gross) + '</strong>';
+
+      const ptax = parseFloat(document.getElementById('ptax').value) || 0;
+      const esic = parseFloat(document.getElementById('esic').value) || 0;
+      const otherDed = parseFloat(document.getElementById('otherDed').value) || 0;
+
+      // PF = 12% of (Basic Amount + Arrears Basic) — matches payslip
+      const pfBase = basicAmt + arrBasicAmt;
+      const pf = Math.round(pfBase * 0.12);
+
+      const totalDed = ptax + esic + pf + otherDed;
+
+      document.getElementById('ptaxAmt').textContent = fmt(ptax);
+      document.getElementById('esicAmt').textContent = fmt(esic);
+      document.getElementById('pfAmt').textContent = fmt(pf);
+      document.getElementById('otherDedAmt').textContent = fmt(otherDed);
+      document.getElementById('totalDed').innerHTML = '<strong>' + fmt(totalDed) + '</strong>';
+
+      const inhand = gross - totalDed;
+
+      document.getElementById('sumGross').textContent = '₹' + fmt(gross);
+      document.getElementById('sumDed').textContent = '₹' + fmt(totalDed);
+      document.getElementById('sumInhand').textContent = '₹' + fmt(inhand);
+
+      const matches =
+        Math.abs(gross - 16459) < 0.51 &&
+        Math.abs(totalDed - 2108) < 0.51 &&
+        Math.abs(inhand - 14351) < 0.51 &&
+        otherDed === 0;
+      document.getElementById('matchBanner').classList.toggle('show', matches);
+    }
+
+    calculate();
+  </script>
+</body>
+</html>
