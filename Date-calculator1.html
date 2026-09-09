@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Date Difference Calculator</title>
+  <title>Date Calculator</title>
   <style>
     * {
       box-sizing: border-box;
@@ -26,14 +26,14 @@
       background: white;
       border-radius: 16px;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-      padding: 32px;
+      padding: 28px;
       width: 100%;
-      max-width: 420px;
+      max-width: 460px;
     }
 
     h1 {
       font-size: 1.5rem;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       text-align: center;
       color: #1a1a2e;
     }
@@ -42,14 +42,14 @@
       text-align: center;
       color: #666;
       font-size: 0.9rem;
-      margin-bottom: 28px;
+      margin-bottom: 22px;
     }
 
     .today-box {
       background: #f0f4ff;
       border-radius: 10px;
-      padding: 14px 16px;
-      margin-bottom: 24px;
+      padding: 12px 16px;
+      margin-bottom: 22px;
       text-align: center;
       font-size: 0.95rem;
     }
@@ -58,31 +58,114 @@
       color: #4f46e5;
     }
 
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #64748b;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-color: transparent;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
     label {
       display: block;
       font-weight: 600;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       font-size: 0.9rem;
     }
 
-    input[type="date"] {
+    input[type="date"],
+    input[type="number"] {
       width: 100%;
-      padding: 12px 14px;
+      padding: 11px 14px;
       border: 2px solid #e2e8f0;
       border-radius: 10px;
       font-size: 1rem;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       transition: border-color 0.2s;
     }
 
-    input[type="date"]:focus {
+    input:focus {
       outline: none;
       border-color: #667eea;
     }
 
-    button {
+    .inputs-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .inputs-row label {
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+    }
+
+    .inputs-row input {
+      margin-bottom: 0;
+      text-align: center;
+    }
+
+    .direction {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .direction label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .direction input {
+      display: none;
+    }
+
+    .direction label:has(input:checked) {
+      border-color: #667eea;
+      background: #f0f4ff;
+      color: #4f46e5;
+    }
+
+    button.calc-btn {
       width: 100%;
-      padding: 14px;
+      padding: 13px;
       background: linear-gradient(135deg, #667eea, #764ba2);
       color: white;
       border: none;
@@ -93,18 +176,14 @@
       transition: transform 0.15s, box-shadow 0.15s;
     }
 
-    button:hover {
+    button.calc-btn:hover {
       transform: translateY(-1px);
       box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
     }
 
-    button:active {
-      transform: translateY(0);
-    }
-
     .result {
-      margin-top: 28px;
-      padding: 20px;
+      margin-top: 22px;
+      padding: 18px;
       border-radius: 12px;
       background: #f8fafc;
       display: none;
@@ -139,39 +218,44 @@
       color: #4f46e5;
     }
 
+    .result-title.date-result {
+      color: #1e293b;
+      font-size: 1.15rem;
+    }
+
     .diff-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 16px;
+      gap: 10px;
+      margin-top: 12px;
     }
 
     .diff-item {
       background: white;
       border-radius: 10px;
-      padding: 14px 8px;
+      padding: 12px 6px;
       text-align: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
 
     .diff-item .number {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 700;
       color: #1e293b;
       line-height: 1.2;
     }
 
     .diff-item .label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: #64748b;
-      margin-top: 4px;
+      margin-top: 3px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
     }
 
     .total-days {
       text-align: center;
-      margin-top: 16px;
+      margin-top: 14px;
       font-size: 0.95rem;
       color: #475569;
     }
@@ -179,58 +263,135 @@
     .total-days strong {
       color: #1e293b;
     }
+
+    .date-display {
+      text-align: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #4f46e5;
+      margin-top: 8px;
+      padding: 12px;
+      background: white;
+      border-radius: 10px;
+    }
+
+    .date-sub {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-top: 6px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Date Calculator</h1>
-    <p class="subtitle">See how many years, months & days have passed or are upcoming</p>
+    <p class="subtitle">Find difference or calculate a new date from today</p>
 
     <div class="today-box">
       Today is <strong id="todayDisplay"></strong>
     </div>
 
-    <label for="selectedDate">Select a date</label>
-    <input type="date" id="selectedDate">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('diff')">Date → Difference</button>
+      <button class="tab-btn" onclick="switchTab('add')">Y/M/D → Date</button>
+    </div>
 
-    <button onclick="calculateDifference()">Calculate Difference</button>
+    <!-- ========== TAB 1: Select Date → Show Difference ========== -->
+    <div id="tab-diff" class="tab-content active">
+      <label for="selectedDate">Select a date</label>
+      <input type="date" id="selectedDate">
 
-    <div class="result" id="result">
-      <div class="result-title" id="resultTitle"></div>
-      <div class="diff-grid">
-        <div class="diff-item">
-          <div class="number" id="years">0</div>
-          <div class="label">Years</div>
+      <button class="calc-btn" onclick="calculateDifference()">Calculate Difference</button>
+
+      <div class="result" id="resultDiff">
+        <div class="result-title" id="resultTitle"></div>
+        <div class="diff-grid">
+          <div class="diff-item">
+            <div class="number" id="years">0</div>
+            <div class="label">Years</div>
+          </div>
+          <div class="diff-item">
+            <div class="number" id="months">0</div>
+            <div class="label">Months</div>
+          </div>
+          <div class="diff-item">
+            <div class="number" id="days">0</div>
+            <div class="label">Days</div>
+          </div>
         </div>
-        <div class="diff-item">
-          <div class="number" id="months">0</div>
-          <div class="label">Months</div>
-        </div>
-        <div class="diff-item">
-          <div class="number" id="days">0</div>
-          <div class="label">Days</div>
+        <div class="total-days">
+          Total: <strong id="totalDays">0</strong> days
         </div>
       </div>
-      <div class="total-days">
-        Total: <strong id="totalDays">0</strong> days
+    </div>
+
+    <!-- ========== TAB 2: Enter Y/M/D → Show Date ========== -->
+    <div id="tab-add" class="tab-content">
+      <label>Enter amount</label>
+      <div class="inputs-row">
+        <div>
+          <label for="inputYears">Years</label>
+          <input type="number" id="inputYears" min="0" value="0" placeholder="0">
+        </div>
+        <div>
+          <label for="inputMonths">Months</label>
+          <input type="number" id="inputMonths" min="0" value="0" placeholder="0">
+        </div>
+        <div>
+          <label for="inputDays">Days</label>
+          <input type="number" id="inputDays" min="0" value="0" placeholder="0">
+        </div>
+      </div>
+
+      <label>Direction</label>
+      <div class="direction">
+        <label>
+          <input type="radio" name="direction" value="future" checked>
+          Future (Upcoming)
+        </label>
+        <label>
+          <input type="radio" name="direction" value="past">
+          Past (Ago)
+        </label>
+      </div>
+
+      <button class="calc-btn" onclick="calculateDate()">Calculate Date</button>
+
+      <div class="result" id="resultDate">
+        <div class="result-title date-result" id="dateResultTitle">Resulting Date</div>
+        <div class="date-display" id="finalDate"></div>
+        <div class="date-sub" id="dateSub"></div>
       </div>
     </div>
   </div>
 
   <script>
-    // Show today's date
+    // ========== Setup ==========
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('todayDisplay').textContent = today.toLocaleDateString('en-US', options);
 
-    // Set max date far in future (optional)
-    const selectedInput = document.getElementById('selectedDate');
-    // selectedInput.max = new Date().toISOString().split('T')[0]; // uncomment to only allow past dates
+    // ========== Tab switching ==========
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
+      if (tab === 'diff') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('tab-diff').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('tab-add').classList.add('active');
+      }
+    }
+
+    // ========== Mode 1: Date → Difference ==========
     function calculateDifference() {
-      const selectedValue = selectedInput.value;
+      const selectedValue = document.getElementById('selectedDate').value;
       if (!selectedValue) {
         alert('Please select a date');
         return;
@@ -239,10 +400,9 @@
       const selected = new Date(selectedValue);
       selected.setHours(0, 0, 0, 0);
 
-      const resultEl = document.getElementById('result');
+      const resultEl = document.getElementById('resultDiff');
       const titleEl = document.getElementById('resultTitle');
 
-      // Same day
       if (selected.getTime() === today.getTime()) {
         titleEl.textContent = "That's today!";
         titleEl.className = 'result-title today';
@@ -258,14 +418,12 @@
       const start = isPast ? selected : today;
       const end = isPast ? today : selected;
 
-      // Calculate years, months, days
       let years = end.getFullYear() - start.getFullYear();
       let months = end.getMonth() - start.getMonth();
       let days = end.getDate() - start.getDate();
 
       if (days < 0) {
         months--;
-        // Get days in the previous month of the end date
         const prevMonth = new Date(end.getFullYear(), end.getMonth(), 0);
         days += prevMonth.getDate();
       }
@@ -275,11 +433,9 @@
         months += 12;
       }
 
-      // Total days difference
       const msPerDay = 1000 * 60 * 60 * 24;
       const totalDays = Math.round((end - start) / msPerDay);
 
-      // Update UI
       document.getElementById('years').textContent = years;
       document.getElementById('months').textContent = months;
       document.getElementById('days').textContent = days;
@@ -296,8 +452,52 @@
       resultEl.classList.add('show');
     }
 
-    // Optional: calculate on date change
-    selectedInput.addEventListener('change', calculateDifference);
+    // ========== Mode 2: Y/M/D → Date ==========
+    function calculateDate() {
+      const years = parseInt(document.getElementById('inputYears').value) || 0;
+      const months = parseInt(document.getElementById('inputMonths').value) || 0;
+      const days = parseInt(document.getElementById('inputDays').value) || 0;
+
+      if (years === 0 && months === 0 && days === 0) {
+        alert('Please enter at least one value (years, months or days)');
+        return;
+      }
+
+      const direction = document.querySelector('input[name="direction"]:checked').value;
+      const result = new Date(today);
+
+      if (direction === 'future') {
+        result.setFullYear(result.getFullYear() + years);
+        result.setMonth(result.getMonth() + months);
+        result.setDate(result.getDate() + days);
+      } else {
+        result.setFullYear(result.getFullYear() - years);
+        result.setMonth(result.getMonth() - months);
+        result.setDate(result.getDate() - days);
+      }
+
+      const resultEl = document.getElementById('resultDate');
+      const titleEl = document.getElementById('dateResultTitle');
+      const finalDateEl = document.getElementById('finalDate');
+      const subEl = document.getElementById('dateSub');
+
+      finalDateEl.textContent = result.toLocaleDateString('en-US', options);
+
+      if (direction === 'future') {
+        titleEl.textContent = 'Upcoming Date';
+        titleEl.className = 'result-title future';
+        subEl.textContent = `After ${years}y ${months}m ${days}d from today`;
+      } else {
+        titleEl.textContent = 'Past Date';
+        titleEl.className = 'result-title past';
+        subEl.textContent = `${years}y ${months}m ${days}d ago from today`;
+      }
+
+      resultEl.classList.add('show');
+    }
+
+    // Auto-calculate on change (optional convenience)
+    document.getElementById('selectedDate').addEventListener('change', calculateDifference);
   </script>
 </body>
 </html>
