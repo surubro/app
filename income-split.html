@@ -11,6 +11,7 @@
         background: #f4f4f4;
         padding: 20px;
     }
+
     .box {
         max-width: 350px;
         margin: auto;
@@ -19,24 +20,63 @@
         border-radius: 8px;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
+
+    h2 {
+        margin-top: 0;
+    }
+
     input, button {
         width: 100%;
         padding: 10px;
         margin-top: 10px;
         font-size: 16px;
+        box-sizing: border-box;
     }
+
     button {
         background: #007bff;
         color: white;
         border: none;
         cursor: pointer;
+        border-radius: 4px;
     }
+
     button:hover {
         background: #0056b3;
     }
+
     .result {
         margin-top: 15px;
         font-size: 16px;
+    }
+
+    .result p {
+        margin: 8px 0;
+    }
+
+    .twenty {
+        font-weight: bold;
+        border-top: 1px solid #ddd;
+        padding-top: 10px;
+        margin-top: 12px;
+    }
+
+    .reminder {
+        max-width: 350px;
+        margin: 20px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .reminder h2 {
+        margin-top: 0;
+    }
+
+    .reminder p {
+        margin: 12px 0;
+        line-height: 1.4;
     }
 </style>
 </head>
@@ -46,19 +86,45 @@
 <div class="box">
     <h2>Salary Split</h2>
 
-    <input type="number" id="salary" placeholder="Enter salary received ₹">
+    <input
+        type="number"
+        id="salary"
+        placeholder="Enter salary received ₹"
+        min="0"
+        step="0.01"
+    >
 
     <button onclick="calculate()">Calculate</button>
 
     <div class="result" id="output"></div>
 </div>
 
+
+<div class="reminder">
+    <h2>Don't Forget</h2>
+
+    <p>✈️ Travel Expenses: ₹50 + ₹50 = ₹100 × ₹3,000</p>
+
+    <p>🔄 Automate your savings with recurring transfers.</p>
+
+    <p>💰 Live Below Your Means, Not Just Within Them.</p>
+
+    <p>🚨 Emergency Fund: 3–6 months of expenses.</p>
+
+    <p>💵 Keep some funds easily liquid for emergencies.</p>
+
+    <p><b>🏦 Don't forget retirement savings, like a personal PF.</b></p>
+</div>
+
+
 <script>
 function calculate() {
+
     let salary = Number(document.getElementById("salary").value);
 
     if (salary <= 0) {
-        document.getElementById("output").innerHTML = "Enter a valid salary amount";
+        document.getElementById("output").innerHTML =
+            "<p>Enter a valid salary amount</p>";
         return;
     }
 
@@ -67,28 +133,26 @@ function calculate() {
     let savings = salary * 0.10;
     let fd = salary * 0.10;
 
+    // Separate 20% calculation
+    let twentyPercent = salary * 0.20;
+
     document.getElementById("output").innerHTML = `
+        <p><b>Salary Received:</b> ₹${salary.toFixed(2)}</p>
+
         <p>Needs (50%): ₹${needs.toFixed(2)}</p>
+
         <p>Wants (30%): ₹${wants.toFixed(2)}</p>
+
         <p>Savings (10%): ₹${savings.toFixed(2)}</p>
+
         <p>FD (10%): ₹${fd.toFixed(2)}</p>
+
+        <p class="twenty">
+            20% Value: ₹${twentyPercent.toFixed(2)}
+        </p>
     `;
 }
 </script>
-
-</body>
-</html>
-
-<!DOCTYPE html>
-<html>
-<body>
- <h1>Dont forgot </h1>
- <p> Travel Expenses 50+50=100 * ₹ 3000</p>
-    <p>automate your savings recurring transfers</p>
-    <p>Live Below Your Means, Not Just Within Them</p>
-    <p>emergency funds x3 x6 months<p>
-    <p>Don’t Ignore Health Savings Accounts & easily Liquidating funds in emergency (HSAs)</p>
-    <p> <b>dont forgot retirement account like personal PF</b>.</p>
 
 </body>
 </html>
