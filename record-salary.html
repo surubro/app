@@ -1,1 +1,1676 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Salary PF & Savings</title> <style> * { box-sizing: border-box; } body { margin: 0; font-family: Arial, sans-serif; background: #f3f4f6; color: #111827; } header { background: #111827; color: white; padding: 16px; display: flex; justify-content: space-between; align-items: center; } header h1 { margin: 0; font-size: 20px; } .container { max-width: 1100px; margin: auto; padding: 15px; } .card { background: white; border-radius: 14px; padding: 18px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,.06); } .login-card { max-width: 400px; margin: 80px auto; } h2 { margin-top: 0; font-size: 19px; } input, select { width: 100%; padding: 12px; margin: 6px 0 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; background: white; } button { border: 0; border-radius: 8px; padding: 11px 15px; font-size: 14px; cursor: pointer; } .primary { background: #2563eb; color: white; } .logout { background: #ef4444; color: white; } .cancel { background: #e5e7eb; } .hidden { display: none !important; } .error { color: #dc2626; font-size: 14px; margin-top: 10px; } .success { color: #16a34a; font-size: 14px; margin-top: 10px; } /* YEAR */ .year-box { display: flex; align-items: center; gap: 10px; } .year-box select { width: 130px; margin: 0; } /* DASHBOARD */ .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; } .stat { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.05); } .stat-title { color: #6b7280; font-size: 13px; } .stat-value { font-size: 21px; font-weight: bold; margin-top: 7px; } .salary { border-left: 4px solid #2563eb; } .pf { border-left: 4px solid #ef4444; } .savings { border-left: 4px solid #16a34a; } .net { border-left: 4px solid #f59e0b; } /* FORM */ .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; } label { display: block; font-size: 13px; color: #4b5563; } .form-buttons { display: flex; gap: 10px; } .form-buttons button { flex: 1; } /* INFORMATION */ .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; } .info { background: #f9fafb; border-radius: 10px; padding: 15px; } .info-title { color: #6b7280; font-size: 12px; } .info-value { font-size: 18px; font-weight: bold; margin-top: 5px; } /* TABLE */ .table-container { overflow-x: auto; } table { width: 100%; border-collapse: collapse; min-width: 850px; } th, td { padding: 12px 10px; border-bottom: 1px solid #e5e7eb; text-align: right; } th:first-child, td:first-child { text-align: left; } th { background: #f9fafb; font-size: 13px; } .month { font-weight: bold; } .green-text { color: #16a34a; font-weight: bold; } .blue-text { color: #2563eb; font-weight: bold; } .red-text { color: #dc2626; font-weight: bold; } .actions { display: flex; gap: 5px; justify-content: flex-end; } .edit { background: #f59e0b; color: white; } .delete { background: #ef4444; color: white; } .empty { text-align: center !important; color: #6b7280; padding: 25px; } /* MOBILE */ @media(max-width: 750px) { .dashboard { grid-template-columns: 1fr 1fr; } .form-grid { grid-template-columns: 1fr 1fr; } .info-grid { grid-template-columns: 1fr; } } @media(max-width: 480px) { header h1 { font-size: 16px; } header { padding: 13px; } .container { padding: 10px; } .card { padding: 14px; } .dashboard { gap: 8px; } .stat { padding: 13px; } .stat-value { font-size: 17px; } .form-grid { grid-template-columns: 1fr; } .form-buttons { flex-direction: column; } } </style> </head> <body> <!-- ================= LOGIN ================= --> <div id="loginPage" class="container"> <div class="card login-card"> <h2>💰 Salary PF & Savings</h2> <p>Login to continue</p> <input type="email" id="email" placeholder="Email" autocomplete="username" > <input type="password" id="password" placeholder="Password" autocomplete="current-password" > <button class="primary" id="loginButton" style="width:100%;" onclick="login()" > Login </button> <div id="loginError" class="error"></div> </div> </div> <!-- ================= APP ================= --> <div id="app" class="hidden"> <header> <h1>💰 Salary PF & Savings</h1> <button class="logout" onclick="logout()" > Logout </button> </header> <div class="container"> <!-- YEAR --> <div class="card"> <div class="year-box"> <strong>Year</strong> <select id="yearSelect"></select> </div> </div> <!-- DASHBOARD --> <div class="dashboard"> <div class="stat salary"> <div class="stat-title"> Total Salary </div> <div class="stat-value" id="totalSalary" > ₹0 </div> </div> <div class="stat pf"> <div class="stat-title"> Total PF Deducted </div> <div class="stat-value" id="totalPF" > ₹0 </div> </div> <div class="stat savings"> <div class="stat-title"> Total Savings </div> <div class="stat-value" id="totalSavings" > ₹0 </div> </div> <div class="stat net"> <div class="stat-title"> Net After PF </div> <div class="stat-value" id="netAfterPF" > ₹0 </div> </div> </div> <!-- ADD / EDIT --> <div class="card"> <h2 id="formTitle"> ➕ Add Monthly Record </h2> <div class="form-grid"> <div> <label>Month</label> <select id="month"> <option value="January"> January </option> <option value="February"> February </option> <option value="March"> March </option> <option value="April"> April </option> <option value="May"> May </option> <option value="June"> June </option> <option value="July"> July </option> <option value="August"> August </option> <option value="September"> September </option> <option value="October"> October </option> <option value="November"> November </option> <option value="December"> December </option> </select> </div> <div> <label>Salary</label> <input type="number" id="salary" placeholder="10000" min="0" step="0.01" > </div> <div> <label>PF Deducted</label> <input type="number" id="pf" placeholder="2000" min="0" step="0.01" > </div> <div> <label>Savings</label> <input type="number" id="savings" placeholder="2000" min="0" step="0.01" > </div> </div> <div class="form-buttons"> <button class="primary" id="saveButton" onclick="saveRecord()" > Save Record </button> <button class="cancel hidden" id="cancelButton" onclick="cancelEdit()" > Cancel </button> </div> <div id="saveMessage"></div> </div> <!-- CALCULATIONS --> <div class="card"> <h2>📊 Yearly Information</h2> <div class="info-grid"> <div class="info"> <div class="info-title"> Overall Savings % </div> <div class="info-value green-text" id="overallSavingsPercent" > 0% </div> </div> <div class="info"> <div class="info-title"> PF Deduction % </div> <div class="info-value red-text" id="pfPercent" > 0% </div> </div> <div class="info"> <div class="info-title"> Average Monthly Savings </div> <div class="info-value" id="averageSavings" > ₹0 </div> </div> <div class="info"> <div class="info-title"> Highest Savings </div> <div class="info-value green-text" id="highestSavings" > ₹0 </div> </div> <div class="info"> <div class="info-title"> Best Savings Month </div> <div class="info-value" id="bestMonth" > — </div> </div> <div class="info"> <div class="info-title"> Months Recorded </div> <div class="info-value" id="monthsRecorded" > 0 / 12 </div> </div> </div> </div> <!-- MONTHLY RECORDS --> <div class="card"> <h2>📅 Monthly Records</h2> <div class="table-container"> <table> <thead> <tr> <th>Month</th> <th>Salary</th> <th>PF</th> <th>Savings</th> <th>Saved %</th> <th>Net After PF</th> <th>Action</th> </tr> </thead> <tbody id="recordsTable"></tbody> </table> </div> </div> </div> </div> <!-- ================= FIREBASE ================= --> <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script> <script> /* ===================================================== FIREBASE CONFIG ===================================================== */ const firebaseConfig = { apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU", authDomain: "striped-acrobat-342207.firebaseapp.com", databaseURL: "https://striped-acrobat-342207-default-rtdb.firebaseio.com", projectId: "striped-acrobat-342207", storageBucket: "striped-acrobat-342207.appspot.com", messagingSenderId: "367114842706", appId: "1:367114842706:web:0f6d504163ed3c72ed658b" }; /* Initialize */ firebase.initializeApp(firebaseConfig); const auth = firebase.auth(); const database = firebase.database(); /* Separate database location. */ const recordsRef = database.ref("Salarypfadd/monthlyRecords"); let records = {}; let editingId = null; /* ===================================================== MONTH ORDER ===================================================== */ const monthOrder = { January: 1, February: 2, March: 3, April: 4, May: 5, June: 6, July: 7, August: 8, September: 9, October: 10, November: 11, December: 12 }; /* ===================================================== YEAR SELECTOR ===================================================== */ const yearSelect = document.getElementById("yearSelect"); const currentYear = new Date().getFullYear(); for ( let year = currentYear - 5; year <= currentYear + 5; year++ ) { const option = document.createElement("option"); option.value = year; option.textContent = year; if (year === currentYear) { option.selected = true; } yearSelect.appendChild(option); } yearSelect.addEventListener( "change", render ); /* ===================================================== LOGIN ===================================================== */ window.login = function () { const email = document .getElementById("email") .value .trim(); const password = document .getElementById("password") .value; const error = document.getElementById("loginError"); const button = document.getElementById("loginButton"); error.textContent = ""; if (!email || !password) { error.textContent = "Please enter email and password."; return; } button.disabled = true; button.textContent = "Logging in..."; auth.signInWithEmailAndPassword( email, password ) .then(function () { button.disabled = false; button.textContent = "Login"; }) .catch(function (err) { button.disabled = false; button.textContent = "Login"; let message = err.message; if ( err.code === "auth/invalid-credential" ) { message = "Incorrect email or password."; } else if ( err.code === "auth/user-not-found" ) { message = "User account not found."; } else if ( err.code === "auth/wrong-password" ) { message = "Incorrect password."; } else if ( err.code === "auth/invalid-email" ) { message = "Invalid email address."; } else if ( err.code === "auth/too-many-requests" ) { message = "Too many login attempts. Try again later."; } error.textContent = message; console.error( "Firebase login error:", err ); }); }; /* ===================================================== ENTER KEY LOGIN ===================================================== */ document .getElementById("password") .addEventListener( "keydown", function(event) { if ( event.key === "Enter" ) { login(); } } ); /* ===================================================== AUTH STATE ===================================================== */ auth.onAuthStateChanged( function(user) { if (user) { document .getElementById("loginPage") .classList .add("hidden"); document .getElementById("app") .classList .remove("hidden"); loadRecords(); } else { document .getElementById("loginPage") .classList .remove("hidden"); document .getElementById("app") .classList .add("hidden"); } } ); /* ===================================================== LOGOUT ===================================================== */ window.logout = function () { auth.signOut(); }; /* ===================================================== LOAD DATABASE ===================================================== */ function loadRecords() { recordsRef.on( "value", function(snapshot) { records = snapshot.val() || {}; render(); }, function(error) { console.error( "Database error:", error ); alert( "Could not load records: " + error.message ); } ); } /* ===================================================== MONEY FORMAT ===================================================== */ function money(value) { return "₹" + Number(value || 0) .toLocaleString( "en-IN", { maximumFractionDigits: 2 } ); } /* ===================================================== SAVE RECORD ===================================================== */ window.saveRecord = function () { const year = Number( yearSelect.value ); const month = document .getElementById("month") .value; const salary = Number( document .getElementById("salary") .value ) || 0; const pf = Number( document .getElementById("pf") .value ) || 0; const savings = Number( document .getElementById("savings") .value ) || 0; const message = document .getElementById("saveMessage"); message.textContent = ""; if (salary <= 0) { message.className = "error"; message.textContent = "Please enter salary."; return; } if (pf < 0 || savings < 0) { message.className = "error"; message.textContent = "PF and savings cannot be negative."; return; } /* Check whether this month already exists. */ if (!editingId) { const duplicate = Object.entries(records) .some( function([id, record]) { return ( id !== editingId && Number(record.year) === year && record.month === month ); } ); if (duplicate) { message.className = "error"; message.textContent = month + " " + year + " already exists. Edit that record instead."; return; } } const data = { year: year, month: month, salary: salary, pf: pf, savings: savings, updatedAt: firebase.database.ServerValue.TIMESTAMP }; let operation; if (editingId) { operation = recordsRef .child(editingId) .set(data); } else { operation = recordsRef .push(data); } operation .then(function() { message.className = "success"; message.textContent = editingId ? "Record updated successfully." : "Record saved successfully."; clearForm(); setTimeout( function() { message.textContent = ""; }, 2500 ); }) .catch(function(error) { message.className = "error"; message.textContent = "Error: " + error.message; console.error(error); }); }; /* ===================================================== EDIT ===================================================== */ window.editRecord = function(id) { const record = records[id]; if (!record) return; yearSelect.value = record.year; document .getElementById("month") .value = record.month; document .getElementById("salary") .value = record.salary; document .getElementById("pf") .value = record.pf; document .getElementById("savings") .value = record.savings; editingId = id; document .getElementById("formTitle") .textContent = "✏️ Edit Monthly Record"; document .getElementById("saveButton") .textContent = "Update Record"; document .getElementById("cancelButton") .classList .remove("hidden"); window.scrollTo({ top: 0, behavior: "smooth" }); }; /* ===================================================== CANCEL EDIT ===================================================== */ window.cancelEdit = function() { clearForm(); }; /* ===================================================== CLEAR FORM ===================================================== */ function clearForm() { editingId = null; document .getElementById("salary") .value = ""; document .getElementById("pf") .value = ""; document .getElementById("savings") .value = ""; document .getElementById("formTitle") .textContent = "➕ Add Monthly Record"; document .getElementById("saveButton") .textContent = "Save Record"; document .getElementById("cancelButton") .classList .add("hidden"); } /* ===================================================== DELETE ===================================================== */ window.deleteRecord = function(id) { const record = records[id]; if (!record) return; const confirmed = confirm( "Delete " + record.month + " " + record.year + " record?" ); if (!confirmed) return; recordsRef .child(id) .remove() .catch(function(error) { alert( "Could not delete record: " + error.message ); }); }; /* ===================================================== RENDER ===================================================== */ function render() { const selectedYear = Number( yearSelect.value ); const yearRecords = Object.entries(records) .filter( function([id, record]) { return ( Number(record.year) === selectedYear ); } ) .sort( function(a, b) { return ( monthOrder[a[1].month] - monthOrder[b[1].month] ); } ); let totalSalary = 0; let totalPF = 0; let totalSavings = 0; let highestSavings = 0; let bestRecord = null; yearRecords.forEach( function([id, record]) { const salary = Number(record.salary) || 0; const pf = Number(record.pf) || 0; const savings = Number(record.savings) || 0; totalSalary += salary; totalPF += pf; totalSavings += savings; if ( bestRecord === null || savings > highestSavings ) { highestSavings = savings; bestRecord = record; } } ); const netAfterPF = totalSalary - totalPF; const savingsPercent = totalSalary > 0 ? ( totalSavings / totalSalary ) * 100 : 0; const pfPercent = totalSalary > 0 ? ( totalPF / totalSalary ) * 100 : 0; const averageSavings = yearRecords.length > 0 ? totalSavings / yearRecords.length : 0; /* DASHBOARD */ document .getElementById("totalSalary") .textContent = money(totalSalary); document .getElementById("totalPF") .textContent = money(totalPF); document .getElementById("totalSavings") .textContent = money(totalSavings); document .getElementById("netAfterPF") .textContent = money(netAfterPF); /* INFORMATION */ document .getElementById("overallSavingsPercent") .textContent = savingsPercent.toFixed(2) + "%"; document .getElementById("pfPercent") .textContent = pfPercent.toFixed(2) + "%"; document .getElementById("averageSavings") .textContent = money(averageSavings); document .getElementById("highestSavings") .textContent = money(highestSavings); document .getElementById("bestMonth") .textContent = bestRecord ? bestRecord.month : "—"; document .getElementById("monthsRecorded") .textContent = yearRecords.length + " / 12"; /* TABLE */ const table = document.getElementById( "recordsTable" ); if (yearRecords.length === 0) { table.innerHTML = ` <tr> <td colspan="7" class="empty" > No records for ${selectedYear} </td> </tr> `; return; } table.innerHTML = yearRecords .map( function([id, record]) { const salary = Number(record.salary) || 0; const pf = Number(record.pf) || 0; const savings = Number(record.savings) || 0; const savedPercent = salary > 0 ? ( savings / salary ) * 100 : 0; const net = salary - pf; return ` <tr> <td class="month"> ${escapeHTML(record.month)} </td> <td> ${money(salary)} </td> <td class="red-text"> ${money(pf)} </td> <td class="green-text"> ${money(savings)} </td> <td class="green-text"> ${savedPercent.toFixed(2)}% </td> <td class="blue-text"> ${money(net)} </td> <td> <div class="actions"> <button class="edit" onclick="editRecord('${id}')" > Edit </button> <button class="delete" onclick="deleteRecord('${id}')" > Delete </button> </div> </td> </tr> `; } ) .join(""); } /* ===================================================== HTML ESCAPE ===================================================== */ function escapeHTML(value) { return String(value) .replace(/&/g, "&amp;") .replace(/</g, "&lt;") .replace(/>/g, "&gt;") .replace(/"/g, "&quot;") .replace(/'/g, "&#039;"); } </script> </body> </html> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salary & PF Tracker</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 400px;
+    background: white;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.12);
+}
+
+.login-box h2 {
+    margin-top: 0;
+    text-align: center;
+}
+
+input,
+select,
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    margin-bottom: 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+    background: #111;
+    color: white;
+}
+
+button:hover {
+    opacity: .9;
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.error {
+    color: #d00;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.app {
+    max-width: 1300px;
+    margin: auto;
+    padding: 20px;
+}
+
+.header {
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.header h1 {
+    margin: 0;
+}
+
+.logout {
+    width: auto;
+    background: #c62828;
+    margin: 0;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.06);
+}
+
+.card-title {
+    font-size: 13px;
+    color: #777;
+}
+
+.card-value {
+    font-size: 23px;
+    font-weight: bold;
+    margin-top: 7px;
+}
+
+.form-box,
+.table-box {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.form-grid input,
+.form-grid select {
+    margin-bottom: 5px;
+}
+
+.preview {
+    background: #f1f3f5;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.preview-item {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.preview-item small {
+    color: #777;
+}
+
+.preview-item strong {
+    display: block;
+    margin-top: 5px;
+}
+
+.form-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.form-buttons button {
+    margin: 0;
+}
+
+.cancel-edit {
+    background: #777;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+th,
+td {
+    padding: 11px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    white-space: nowrap;
+}
+
+th {
+    background: #f1f3f5;
+}
+
+.table-scroll {
+    overflow-x: auto;
+}
+
+.action-btn {
+    width: auto;
+    display: inline-block;
+    padding: 7px 10px;
+    margin: 0 3px 0 0;
+    font-size: 13px;
+}
+
+.edit-btn {
+    background: #1565c0;
+}
+
+.delete-btn {
+    background: #c62828;
+}
+
+.empty {
+    text-align: center;
+    padding: 30px;
+    color: #777;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 9999;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-box {
+    background: white;
+    width: 100%;
+    max-width: 400px;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.3);
+}
+
+.modal-box h3 {
+    margin-top: 0;
+}
+
+.modal-box p {
+    color: #666;
+    line-height: 1.5;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.modal-buttons button {
+    margin-bottom: 0;
+}
+
+.confirm-btn {
+    background: #c62828;
+}
+
+.cancel-btn {
+    background: #777;
+}
+
+.warning {
+    color: #c62828;
+    font-weight: bold;
+}
+
+.edit-confirm-btn {
+    background: #1565c0;
+}
+
+@media (max-width: 600px) {
+    .app {
+        padding: 10px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .logout {
+        width: 100%;
+    }
+
+    .form-buttons,
+    .modal-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+    <div class="login-box">
+        <h2>Salary & PF Tracker</h2>
+
+        <div id="loginError" class="error"></div>
+
+        <input
+            type="email"
+            id="loginEmail"
+            placeholder="Email"
+            autocomplete="username"
+        >
+
+        <input
+            type="password"
+            id="loginPassword"
+            placeholder="Password"
+            autocomplete="current-password"
+        >
+
+        <button id="loginButton" onclick="login()">Login</button>
+    </div>
+</div>
+
+
+<!-- APPLICATION -->
+<div id="app" class="app hidden">
+
+    <div class="header">
+        <h1>Salary & PF Tracker</h1>
+        <button class="logout" onclick="logout()">Logout</button>
+    </div>
+
+
+    <!-- DASHBOARD -->
+    <div class="cards">
+
+        <div class="card">
+            <div class="card-title">Total Gross Salary</div>
+            <div class="card-value" id="totalGross">₹0</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Total Deduction</div>
+            <div class="card-value" id="totalDeduction">₹0</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Total PF</div>
+            <div class="card-value" id="totalPF">₹0</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Total Net In-Hand</div>
+            <div class="card-value" id="totalNet">₹0</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Total Savings</div>
+            <div class="card-value" id="totalSavings">₹0</div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Remaining Balance</div>
+            <div class="card-value" id="totalRemaining">₹0</div>
+        </div>
+
+    </div>
+
+
+    <!-- ADD / EDIT FORM -->
+    <div class="form-box">
+
+        <h2 id="formTitle">Add Monthly Record</h2>
+
+        <div class="form-grid">
+
+            <div>
+                <label>Year</label>
+                <select id="year"></select>
+            </div>
+
+            <div>
+                <label>Month</label>
+                <select id="month">
+                    <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    <option value="April">April</option>
+                    <option value="May">May</option>
+                    <option value="June">June</option>
+                    <option value="July">July</option>
+                    <option value="August">August</option>
+                    <option value="September">September</option>
+                    <option value="October">October</option>
+                    <option value="November">November</option>
+                    <option value="December">December</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Gross Salary</label>
+                <input
+                    type="number"
+                    id="gross"
+                    placeholder="Gross salary"
+                    min="0"
+                    step="0.01"
+                    oninput="updatePreview()"
+                >
+            </div>
+
+            <div>
+                <label>Total Deduction</label>
+                <input
+                    type="number"
+                    id="deduction"
+                    placeholder="Total deduction"
+                    min="0"
+                    step="0.01"
+                    oninput="updatePreview()"
+                >
+            </div>
+
+            <div>
+                <label>PF</label>
+                <input
+                    type="number"
+                    id="pf"
+                    placeholder="PF amount"
+                    min="0"
+                    step="0.01"
+                    oninput="updatePreview()"
+                >
+            </div>
+
+            <div>
+                <label>Savings</label>
+                <input
+                    type="number"
+                    id="savings"
+                    placeholder="Savings"
+                    min="0"
+                    step="0.01"
+                    oninput="updatePreview()"
+                >
+            </div>
+
+        </div>
+
+
+        <!-- PREVIEW -->
+        <div class="preview">
+
+            <div class="preview-grid">
+
+                <div class="preview-item">
+                    <small>Gross Salary</small>
+                    <strong id="previewGross">₹0</strong>
+                </div>
+
+                <div class="preview-item">
+                    <small>Total Deduction</small>
+                    <strong id="previewDeduction">₹0</strong>
+                </div>
+
+                <div class="preview-item">
+                    <small>Net In-Hand</small>
+                    <strong id="previewNet">₹0</strong>
+                </div>
+
+                <div class="preview-item">
+                    <small>PF</small>
+                    <strong id="previewPF">₹0</strong>
+                </div>
+
+                <div class="preview-item">
+                    <small>Savings</small>
+                    <strong id="previewSavings">₹0</strong>
+                </div>
+
+                <div class="preview-item">
+                    <small>Remaining</small>
+                    <strong id="previewRemaining">₹0</strong>
+                </div>
+
+                <div class="preview-item">
+                    <small>Savings %</small>
+                    <strong id="previewPercent">0%</strong>
+                </div>
+
+            </div>
+
+            <p style="margin-bottom:0;color:#777;font-size:13px;">
+                PF is tracked separately and is not deducted again from Net In-Hand.
+            </p>
+
+        </div>
+
+
+        <div class="form-buttons">
+
+            <button id="saveButton" onclick="saveRecord()">
+                Save Monthly Record
+            </button>
+
+            <button
+                id="cancelEditButton"
+                class="cancel-edit hidden"
+                onclick="cancelEdit()"
+            >
+                Cancel Edit
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- TABLE -->
+    <div class="table-box">
+
+        <h2>Monthly Records</h2>
+
+        <div class="table-scroll">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Gross Salary</th>
+                        <th>Total Deduction</th>
+                        <th>PF</th>
+                        <th>Net In-Hand</th>
+                        <th>Savings</th>
+                        <th>Remaining</th>
+                        <th>Savings %</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="recordsTable">
+                    <tr>
+                        <td colspan="9" class="empty">
+                            No records found
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- EDIT CONFIRMATION MODAL -->
+<div id="editModal" class="modal">
+
+    <div class="modal-box">
+
+        <h3>Confirm Edit</h3>
+
+        <p>
+            Before editing this monthly record, enter
+            <span class="warning">EDIT</span>
+            in capital letters.
+        </p>
+
+        <input
+            type="text"
+            id="editConfirmInput"
+            placeholder="Type EDIT"
+            autocomplete="off"
+            oninput="checkEditConfirmation()"
+        >
+
+        <div class="modal-buttons">
+
+            <button
+                id="editConfirmButton"
+                class="edit-confirm-btn"
+                onclick="confirmEdit()"
+                disabled
+            >
+                Confirm Edit
+            </button>
+
+            <button
+                class="cancel-btn"
+                onclick="cancelEditConfirmation()"
+            >
+                Cancel
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div id="deleteModal" class="modal">
+
+    <div class="modal-box">
+
+        <h3>Confirm Delete</h3>
+
+        <p>
+            This will permanently delete the monthly record.
+            Enter
+            <span class="warning">DELETE</span>
+            in capital letters to continue.
+        </p>
+
+        <input
+            type="text"
+            id="deleteConfirmInput"
+            placeholder="Type DELETE"
+            autocomplete="off"
+            oninput="checkDeleteConfirmation()"
+        >
+
+        <div class="modal-buttons">
+
+            <button
+                id="deleteConfirmButton"
+                class="confirm-btn"
+                onclick="confirmDelete()"
+                disabled
+            >
+                Delete Record
+            </button>
+
+            <button
+                class="cancel-btn"
+                onclick="cancelDelete()"
+            >
+                Cancel
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* ================= FIREBASE ================= */
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
+    authDomain: "striped-acrobat-342207.firebaseapp.com",
+    databaseURL: "https://striped-acrobat-342207-default-rtdb.firebaseio.com",
+    projectId: "striped-acrobat-342207",
+    storageBucket: "striped-acrobat-342207.appspot.com",
+    messagingSenderId: "367114842706",
+    appId: "1:367114842706:web:0f6d504163ed3c72ed658b"
+};
+
+let auth;
+let database;
+let recordsRef;
+
+try {
+
+    firebase.initializeApp(firebaseConfig);
+
+    auth = firebase.auth();
+    database = firebase.database();
+
+    recordsRef = database.ref("Salarypfadd/monthlyRecords");
+
+} catch (error) {
+
+    console.error(error);
+
+    document.getElementById("loginError").textContent =
+        "Firebase initialization failed.";
+
+}
+
+
+/* ================= VARIABLES ================= */
+
+let allRecords = {};
+let editRecordId = null;
+let deleteRecordId = null;
+let editConfirmRecordId = null;
+let listenerStarted = false;
+
+
+/* ================= YEAR DROPDOWN ================= */
+
+const yearSelect = document.getElementById("year");
+
+const currentYear = new Date().getFullYear();
+
+for (let y = currentYear - 5; y <= currentYear + 5; y++) {
+
+    const option = document.createElement("option");
+
+    option.value = y;
+    option.textContent = y;
+
+    if (y === currentYear) {
+        option.selected = true;
+    }
+
+    yearSelect.appendChild(option);
+}
+
+
+/* ================= LOGIN ================= */
+
+async function login() {
+
+    const email =
+        document.getElementById("loginEmail").value.trim();
+
+    const password =
+        document.getElementById("loginPassword").value;
+
+    const errorBox =
+        document.getElementById("loginError");
+
+    const button =
+        document.getElementById("loginButton");
+
+    errorBox.textContent = "";
+
+    if (!email || !password) {
+
+        errorBox.textContent =
+            "Enter email and password.";
+
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Logging in...";
+
+    try {
+
+        await auth.signInWithEmailAndPassword(
+            email,
+            password
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        let message = "Login failed.";
+
+        if (error.code === "auth/invalid-email") {
+            message = "Invalid email address.";
+        }
+        else if (
+            error.code === "auth/user-not-found" ||
+            error.code === "auth/wrong-password" ||
+            error.code === "auth/invalid-credential"
+        ) {
+            message = "Incorrect email or password.";
+        }
+        else if (error.code === "auth/too-many-requests") {
+            message = "Too many attempts. Try again later.";
+        }
+
+        errorBox.textContent = message;
+
+    } finally {
+
+        button.disabled = false;
+        button.textContent = "Login";
+
+    }
+
+}
+
+
+/* ================= AUTH STATE ================= */
+
+auth.onAuthStateChanged(function(user) {
+
+    if (user) {
+
+        document
+            .getElementById("loginScreen")
+            .classList.add("hidden");
+
+        document
+            .getElementById("app")
+            .classList.remove("hidden");
+
+        if (!listenerStarted) {
+
+            listenerStarted = true;
+
+            recordsRef.on("value", function(snapshot) {
+
+                allRecords = snapshot.val() || {};
+
+                renderRecords();
+
+            }, function(error) {
+
+                console.error(error);
+
+                alert("Could not load records.");
+
+            });
+
+        }
+
+    } else {
+
+        document
+            .getElementById("loginScreen")
+            .classList.remove("hidden");
+
+        document
+            .getElementById("app")
+            .classList.add("hidden");
+
+    }
+
+});
+
+
+/* ================= LOGOUT ================= */
+
+function logout() {
+
+    auth.signOut();
+
+}
+
+
+/* ================= MONEY ================= */
+
+function money(value) {
+
+    return "₹" + Number(value || 0).toLocaleString(
+        "en-IN",
+        {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }
+    );
+
+}
+
+
+/* ================= PREVIEW ================= */
+
+function updatePreview() {
+
+    const gross =
+        Number(document.getElementById("gross").value) || 0;
+
+    const deduction =
+        Number(document.getElementById("deduction").value) || 0;
+
+    const pf =
+        Number(document.getElementById("pf").value) || 0;
+
+    const savings =
+        Number(document.getElementById("savings").value) || 0;
+
+    const net =
+        gross - deduction;
+
+    const remaining =
+        net - savings;
+
+    const percentage =
+        net > 0
+            ? (savings / net) * 100
+            : 0;
+
+    document.getElementById("previewGross").textContent =
+        money(gross);
+
+    document.getElementById("previewDeduction").textContent =
+        money(deduction);
+
+    document.getElementById("previewPF").textContent =
+        money(pf);
+
+    document.getElementById("previewNet").textContent =
+        money(net);
+
+    document.getElementById("previewSavings").textContent =
+        money(savings);
+
+    document.getElementById("previewRemaining").textContent =
+        money(remaining);
+
+    document.getElementById("previewPercent").textContent =
+        percentage.toFixed(2) + "%";
+
+}
+
+
+/* ================= SAVE ================= */
+
+function saveRecord() {
+
+    const year =
+        Number(document.getElementById("year").value);
+
+    const month =
+        document.getElementById("month").value;
+
+    const gross =
+        Number(document.getElementById("gross").value) || 0;
+
+    const deduction =
+        Number(document.getElementById("deduction").value) || 0;
+
+    const pf =
+        Number(document.getElementById("pf").value) || 0;
+
+    const savings =
+        Number(document.getElementById("savings").value) || 0;
+
+
+    if (gross < 0 || deduction < 0 || pf < 0 || savings < 0) {
+
+        alert("Amounts cannot be negative.");
+
+        return;
+    }
+
+
+    const net =
+        gross - deduction;
+
+    if (net < 0) {
+
+        alert("Total deduction cannot be greater than gross salary.");
+
+        return;
+    }
+
+
+    if (savings > net) {
+
+        alert("Savings cannot be greater than Net In-Hand.");
+
+        return;
+    }
+
+
+    /* Check duplicate only when adding */
+
+    if (!editRecordId) {
+
+        let duplicate = false;
+
+        Object.keys(allRecords).forEach(function(id) {
+
+            const record = allRecords[id];
+
+            if (
+                Number(record.year) === year &&
+                record.month === month
+            ) {
+                duplicate = true;
+            }
+
+        });
+
+        if (duplicate) {
+
+            alert(
+                "A record for " +
+                month +
+                " " +
+                year +
+                " already exists."
+            );
+
+            return;
+        }
+
+    }
+
+
+    const record = {
+
+        year: year,
+        month: month,
+        gross: gross,
+        deduction: deduction,
+        pf: pf,
+        savings: savings,
+        updatedAt:
+            firebase.database.ServerValue.TIMESTAMP
+
+    };
+
+
+    const button =
+        document.getElementById("saveButton");
+
+    button.disabled = true;
+    button.textContent = editRecordId
+        ? "Updating..."
+        : "Saving...";
+
+
+    let operation;
+
+
+    if (editRecordId) {
+
+        operation =
+            recordsRef
+                .child(editRecordId)
+                .update(record);
+
+    } else {
+
+        operation =
+            recordsRef
+                .push(record);
+
+    }
+
+
+    operation
+        .then(function() {
+
+            alert(
+                editRecordId
+                    ? "Monthly record updated successfully."
+                    : "Monthly record saved successfully."
+            );
+
+            resetForm();
+
+        })
+        .catch(function(error) {
+
+            console.error(error);
+
+            alert(
+                "Could not save record: " +
+                error.message
+            );
+
+        })
+        .finally(function() {
+
+            button.disabled = false;
+
+            button.textContent =
+                editRecordId
+                    ? "Update Monthly Record"
+                    : "Save Monthly Record";
+
+        });
+
+}
+
+
+/* ================= RENDER ================= */
+
+function renderRecords() {
+
+    const table =
+        document.getElementById("recordsTable");
+
+    table.innerHTML = "";
+
+
+    let totalGross = 0;
+    let totalDeduction = 0;
+    let totalPF = 0;
+    let totalNet = 0;
+    let totalSavings = 0;
+    let totalRemaining = 0;
+
+
+    const records = Object.entries(allRecords);
+
+
+    records.sort(function(a, b) {
+
+        const A = a[1];
+        const B = b[1];
+
+        if (Number(A.year) !== Number(B.year)) {
+            return Number(B.year) - Number(A.year);
+        }
+
+        return monthNumber(B.month) - monthNumber(A.month);
+
+    });
+
+
+    if (records.length === 0) {
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="9" class="empty">
+                    No records found
+                </td>
+            </tr>
+        `;
+
+    }
+
+
+    records.forEach(function([id, record]) {
+
+        const gross =
+            Number(record.gross) || 0;
+
+        const deduction =
+            Number(record.deduction) || 0;
+
+        const pf =
+            Number(record.pf) || 0;
+
+        const savings =
+            Number(record.savings) || 0;
+
+        const net =
+            gross - deduction;
+
+        const remaining =
+            net - savings;
+
+        const percentage =
+            net > 0
+                ? (savings / net) * 100
+                : 0;
+
+
+        totalGross += gross;
+        totalDeduction += deduction;
+        totalPF += pf;
+        totalNet += net;
+        totalSavings += savings;
+        totalRemaining += remaining;
+
+
+        const row =
+            document.createElement("tr");
+
+
+        row.innerHTML = `
+
+            <td>
+                ${escapeHtml(record.month)}
+                ${escapeHtml(String(record.year))}
+            </td>
+
+            <td>${money(gross)}</td>
+
+            <td>${money(deduction)}</td>
+
+            <td>${money(pf)}</td>
+
+            <td>${money(net)}</td>
+
+            <td>${money(savings)}</td>
+
+            <td>${money(remaining)}</td>
+
+            <td>${percentage.toFixed(2)}%</td>
+
+            <td>
+
+                <button
+                    class="action-btn edit-btn"
+                    onclick="requestEdit('${id}')"
+                >
+                    Edit
+                </button>
+
+                <button
+                    class="action-btn delete-btn"
+                    onclick="requestDelete('${id}')"
+                >
+                    Delete
+                </button>
+
+            </td>
+
+        `;
+
+
+        table.appendChild(row);
+
+    });
+
+
+    document.getElementById("totalGross").textContent =
+        money(totalGross);
+
+    document.getElementById("totalDeduction").textContent =
+        money(totalDeduction);
+
+    document.getElementById("totalPF").textContent =
+        money(totalPF);
+
+    document.getElementById("totalNet").textContent =
+        money(totalNet);
+
+    document.getElementById("totalSavings").textContent =
+        money(totalSavings);
+
+    document.getElementById("totalRemaining").textContent =
+        money(totalRemaining);
+
+}
+
+
+/* ================= MONTH NUMBER ================= */
+
+function monthNumber(month) {
+
+    const months = {
+
+        January: 1,
+        February: 2,
+        March: 3,
+        April: 4,
+        May: 5,
+        June: 6,
+        July: 7,
+        August: 8,
+        September: 9,
+        October: 10,
+        November: 11,
+        December: 12
+
+    };
+
+    return months[month] || 0;
+
+}
+
+
+/* ================= EDIT CONFIRMATION ================= */
+
+function requestEdit(id) {
+
+    if (!allRecords[id]) {
+
+        alert("Record not found.");
+
+        return;
+    }
+
+
+    editConfirmRecordId = id;
+
+
+    const input =
+        document.getElementById("editConfirmInput");
+
+    const button =
+        document.getElementById("editConfirmButton");
+
+
+    input.value = "";
+
+    button.disabled = true;
+
+
+    document
+        .getElementById("editModal")
+        .classList.add("show");
+
+
+    setTimeout(function() {
+
+        input.focus();
+
+    }, 100);
+
+}
+
+
+function checkEditConfirmation() {
+
+    const input =
+        document.getElementById("editConfirmInput");
+
+    const button =
+        document.getElementById("editConfirmButton");
+
+
+    button.disabled =
+        input.value === "EDIT"
+            ? false
+            : true;
+
+}
+
+
+function confirmEdit() {
+
+    const input =
+        document.getElementById("editConfirmInput");
+
+
+    if (input.value !== "EDIT") {
+
+        alert("Please type EDIT in capital letters.");
+
+        return;
+    }
+
+
+    if (!editConfirmRecordId) {
+
+        return;
+    }
+
+
+    const record =
+        allRecords[editConfirmRecordId];
+
+
+    if (!record) {
+
+        alert("Record not found.");
+
+        cancelEditConfirmation();
+
+        return;
+    }
+
+
+    editRecordId =
+        editConfirmRecordId;
+
+
+    document.getElementById("year").value =
+        record.year;
+
+    document.getElementById("month").value =
+        record.month;
+
+    document.getElementById("gross").value =
+        record.gross || 0;
+
+    document.getElementById("deduction").value =
+        record.deduction || 0;
+
+    document.getElementById("pf").value =
+        record.pf || 0;
+
+    document.getElementById("savings").value =
+        record.savings || 0;
+
+
+    document.getElementById("formTitle").textContent =
+        "Edit Monthly Record";
+
+
+    document.getElementById("saveButton").textContent =
+        "Update Monthly Record";
+
+
+    document
+        .getElementById("cancelEditButton")
+        .classList.remove("hidden");
+
+
+    cancelEditConfirmation();
+
+    updatePreview();
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+}
+
+
+function cancelEditConfirmation() {
+
+    editConfirmRecordId = null;
+
+    const modal =
+        document.getElementById("editModal");
+
+    modal.classList.remove("show");
+
+    document.getElementById("editConfirmInput").value = "";
+
+    document.getElementById("editConfirmButton").disabled = true;
+
+}
+
+
+/* ================= CANCEL EDIT ================= */
+
+function cancelEdit() {
+
+    resetForm();
+
+}
+
+
+/* ================= RESET FORM ================= */
+
+function resetForm() {
+
+    editRecordId = null;
+
+    document.getElementById("gross").value = "";
+    document.getElementById("deduction").value = "";
+    document.getElementById("pf").value = "";
+    document.getElementById("savings").value = "";
+
+    document.getElementById("formTitle").textContent =
+        "Add Monthly Record";
+
+    document.getElementById("saveButton").textContent =
+        "Save Monthly Record";
+
+    document
+        .getElementById("cancelEditButton")
+        .classList.add("hidden");
+
+    updatePreview();
+
+}
+
+
+/* ================= DELETE CONFIRMATION ================= */
+
+function requestDelete(id) {
+
+    if (!allRecords[id]) {
+
+        alert("Record not found.");
+
+        return;
+    }
+
+
+    deleteRecordId = id;
+
+
+    const input =
+        document.getElementById("deleteConfirmInput");
+
+    const button =
+        document.getElementById("deleteConfirmButton");
+
+
+    input.value = "";
+
+    button.disabled = true;
+
+
+    document
+        .getElementById("deleteModal")
+        .classList.add("show");
+
+
+    setTimeout(function() {
+
+        input.focus();
+
+    }, 100);
+
+}
+
+
+function checkDeleteConfirmation() {
+
+    const input =
+        document.getElementById("deleteConfirmInput");
+
+    const button =
+        document.getElementById("deleteConfirmButton");
+
+
+    button.disabled =
+        input.value === "DELETE"
+            ? false
+            : true;
+
+}
+
+
+function confirmDelete() {
+
+    const input =
+        document.getElementById("deleteConfirmInput");
+
+
+    if (input.value !== "DELETE") {
+
+        alert("Please type DELETE in capital letters.");
+
+        return;
+    }
+
+
+    if (!deleteRecordId) {
+
+        return;
+    }
+
+
+    /* Final security check */
+
+    if (
+        document
+            .getElementById("deleteConfirmInput")
+            .value !== "DELETE"
+    ) {
+
+        return;
+    }
+
+
+    const id =
+        deleteRecordId;
+
+
+    const button =
+        document.getElementById("deleteConfirmButton");
+
+
+    button.disabled = true;
+    button.textContent = "Deleting...";
+
+
+    recordsRef
+        .child(id)
+        .remove()
+        .then(function() {
+
+            cancelDelete();
+
+            alert("Monthly record deleted successfully.");
+
+        })
+        .catch(function(error) {
+
+            console.error(error);
+
+            alert(
+                "Could not delete record: " +
+                error.message
+            );
+
+            button.disabled = false;
+            button.textContent = "Delete Record";
+
+        });
+
+}
+
+
+function cancelDelete() {
+
+    deleteRecordId = null;
+
+
+    document
+        .getElementById("deleteModal")
+        .classList.remove("show");
+
+
+    document.getElementById("deleteConfirmInput").value = "";
+
+    document.getElementById("deleteConfirmButton").disabled = true;
+
+    document.getElementById("deleteConfirmButton").textContent =
+        "Delete Record";
+
+}
+
+
+/* ================= ESCAPE HTML ================= */
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* ================= ENTER KEY ================= */
+
+document
+    .getElementById("editConfirmInput")
+    .addEventListener("keydown", function(event) {
+
+        if (
+            event.key === "Enter" &&
+            this.value === "EDIT"
+        ) {
+
+            confirmEdit();
+
+        }
+
+    });
+
+
+document
+    .getElementById("deleteConfirmInput")
+    .addEventListener("keydown", function(event) {
+
+        if (
+            event.key === "Enter" &&
+            this.value === "DELETE"
+        ) {
+
+            confirmDelete();
+
+        }
+
+    });
+
+
+/* ================= INITIAL PREVIEW ================= */
+
+updatePreview();
+
+</script>
+
+</body>
+</html>
