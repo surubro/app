@@ -2,248 +2,1544 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Cloud Contacts Pro - Editor Enabled</title>
+  <title>Cloud Contacts Pro - Search & Archive</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
   <style>
-    :root { --primary: #2563eb; --bg: #f1f5f9; --text: #0f172a; --edit: #f59e0b; }
-    body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
-    .hidden { display: none !important; }
+    :root {
+      --primary: #2563eb;
+      --bg: #f1f5f9;
+      --text: #0f172a;
+      --edit: #f59e0b;
+      --archive: #7c3aed;
+    }
 
-    /* Auth UI */
-    #loginScreen { display: flex; align-items: center; justify-content: center; height: 100vh; }
-    .auth-card { background: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
+    * {
+      box-sizing: border-box;
+    }
 
-    /* Main UI */
-    .container { max-width: 800px; margin: 20px auto; padding: 0 20px; }
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    
-    /* Form */
-    .contact-form { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 30px; transition: border-color 0.3s; }
-    .editing-mode { border: 2px solid var(--edit); background: #fffbeb; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    input, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-    textarea { grid-column: span 2; height: 80px; resize: none; }
-    .btn-row { margin-top: 15px; display: flex; gap: 10px; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
 
-    /* List Display */
-    .contact-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .contact-info h4 { margin: 0 0 8px 0; font-size: 18px; color: #1e293b; }
-    .contact-info p { margin: 5px 0; font-size: 14px; color: #64748b; display: flex; align-items: center; }
-    
-    /* Clickable Phone Styles */
-    .dial-link { color: var(--primary); text-decoration: none; font-weight: 600; }
-    .tags { display: inline-block; background: #e2e8f0; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 8px; color: #475569; font-weight: bold; }
+    .hidden {
+      display: none !important;
+    }
 
-    /* Buttons */
-    button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 5px; }
-    .btn-add { background: var(--primary); color: white; flex: 2; padding: 12px; }
-    .btn-update { background: var(--edit); color: white; flex: 2; padding: 12px; }
-    .btn-cancel { background: #94a3b8; color: white; flex: 1; padding: 12px; }
-    .btn-export { background: #059669; color: white; padding: 12px 20px; }
-    
-    .actions { display: flex; gap: 8px; }
-    .btn-icon { width: 36px; height: 36px; border-radius: 50%; transition: 0.2s; }
-    .btn-edit-icon { background: #fef3c7; color: #d97706; }
-    .btn-del-icon { background: #fee2e2; color: #ef4444; }
-    .logout-btn { background: none; color: #64748b; font-size: 14px; }
+    /* ================= AUTH ================= */
+
+    #loginScreen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 20px;
+    }
+
+    .auth-card {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 350px;
+      text-align: center;
+    }
+
+    /* ================= MAIN ================= */
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      margin: 0;
+    }
+
+    /* ================= FORM ================= */
+
+    .contact-form {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 20px;
+      transition: border-color 0.3s;
+    }
+
+    .editing-mode {
+      border: 2px solid var(--edit);
+      background: #fffbeb;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--primary);
+    }
+
+    textarea {
+      grid-column: span 2;
+      height: 80px;
+      resize: none;
+    }
+
+    .btn-row {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* ================= SEARCH ================= */
+
+    .search-box {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .search-box i {
+      color: #64748b;
+      font-size: 18px;
+    }
+
+    #searchInput {
+      border: none;
+      padding: 8px 0;
+      outline: none;
+      flex: 1;
+      font-size: 15px;
+    }
+
+    /* ================= LIST ================= */
+
+    .contact-card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 5px solid var(--primary);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      gap: 15px;
+    }
+
+    .archived-card {
+      border-left-color: var(--archive);
+      background: #faf5ff;
+    }
+
+    .contact-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .contact-info h4 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+      color: #1e293b;
+      word-break: break-word;
+    }
+
+    .contact-info p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      word-break: break-word;
+    }
+
+    .notes {
+      margin-top: 8px !important;
+      white-space: pre-wrap;
+    }
+
+    /* ================= PHONE ================= */
+
+    .dial-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .tags {
+      display: inline-block;
+      background: #e2e8f0;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-right: 8px;
+      color: #475569;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    /* ================= BUTTONS ================= */
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .btn-add {
+      background: var(--primary);
+      color: white;
+      flex: 2;
+      padding: 12px;
+    }
+
+    .btn-update {
+      background: var(--edit);
+      color: white;
+      flex: 2;
+      padding: 12px;
+    }
+
+    .btn-cancel {
+      background: #94a3b8;
+      color: white;
+      flex: 1;
+      padding: 12px;
+    }
+
+    .btn-export {
+      background: #059669;
+      color: white;
+      padding: 12px 20px;
+    }
+
+    .btn-archive {
+      background: #ede9fe;
+      color: #7c3aed;
+    }
+
+    .btn-restore {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+
+    .btn-icon:hover {
+      transform: scale(1.08);
+    }
+
+    .btn-edit-icon {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .btn-del-icon {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+
+    .btn-archive-icon {
+      background: #ede9fe;
+      color: #7c3aed;
+    }
+
+    .btn-restore-icon {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .logout-btn {
+      background: none;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    /* ================= ARCHIVE HEADER ================= */
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 15px 0;
+      gap: 10px;
+    }
+
+    .section-header h3 {
+      margin: 0;
+    }
+
+    .archive-btn {
+      background: #7c3aed;
+      color: white;
+      padding: 10px 15px;
+    }
+
+    .close-archive-btn {
+      background: #64748b;
+      color: white;
+      padding: 10px 15px;
+    }
+
+    .empty-message {
+      text-align: center;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      color: #64748b;
+    }
+
+    .archive-label {
+      display: inline-block;
+      background: #ede9fe;
+      color: #7c3aed;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 7px;
+    }
+
+    /* ================= MOBILE ================= */
+
+    @media (max-width: 600px) {
+
+      .container {
+        padding: 0 12px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      textarea,
+      #cEmail {
+        grid-column: span 1 !important;
+      }
+
+      .contact-card {
+        align-items: flex-start;
+      }
+
+      .contact-card {
+        flex-direction: column;
+      }
+
+      .actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .btn-row {
+        flex-direction: column;
+      }
+
+      .btn-row button {
+        width: 100%;
+      }
+
+      .section-header {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .section-header button {
+        width: 100%;
+      }
+    }
   </style>
 </head>
+
 <body>
 
+  <!-- ================= LOGIN ================= -->
+
   <div id="loginScreen">
+
     <div class="auth-card">
-      <i class="fas fa-id-card-clip fa-3x" style="color:var(--primary); margin-bottom:15px"></i>
+
+      <i class="fas fa-id-card-clip fa-3x"
+         style="color:var(--primary); margin-bottom:15px"></i>
+
       <h2>Cloud Contacts</h2>
-      <input type="email" id="loginEmail" placeholder="Email">
-      <input type="password" id="loginPassword" placeholder="Password">
-      <button class="btn-add" id="loginBtn" style="width:100%; margin-top:10px">Sign In</button>
+
+      <input
+        type="email"
+        id="loginEmail"
+        placeholder="Email"
+      >
+
+      <input
+        type="password"
+        id="loginPassword"
+        placeholder="Password"
+        style="margin-top:10px"
+      >
+
+      <button
+        class="btn-add"
+        id="loginBtn"
+        style="width:100%; margin-top:10px"
+      >
+        Sign In
+      </button>
+
     </div>
+
   </div>
+
+
+  <!-- ================= APP ================= -->
 
   <div id="appUI" class="hidden">
+
     <div class="container">
+
       <header>
+
         <h1>My Directory</h1>
-        <button id="logoutBtn" class="logout-btn">Logout</button>
+
+        <button id="logoutBtn" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </button>
+
       </header>
 
+
+      <!-- ================= ADD / EDIT FORM ================= -->
+
       <div class="contact-form" id="contactForm">
-        <h3 id="formTitle" style="margin-top:0; font-size: 16px;">Add New Contact</h3>
+
+        <h3 id="formTitle"
+            style="margin-top:0; font-size:16px;">
+          Add New Contact
+        </h3>
+
         <div class="form-grid">
-          <input type="text" id="fName" placeholder="First Name">
-          <input type="text" id="lName" placeholder="Last Name">
-          <input type="tel" id="pWork" placeholder="Work Phone">
-          <input type="tel" id="pHome" placeholder="Home Phone">
-          <input type="email" id="cEmail" placeholder="Email Address" style="grid-column: span 2;">
-          <textarea id="cNotes" placeholder="Address or Notes..."></textarea>
+
+          <input
+            type="text"
+            id="fName"
+            placeholder="First Name"
+          >
+
+          <input
+            type="text"
+            id="lName"
+            placeholder="Last Name"
+          >
+
+          <input
+            type="tel"
+            id="pWork"
+            placeholder="Work Phone"
+          >
+
+          <input
+            type="tel"
+            id="pHome"
+            placeholder="Home Phone"
+          >
+
+          <input
+            type="email"
+            id="cEmail"
+            placeholder="Email Address"
+            style="grid-column:span 2;"
+          >
+
+          <textarea
+            id="cNotes"
+            placeholder="Address or Notes..."
+          ></textarea>
+
         </div>
+
         <div class="btn-row">
-          <button class="btn-add" id="saveBtn"><i class="fas fa-save"></i> <span id="saveBtnText">Save Contact</span></button>
-          <button class="btn-cancel hidden" id="cancelBtn">Cancel</button>
-          <button class="btn-export" id="exportBtn"><i class="fas fa-file-export"></i> Export VCF</button>
+
+          <button
+            class="btn-add"
+            id="saveBtn"
+          >
+            <i class="fas fa-save"></i>
+
+            <span id="saveBtnText">
+              Save Contact
+            </span>
+          </button>
+
+          <button
+            class="btn-cancel hidden"
+            id="cancelBtn"
+          >
+            Cancel
+          </button>
+
+          <button
+            class="btn-export"
+            id="exportBtn"
+          >
+            <i class="fas fa-file-export"></i>
+            Export VCF
+          </button>
+
         </div>
+
       </div>
 
+
+      <!-- ================= SEARCH ================= -->
+
+      <div class="search-box">
+
+        <i class="fas fa-search"></i>
+
+        <input
+          type="search"
+          id="searchInput"
+          placeholder="Search contacts..."
+          autocomplete="off"
+        >
+
+      </div>
+
+
+      <!-- ================= SECTION HEADER ================= -->
+
+      <div class="section-header">
+
+        <h3 id="listTitle">
+          Contacts
+        </h3>
+
+        <button
+          id="archiveToggleBtn"
+          class="archive-btn"
+        >
+          <i class="fas fa-box-archive"></i>
+          Show Archive
+        </button>
+
+      </div>
+
+
+      <!-- ================= CONTACT LIST ================= -->
+
       <div id="contactList"></div>
+
     </div>
+
   </div>
 
+
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  /* =====================================================
+     FIREBASE
+  ===================================================== */
+
+  import {
+    initializeApp
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  import {
+    getDatabase,
+    ref,
+    push,
+    onValue,
+    remove,
+    update
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
 
   const firebaseConfig = {
-    apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
-    authDomain: "striped-acrobat-342207.firebaseapp.com",
-    databaseURL: "https://striped-acrobat-342207-default-rtdb.firebaseio.com",
-    projectId: "striped-acrobat-342207",
-    storageBucket: "striped-acrobat-342207.appspot.com",
-    messagingSenderId: "367114842706",
-    appId: "1:367114842706:web:0f6d504163ed3c72ed658b"
+
+    apiKey:
+      "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
+
+    authDomain:
+      "striped-acrobat-342207.firebaseapp.com",
+
+    databaseURL:
+      "https://striped-acrobat-342207-default-rtdb.firebaseio.com",
+
+    projectId:
+      "striped-acrobat-342207",
+
+    storageBucket:
+      "striped-acrobat-342207.appspot.com",
+
+    messagingSenderId:
+      "367114842706",
+
+    appId:
+      "1:367114842706:web:0f6d504163ed3c72ed658b"
+
   };
+
 
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getDatabase(app);
-  
-  let contactsData = {};
-  let currentEditId = null; // Tracks if we are editing
 
-  // Auth Handlers
-  document.getElementById("loginBtn").onclick = () => {
-    signInWithEmailAndPassword(auth, loginEmail.value, loginPassword.value).catch(e => alert(e.message));
+  const auth = getAuth(app);
+
+  const db = getDatabase(app);
+
+
+  /* =====================================================
+     VARIABLES
+  ===================================================== */
+
+  let contactsData = {};
+
+  let currentEditId = null;
+
+  let showingArchive = false;
+
+
+  /* =====================================================
+     ELEMENTS
+  ===================================================== */
+
+  const loginScreen =
+    document.getElementById("loginScreen");
+
+  const appUI =
+    document.getElementById("appUI");
+
+  const loginEmail =
+    document.getElementById("loginEmail");
+
+  const loginPassword =
+    document.getElementById("loginPassword");
+
+  const loginBtn =
+    document.getElementById("loginBtn");
+
+  const logoutBtn =
+    document.getElementById("logoutBtn");
+
+  const searchInput =
+    document.getElementById("searchInput");
+
+  const archiveToggleBtn =
+    document.getElementById("archiveToggleBtn");
+
+
+  /* =====================================================
+     LOGIN
+  ===================================================== */
+
+  loginBtn.onclick = () => {
+
+    const email =
+      loginEmail.value.trim();
+
+    const password =
+      loginPassword.value;
+
+    if (!email || !password) {
+
+      alert("Enter email and password.");
+
+      return;
+    }
+
+    signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    ).catch(e => {
+
+      alert(e.message);
+
+    });
+
   };
-  document.getElementById("logoutBtn").onclick = () => signOut(auth);
+
+
+  /* Press Enter to login */
+
+  loginPassword.addEventListener(
+    "keydown",
+    e => {
+
+      if (e.key === "Enter") {
+
+        loginBtn.click();
+
+      }
+
+    }
+  );
+
+
+  /* =====================================================
+     LOGOUT
+  ===================================================== */
+
+  logoutBtn.onclick = () => {
+
+    signOut(auth);
+
+  };
+
+
+  /* =====================================================
+     AUTH STATE
+  ===================================================== */
 
   onAuthStateChanged(auth, user => {
+
     if (user) {
+
       loginScreen.classList.add("hidden");
+
       appUI.classList.remove("hidden");
-      onValue(ref(db, `contacts/${user.uid}`), (snap) => {
-        contactsData = snap.val() || {};
-        renderContacts();
-      });
-    } else {
-      loginScreen.classList.remove("hidden");
-      appUI.classList.add("hidden");
+
+      onValue(
+        ref(db, `contacts/${user.uid}`),
+        snap => {
+
+          contactsData =
+            snap.val() || {};
+
+          renderContacts();
+
+        }
+      );
+
     }
+
+    else {
+
+      loginScreen.classList.remove("hidden");
+
+      appUI.classList.add("hidden");
+
+      contactsData = {};
+
+      currentEditId = null;
+
+      showingArchive = false;
+
+    }
+
   });
 
-  // Create/Update Logic
+
+  /* =====================================================
+     SAVE / UPDATE CONTACT
+  ===================================================== */
+
   document.getElementById("saveBtn").onclick = () => {
+
     const data = {
-      firstName: document.getElementById("fName").value,
-      lastName: document.getElementById("lName").value,
-      workPhone: document.getElementById("pWork").value,
-      homePhone: document.getElementById("pHome").value,
-      email: document.getElementById("cEmail").value,
-      notes: document.getElementById("cNotes").value
+
+      firstName:
+        document.getElementById("fName").value.trim(),
+
+      lastName:
+        document.getElementById("lName").value.trim(),
+
+      workPhone:
+        document.getElementById("pWork").value.trim(),
+
+      homePhone:
+        document.getElementById("pHome").value.trim(),
+
+      email:
+        document.getElementById("cEmail").value.trim(),
+
+      notes:
+        document.getElementById("cNotes").value.trim(),
+
+      archived: false
+
     };
 
-    if (data.firstName && (data.workPhone || data.homePhone)) {
-      const path = `contacts/${auth.currentUser.uid}`;
-      
+
+    if (
+      data.firstName &&
+      (data.workPhone || data.homePhone)
+    ) {
+
+      const path =
+        `contacts/${auth.currentUser.uid}`;
+
+
+      /* UPDATE */
+
       if (currentEditId) {
-        update(ref(db, `${path}/${currentEditId}`), data);
+
+        /*
+         * Preserve archive status while editing.
+         */
+
+        data.archived =
+          contactsData[currentEditId]?.archived === true;
+
+        update(
+          ref(db, `${path}/${currentEditId}`),
+          data
+        );
+
         resetForm();
-      } else {
-        push(ref(db, path), data);
-        resetForm();
+
       }
-    } else {
-      alert("Required: First Name and one Phone Number.");
+
+
+      /* NEW CONTACT */
+
+      else {
+
+        push(
+          ref(db, path),
+          data
+        );
+
+        resetForm();
+
+      }
+
     }
+
+    else {
+
+      alert(
+        "Required: First Name and one Phone Number."
+      );
+
+    }
+
   };
+
+
+  /* =====================================================
+     EDIT
+  ===================================================== */
 
   window.editEntry = (id) => {
-    currentEditId = id;
-    const c = contactsData[id];
-    
-    // Fill Form
-    document.getElementById("fName").value = c.firstName || "";
-    document.getElementById("lName").value = c.lastName || "";
-    document.getElementById("pWork").value = c.workPhone || "";
-    document.getElementById("pHome").value = c.homePhone || "";
-    document.getElementById("cEmail").value = c.email || "";
-    document.getElementById("cNotes").value = c.notes || "";
 
-    // Update UI State
-    document.getElementById("formTitle").innerText = "Edit Contact";
-    document.getElementById("saveBtnText").innerText = "Update Contact";
-    document.getElementById("saveBtn").className = "btn-update";
-    document.getElementById("contactForm").classList.add("editing-mode");
-    document.getElementById("cancelBtn").classList.remove("hidden");
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const c =
+      contactsData[id];
+
+    if (!c) return;
+
+    currentEditId = id;
+
+
+    document.getElementById("fName").value =
+      c.firstName || "";
+
+    document.getElementById("lName").value =
+      c.lastName || "";
+
+    document.getElementById("pWork").value =
+      c.workPhone || "";
+
+    document.getElementById("pHome").value =
+      c.homePhone || "";
+
+    document.getElementById("cEmail").value =
+      c.email || "";
+
+    document.getElementById("cNotes").value =
+      c.notes || "";
+
+
+    document.getElementById("formTitle").innerText =
+      "Edit Contact";
+
+    document.getElementById("saveBtnText").innerText =
+      "Update Contact";
+
+    document.getElementById("saveBtn").className =
+      "btn-update";
+
+    document.getElementById("contactForm")
+      .classList.add("editing-mode");
+
+    document.getElementById("cancelBtn")
+      .classList.remove("hidden");
+
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
   };
+
+
+  /* =====================================================
+     RESET FORM
+  ===================================================== */
 
   const resetForm = () => {
+
     currentEditId = null;
-    document.querySelectorAll(".form-grid input, .form-grid textarea").forEach(i => i.value = "");
-    document.getElementById("formTitle").innerText = "Add New Contact";
-    document.getElementById("saveBtnText").innerText = "Save Contact";
-    document.getElementById("saveBtn").className = "btn-add";
-    document.getElementById("contactForm").classList.remove("editing-mode");
-    document.getElementById("cancelBtn").classList.add("hidden");
+
+
+    document.querySelectorAll(
+      ".form-grid input, .form-grid textarea"
+    ).forEach(i => {
+
+      i.value = "";
+
+    });
+
+
+    document.getElementById("formTitle").innerText =
+      "Add New Contact";
+
+    document.getElementById("saveBtnText").innerText =
+      "Save Contact";
+
+    document.getElementById("saveBtn").className =
+      "btn-add";
+
+    document.getElementById("contactForm")
+      .classList.remove("editing-mode");
+
+    document.getElementById("cancelBtn")
+      .classList.add("hidden");
+
   };
 
-  document.getElementById("cancelBtn").onclick = resetForm;
+
+  document.getElementById("cancelBtn")
+    .onclick = resetForm;
+
+
+  /* =====================================================
+     ARCHIVE CONTACT
+  ===================================================== */
+
+  window.archiveEntry = (id) => {
+
+    if (!contactsData[id]) return;
+
+
+    const name =
+      `${contactsData[id].firstName || ""} ${contactsData[id].lastName || ""}`.trim();
+
+
+    if (
+      confirm(
+        `Archive ${name || "this contact"}?`
+      )
+    ) {
+
+      update(
+        ref(
+          db,
+          `contacts/${auth.currentUser.uid}/${id}`
+        ),
+        {
+          archived: true
+        }
+      );
+
+
+      if (currentEditId === id) {
+
+        resetForm();
+
+      }
+
+    }
+
+  };
+
+
+  /* =====================================================
+     RESTORE CONTACT
+  ===================================================== */
+
+  window.restoreEntry = (id) => {
+
+    if (!contactsData[id]) return;
+
+
+    update(
+      ref(
+        db,
+        `contacts/${auth.currentUser.uid}/${id}`
+      ),
+      {
+        archived: false
+      }
+    );
+
+  };
+
+
+  /* =====================================================
+     DELETE
+  ===================================================== */
 
   window.deleteEntry = (id) => {
-    if(confirm("Delete this contact?")) {
-        if(currentEditId === id) resetForm();
-        remove(ref(db, `contacts/${auth.currentUser.uid}/${id}`));
+
+    if (
+      confirm(
+        "Delete this contact permanently?"
+      )
+    ) {
+
+      if (currentEditId === id) {
+
+        resetForm();
+
+      }
+
+      remove(
+        ref(
+          db,
+          `contacts/${auth.currentUser.uid}/${id}`
+        )
+      );
+
     }
+
   };
 
-  const createDialLink = (number, type) => {
-    if (!number) return '—';
-    const cleanNum = number.replace(/[^\d+]/g, "");
-    return `<span class="tags">${type}</span><a href="tel:${cleanNum}" class="dial-link">${number}</a>`;
-  };
 
-  function renderContacts() {
-    const list = document.getElementById("contactList");
-    list.innerHTML = "";
-    Object.keys(contactsData).forEach(id => {
-      const c = contactsData[id];
-      const card = document.createElement("div");
-      card.className = "contact-card";
-      card.innerHTML = `
-        <div class="contact-info">
-          <h4>${c.firstName} ${c.lastName}</h4>
-          <p>${createDialLink(c.workPhone, 'WORK')}</p>
-          <p>${createDialLink(c.homePhone, 'HOME')}</p>
-          <p><i class="fas fa-envelope" style="margin-right:8px"></i> ${c.email || 'N/A'}</p>
-        </div>
-        <div class="actions">
-          <button class="btn-icon btn-edit-icon" onclick="window.editEntry('${id}')" title="Edit"><i class="fas fa-edit"></i></button>
-          <button class="btn-icon btn-del-icon" onclick="window.deleteEntry('${id}')" title="Delete"><i class="fas fa-trash-alt"></i></button>
-        </div>
-      `;
-      list.appendChild(card);
+  /* =====================================================
+     SEARCH
+  ===================================================== */
+
+  searchInput.addEventListener(
+    "input",
+    renderContacts
+  );
+
+
+  /* =====================================================
+     ARCHIVE TOGGLE
+  ===================================================== */
+
+  archiveToggleBtn.onclick = () => {
+
+    showingArchive =
+      !showingArchive;
+
+    renderContacts();
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
     });
+
+  };
+
+
+  /* =====================================================
+     PHONE LINK
+  ===================================================== */
+
+  const createDialLink =
+    (number, type) => {
+
+      if (!number)
+        return "—";
+
+
+      const cleanNum =
+        number.replace(/[^\d+]/g, "");
+
+
+      return `
+        <span class="tags">${type}</span>
+        <a
+          href="tel:${cleanNum}"
+          class="dial-link"
+        >
+          ${escapeHtml(number)}
+        </a>
+      `;
+
+    };
+
+
+  /* =====================================================
+     HTML ESCAPE
+  ===================================================== */
+
+  function escapeHtml(value) {
+
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
   }
 
-  // VCF Export
-  document.getElementById("exportBtn").onclick = () => {
-    if (Object.keys(contactsData).length === 0) return alert("No contacts available.");
-    let vcf = "";
-    Object.values(contactsData).forEach(c => {
-      vcf += `BEGIN:VCARD\nVERSION:3.0\nN:${c.lastName};${c.firstName};;;\nFN:${c.firstName} ${c.lastName}\n`;
-      if(c.workPhone) vcf += `TEL;TYPE=WORK,VOICE:${c.workPhone}\n`;
-      if(c.homePhone) vcf += `TEL;TYPE=HOME,VOICE:${c.homePhone}\n`;
-      if(c.email) vcf += `EMAIL;TYPE=PREF,INTERNET:${c.email}\n`;
-      if(c.notes) vcf += `NOTE:${c.notes.replace(/\n/g, '\\n')}\n`;
-      vcf += "END:VCARD\n";
-    });
-    const blob = new Blob([vcf], { type: "text/vcard" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `Contacts_Export.vcf`;
-    a.click();
-  };
+
+  /* =====================================================
+     RENDER CONTACTS
+  ===================================================== */
+
+  function renderContacts() {
+
+    const list =
+      document.getElementById("contactList");
+
+
+    list.innerHTML = "";
+
+
+    const search =
+      searchInput.value
+        .trim()
+        .toLowerCase();
+
+
+    let count = 0;
+
+
+    Object.keys(contactsData)
+      .forEach(id => {
+
+        const c =
+          contactsData[id];
+
+
+        const isArchived =
+          c.archived === true;
+
+
+        /*
+         * Main list:
+         * show only non-archived contacts.
+         *
+         * Archive:
+         * show only archived contacts.
+         */
+
+        if (
+          showingArchive &&
+          !isArchived
+        ) return;
+
+
+        if (
+          !showingArchive &&
+          isArchived
+        ) return;
+
+
+        /*
+         * Search all important fields.
+         */
+
+        const searchableText = [
+
+          c.firstName,
+          c.lastName,
+          c.workPhone,
+          c.homePhone,
+          c.email,
+          c.notes
+
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+
+        if (
+          search &&
+          !searchableText.includes(search)
+        ) return;
+
+
+        count++;
+
+
+        const card =
+          document.createElement("div");
+
+
+        card.className =
+          "contact-card" +
+          (isArchived
+            ? " archived-card"
+            : "");
+
+
+        const fullName =
+          `${c.firstName || ""} ${c.lastName || ""}`.trim();
+
+
+        card.innerHTML = `
+
+          <div class="contact-info">
+
+            ${
+              isArchived
+              ? `<div class="archive-label">
+                   <i class="fas fa-box-archive"></i>
+                   ARCHIVED
+                 </div>`
+              : ""
+            }
+
+            <h4>
+              ${escapeHtml(fullName || "Unnamed Contact")}
+            </h4>
+
+            <p>
+              ${createDialLink(
+                c.workPhone,
+                "WORK"
+              )}
+            </p>
+
+            <p>
+              ${createDialLink(
+                c.homePhone,
+                "HOME"
+              )}
+            </p>
+
+            <p>
+              <i
+                class="fas fa-envelope"
+                style="margin-right:8px"
+              ></i>
+
+              ${escapeHtml(c.email || "N/A")}
+            </p>
+
+            ${
+              c.notes
+              ? `<p class="notes">
+                   <i
+                     class="fas fa-note-sticky"
+                     style="margin-right:8px"
+                   ></i>
+                   ${escapeHtml(c.notes)}
+                 </p>`
+              : ""
+            }
+
+          </div>
+
+
+          <div class="actions">
+
+            ${
+              isArchived
+
+              ? `
+                <button
+                  class="btn-icon btn-restore-icon"
+                  onclick="window.restoreEntry('${id}')"
+                  title="Restore"
+                >
+                  <i class="fas fa-box-open"></i>
+                </button>
+              `
+
+              : `
+                <button
+                  class="btn-icon btn-edit-icon"
+                  onclick="window.editEntry('${id}')"
+                  title="Edit"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+
+                <button
+                  class="btn-icon btn-archive-icon"
+                  onclick="window.archiveEntry('${id}')"
+                  title="Archive"
+                >
+                  <i class="fas fa-box-archive"></i>
+                </button>
+              `
+            }
+
+
+            <button
+              class="btn-icon btn-del-icon"
+              onclick="window.deleteEntry('${id}')"
+              title="Delete"
+            >
+              <i class="fas fa-trash-alt"></i>
+            </button>
+
+          </div>
+
+        `;
+
+
+        list.appendChild(card);
+
+      });
+
+
+    /*
+     * Empty result
+     */
+
+    if (count === 0) {
+
+      let message;
+
+
+      if (search) {
+
+        message =
+          `No contacts found for "${escapeHtml(search)}".`;
+
+      }
+
+      else if (showingArchive) {
+
+        message =
+          "No archived contacts.";
+
+      }
+
+      else {
+
+        message =
+          "No contacts available.";
+
+      }
+
+
+      list.innerHTML =
+        `<div class="empty-message">
+           <i class="fas fa-address-book fa-2x"
+              style="margin-bottom:10px;"></i>
+           <br>
+           ${message}
+         </div>`;
+
+    }
+
+
+    /*
+     * Update archive button
+     */
+
+    if (showingArchive) {
+
+      document.getElementById("listTitle")
+        .innerText =
+        `Archived Contacts${count ? " (" + count + ")" : ""}`;
+
+
+      archiveToggleBtn.innerHTML =
+        `<i class="fas fa-arrow-left"></i>
+         Back to Contacts`;
+
+      archiveToggleBtn.className =
+        "close-archive-btn";
+
+    }
+
+    else {
+
+      document.getElementById("listTitle")
+        .innerText =
+        `Contacts${count ? " (" + count + ")" : ""}`;
+
+
+      archiveToggleBtn.innerHTML =
+        `<i class="fas fa-box-archive"></i>
+         Show Archive`;
+
+      archiveToggleBtn.className =
+        "archive-btn";
+
+    }
+
+  }
+
+
+  /* =====================================================
+     VCF EXPORT
+     Active contacts ONLY
+  ===================================================== */
+
+  document.getElementById("exportBtn")
+    .onclick = () => {
+
+
+      const activeContacts =
+        Object.values(contactsData)
+          .filter(c => c.archived !== true);
+
+
+      if (
+        activeContacts.length === 0
+      ) {
+
+        return alert(
+          "No active contacts available."
+        );
+
+      }
+
+
+      let vcf = "";
+
+
+      activeContacts.forEach(c => {
+
+        vcf +=
+          `BEGIN:VCARD\n` +
+          `VERSION:3.0\n` +
+          `N:${escapeVcf(c.lastName)};${escapeVcf(c.firstName)};;;\n` +
+          `FN:${escapeVcf(c.firstName)} ${escapeVcf(c.lastName)}\n`;
+
+
+        if (c.workPhone) {
+
+          vcf +=
+            `TEL;TYPE=WORK,VOICE:${escapeVcf(c.workPhone)}\n`;
+
+        }
+
+
+        if (c.homePhone) {
+
+          vcf +=
+            `TEL;TYPE=HOME,VOICE:${escapeVcf(c.homePhone)}\n`;
+
+        }
+
+
+        if (c.email) {
+
+          vcf +=
+            `EMAIL;TYPE=PREF,INTERNET:${escapeVcf(c.email)}\n`;
+
+        }
+
+
+        if (c.notes) {
+
+          vcf +=
+            `NOTE:${escapeVcf(c.notes).replace(/\n/g, "\\n")}\n`;
+
+        }
+
+
+        vcf +=
+          "END:VCARD\n";
+
+      });
+
+
+      const blob =
+        new Blob(
+          [vcf],
+          {
+            type: "text/vcard"
+          }
+        );
+
+
+      const a =
+        document.createElement("a");
+
+
+      a.href =
+        URL.createObjectURL(blob);
+
+
+      a.download =
+        "Contacts_Export.vcf";
+
+
+      a.click();
+
+
+      URL.revokeObjectURL(a.href);
+
+    };
+
+
+  /* =====================================================
+     VCF ESCAPE
+  ===================================================== */
+
+  function escapeVcf(value) {
+
+    return String(value || "")
+      .replace(/\\/g, "\\\\")
+      .replace(/;/g, "\\;")
+      .replace(/,/g, "\\,");
+
+  }
+
 </script>
+
 </body>
 </html>
