@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Keyboard Tester & Diagnostics</title>
+  <title>KeyPulse — Keyboard Diagnostics & Tester</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
@@ -11,7 +11,7 @@
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -20,21 +20,6 @@
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
             mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            key: {
-              bg: '#1e293b',
-              border: '#334155',
-              text: '#94a3b8',
-              active: '#10b981', // Green indicator
-              tested: '#065f46',
-            }
-          },
-          boxShadow: {
-            'glow-green': '0 0 20px -2px rgba(16, 185, 129, 0.6), 0 0 8px -1px rgba(16, 185, 129, 0.4)',
-            'glow-blue': '0 0 15px -2px rgba(59, 130, 246, 0.5)',
-            'key': '0 4px 0 0 #0f172a, 0 5px 10px rgba(0,0,0,0.5)',
-            'key-pressed': '0 0px 0 0 #0f172a, inset 0 2px 4px rgba(0,0,0,0.6)'
           }
         }
       }
@@ -54,63 +39,84 @@
       background: #334155;
       border-radius: 3px;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
+
+    /* Fixed size design system for keycaps */
+    :root {
+      --key-size: 46px;
+      --key-gap: 6px;
     }
 
-    /* Key visual styles & smooth transitions */
-    .key-cap {
-      user-select: none;
-      transition: all 0.08s ease-out;
-      transform: translateY(0);
+    @media (min-width: 1280px) {
+      :root {
+        --key-size: 50px;
+        --key-gap: 7px;
+      }
     }
-    
-    .key-cap.active {
-      transform: translateY(4px);
-      background-color: #10b981 !important;
+
+    /* KeyCap Styling & 3D Depth Effect */
+    .keycap {
+      height: var(--key-size);
+      min-width: var(--key-size);
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid #334155;
+      border-radius: 8px;
+      box-shadow: 0 4px 0 0 #020617, inset 0 1px 1px rgba(255,255,255,0.1);
+      user-select: none;
+      transition: all 0.06s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .keycap:hover {
+      border-color: #475569;
+    }
+
+    /* Active Press Down State */
+    .keycap.active {
+      transform: translateY(3px) !important;
+      background: linear-gradient(180deg, #10b981 0%, #059669 100%) !important;
       border-color: #34d399 !important;
       color: #ffffff !important;
-      box-shadow: 0 0 18px rgba(16, 185, 129, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.5) !important;
-      z-index: 10;
+      box-shadow: 0 1px 0 0 #022c22, 0 0 18px rgba(16, 185, 129, 0.7) !important;
+      z-index: 20;
     }
 
-    .key-cap.tested:not(.active) {
-      background-color: #064e3b !important;
+    /* Tested State */
+    .keycap.tested:not(.active) {
+      background: linear-gradient(180deg, #065f46 0%, #022c22 100%) !important;
       border-color: #10b981 !important;
       color: #a7f3d0 !important;
-      box-shadow: 0 3px 0 0 #022c22, 0 2px 6px rgba(16, 185, 129, 0.2) !important;
+      box-shadow: 0 3px 0 0 #021a14, 0 0 10px rgba(16, 185, 129, 0.25) !important;
     }
 
-    /* Custom key width multipliers */
-    .w-key-1\.25 { width: calc(var(--unit-size) * 1.25); }
-    .w-key-1\.5 { width: calc(var(--unit-size) * 1.5); }
-    .w-key-1\.75 { width: calc(var(--unit-size) * 1.75); }
-    .w-key-2 { width: calc(var(--unit-size) * 2); }
-    .w-key-2\.25 { width: calc(var(--unit-size) * 2.25); }
-    .w-key-2\.5 { width: calc(var(--unit-size) * 2.5); }
-    .w-key-2\.75 { width: calc(var(--unit-size) * 2.75); }
-    .w-key-6\.25 { width: calc(var(--unit-size) * 6.25); }
-    
-    :root {
-      --unit-size: 50px;
+    .keycap.tested:not(.active) .sub-label {
+      color: #34d399 !important;
     }
 
-    @media (max-width: 1280px) {
-      :root {
-        --unit-size: 42px;
-      }
-    }
+    /* Standard Multiplier Widths based on grid span */
+    .k-1 { width: var(--key-size); }
+    .k-1\.25 { width: calc(var(--key-size) * 1.25 + var(--key-gap) * 0.25); }
+    .k-1\.5 { width: calc(var(--key-size) * 1.5 + var(--key-gap) * 0.5); }
+    .k-1\.75 { width: calc(var(--key-size) * 1.75 + var(--key-gap) * 0.75); }
+    .k-2 { width: calc(var(--key-size) * 2 + var(--key-gap)); }
+    .k-2\.25 { width: calc(var(--key-size) * 2.25 + var(--key-gap) * 1.25); }
+    .k-2\.75 { width: calc(var(--key-size) * 2.75 + var(--key-gap) * 1.75); }
+    .k-6\.25 { width: calc(var(--key-size) * 6.25 + var(--key-gap) * 5.25); }
+    .k-tall { height: calc(var(--key-size) * 2 + var(--key-gap)); }
 
-    @media (max-width: 1024px) {
-      :root {
-        --unit-size: 34px;
-      }
+    .key-row {
+      display: flex;
+      gap: var(--key-gap);
     }
   </style>
 </head>
 <body class="h-full flex flex-col font-sans bg-slate-950 text-slate-100 overflow-x-hidden selection:bg-emerald-500 selection:text-white">
 
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+  <header class="border-b border-slate-800/80 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400">
@@ -118,27 +124,24 @@
         </div>
         <div>
           <h1 class="text-lg font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-            KeyPulse <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Tester v2.0</span>
+            KeyPulse <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Tester v2.5</span>
           </h1>
-          <p class="text-xs text-slate-400">Hardware Keyboard Diagnostics & Key Event Analyzer</p>
+          <p class="text-xs text-slate-400">Hardware Keyboard Diagnostics & Multi-Key Rollover Test</p>
         </div>
       </div>
 
       <!-- Action Controls -->
-      <div class="flex items-center gap-2 sm:gap-4">
-        <!-- Sound Toggle -->
-        <button id="soundToggle" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition" title="Toggle Beep Sound">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button id="soundToggle" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">
           <i id="soundIcon" class="fa-solid fa-volume-xmark text-slate-400"></i>
           <span class="hidden sm:inline">Sound: <strong id="soundState" class="text-slate-400">OFF</strong></span>
         </button>
 
-        <!-- Prevent Default Toggle -->
-        <button id="preventDefaultToggle" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition" title="Prevent default key functions (e.g., F1 Help, Tab focusing, Space scrolling)">
+        <button id="preventDefaultToggle" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">
           <i id="preventIcon" class="fa-solid fa-shield-halved text-emerald-400"></i>
           <span class="hidden sm:inline">Capture Hotkeys: <strong id="preventState" class="text-emerald-400">ON</strong></span>
         </button>
 
-        <!-- Reset Button -->
         <button id="resetBtn" class="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-900/30 transition active:scale-95">
           <i class="fa-solid fa-rotate-left"></i>
           <span>Reset Test</span>
@@ -149,296 +152,258 @@
 
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col gap-6">
 
-    <!-- Top Telemetry Cards -->
+    <!-- Telemetry Cards -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <!-- Total Tested Stat -->
-      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between relative overflow-hidden group">
-        <div class="absolute -right-2 -bottom-2 opacity-5 text-emerald-400 text-6xl font-black group-hover:scale-110 transition-transform">
-          <i class="fa-solid fa-check-double"></i>
-        </div>
+      <!-- Tested Stats -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between relative overflow-hidden">
         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Keys Tested</span>
         <div class="flex items-baseline gap-2 mt-2">
           <span id="testedCount" class="text-3xl font-extrabold text-emerald-400 font-mono">0</span>
           <span id="testedTotalRatio" class="text-xs text-slate-500">/ 104 keys</span>
         </div>
-        <!-- Progress Bar -->
         <div class="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
           <div id="progressBar" class="bg-emerald-500 h-full w-0 transition-all duration-300"></div>
         </div>
       </div>
 
-      <!-- Current Key Name -->
+      <!-- Active Key -->
       <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Key</span>
         <div id="activeKeyDisplay" class="text-2xl font-bold text-white font-mono mt-1 truncate">
           <span class="text-slate-600 font-normal italic text-sm">Press any key...</span>
         </div>
-        <span id="activeKeyType" class="text-[10px] text-slate-500 mt-2 truncate">Location: Standard</span>
+        <span id="activeKeyType" class="text-[10px] text-slate-500 mt-1 truncate">Location: Standard</span>
       </div>
 
-      <!-- Key Code Stats -->
+      <!-- Key Code Info -->
       <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
-        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Key Code / Code</span>
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Key Code / Event</span>
         <div class="flex items-center gap-2 mt-1">
-          <span id="codeDisplay" class="text-xl font-bold text-emerald-300 font-mono">--</span>
+          <span id="codeDisplay" class="text-lg font-bold text-emerald-300 font-mono truncate">--</span>
           <span id="keyCodeDisplay" class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono border border-slate-700">Code: --</span>
         </div>
-        <span id="eventModifierState" class="text-[10px] text-slate-500 mt-2">Modifiers: None</span>
+        <span id="eventModifierState" class="text-[10px] text-slate-500 mt-1">Modifiers: None</span>
       </div>
 
-      <!-- Last Key Pressed -->
+      <!-- Input Status -->
       <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
-        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Status / Tone</span>
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Status & Roll-over</span>
         <div class="flex items-center gap-2 mt-1">
           <span id="testStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">
             <span class="w-2 h-2 rounded-full bg-slate-500"></span> Ready
           </span>
         </div>
-        <span id="lastEventTime" class="text-[10px] text-slate-500 mt-2">Latency / Stamp: --</span>
+        <span id="lastEventTime" class="text-[10px] text-slate-500 mt-1">Timestamp: --</span>
       </div>
     </div>
 
-    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-2xl relative overflow-x-auto">
-      <div class="min-w-[980px] flex flex-col gap-2.5 mx-auto justify-center select-none" id="keyboardContainer">
-        
-        <!-- ROW 0: Function Keys & Esc -->
-        <div class="flex gap-2 mb-2">
-          <!-- ESC -->
-          <div data-code="Escape" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer hover:border-slate-500">Esc</div>
-          <div class="w-4"></div> <!-- Gap -->
-          <!-- F1 - F4 -->
-          <div class="flex gap-1.5">
-            <div data-code="F1" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-400 shadow-key cursor-pointer">F1</div>
-            <div data-code="F2" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-400 shadow-key cursor-pointer">F2</div>
-            <div data-code="F3" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-400 shadow-key cursor-pointer">F3</div>
-            <div data-code="F4" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-400 shadow-key cursor-pointer">F4</div>
-          </div>
-          <div class="w-3"></div> <!-- Gap -->
-          <!-- F5 - F8 -->
-          <div class="flex gap-1.5">
-            <div data-code="F5" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-400 shadow-key cursor-pointer">F5</div>
-            <div data-code="F6" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-400 shadow-key cursor-pointer">F6</div>
-            <div data-code="F7" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-400 shadow-key cursor-pointer">F7</div>
-            <div data-code="F8" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-400 shadow-key cursor-pointer">F8</div>
-          </div>
-          <div class="w-3"></div> <!-- Gap -->
-          <!-- F9 - F12 -->
-          <div class="flex gap-1.5">
-            <div data-code="F9" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-400 shadow-key cursor-pointer">F9</div>
-            <div data-code="F10" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-400 shadow-key cursor-pointer">F10</div>
-            <div data-code="F11" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-400 shadow-key cursor-pointer">F11</div>
-            <div data-code="F12" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-400 shadow-key cursor-pointer">F12</div>
+    <!-- KEYBOARD FRAME -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-2xl overflow-x-auto flex justify-center">
+      <div class="inline-flex gap-5 select-none p-2 bg-slate-950/60 rounded-xl border border-slate-800/60" id="keyboardContainer">
+
+        <!-- 1. MAIN ALPHANUMERIC SECTION -->
+        <div class="flex flex-col gap-[var(--key-gap)]">
+          
+          <!-- Row 0: Function Row -->
+          <div class="key-row mb-1">
+            <div data-code="Escape" class="keycap k-1 text-xs font-semibold text-amber-300">Esc</div>
+            <div class="w-3"></div> <!-- Gap -->
+            <div data-code="F1" class="keycap k-1 text-xs font-semibold text-slate-400">F1</div>
+            <div data-code="F2" class="keycap k-1 text-xs font-semibold text-slate-400">F2</div>
+            <div data-code="F3" class="keycap k-1 text-xs font-semibold text-slate-400">F3</div>
+            <div data-code="F4" class="keycap k-1 text-xs font-semibold text-slate-400">F4</div>
+            <div class="w-3"></div> <!-- Gap -->
+            <div data-code="F5" class="keycap k-1 text-xs font-semibold text-slate-400">F5</div>
+            <div data-code="F6" class="keycap k-1 text-xs font-semibold text-slate-400">F6</div>
+            <div data-code="F7" class="keycap k-1 text-xs font-semibold text-slate-400">F7</div>
+            <div data-code="F8" class="keycap k-1 text-xs font-semibold text-slate-400">F8</div>
+            <div class="w-3"></div> <!-- Gap -->
+            <div data-code="F9" class="keycap k-1 text-xs font-semibold text-slate-400">F9</div>
+            <div data-code="F10" class="keycap k-1 text-xs font-semibold text-slate-400">F10</div>
+            <div data-code="F11" class="keycap k-1 text-xs font-semibold text-slate-400">F11</div>
+            <div data-code="F12" class="keycap k-1 text-xs font-semibold text-slate-400">F12</div>
           </div>
 
-          <div class="w-4"></div> <!-- Gap to Nav controls -->
-
-          <!-- PrintScreen, ScrollLock, Pause -->
-          <div class="flex gap-1.5">
-            <div data-code="PrintScreen" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-[10px] text-center leading-tight font-semibold text-slate-400 shadow-key cursor-pointer">PrtSc</div>
-            <div data-code="ScrollLock" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-[10px] text-center leading-tight font-semibold text-slate-400 shadow-key cursor-pointer">ScrLk</div>
-            <div data-code="Pause" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-[10px] text-center leading-tight font-semibold text-slate-400 shadow-key cursor-pointer">Pause</div>
+          <!-- Row 1: Number Row -->
+          <div class="key-row">
+            <div data-code="Backquote" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">~</span><span>`</span></div>
+            <div data-code="Digit1" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">!</span><span>1</span></div>
+            <div data-code="Digit2" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">@</span><span>2</span></div>
+            <div data-code="Digit3" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">#</span><span>3</span></div>
+            <div data-code="Digit4" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">$</span><span>4</span></div>
+            <div data-code="Digit5" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">%</span><span>5</span></div>
+            <div data-code="Digit6" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">^</span><span>6</span></div>
+            <div data-code="Digit7" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">&amp;</span><span>7</span></div>
+            <div data-code="Digit8" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">*</span><span>8</span></div>
+            <div data-code="Digit9" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">(</span><span>9</span></div>
+            <div data-code="Digit0" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">)</span><span>0</span></div>
+            <div data-code="Minus" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">_</span><span>-</span></div>
+            <div data-code="Equal" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">+</span><span>=</span></div>
+            <div data-code="Backspace" class="keycap k-2 text-xs font-semibold text-slate-300 justify-center items-end pb-2 pr-3">Backspace</div>
           </div>
+
+          <!-- Row 2: QWERTY -->
+          <div class="key-row">
+            <div data-code="Tab" class="keycap k-1\.5 text-xs font-semibold text-slate-300 justify-center items-start pl-2">Tab</div>
+            <div data-code="KeyQ" class="keycap k-1 text-sm font-semibold">Q</div>
+            <div data-code="KeyW" class="keycap k-1 text-sm font-semibold">W</div>
+            <div data-code="KeyE" class="keycap k-1 text-sm font-semibold">E</div>
+            <div data-code="KeyR" class="keycap k-1 text-sm font-semibold">R</div>
+            <div data-code="KeyT" class="keycap k-1 text-sm font-semibold">T</div>
+            <div data-code="KeyY" class="keycap k-1 text-sm font-semibold">Y</div>
+            <div data-code="KeyU" class="keycap k-1 text-sm font-semibold">U</div>
+            <div data-code="KeyI" class="keycap k-1 text-sm font-semibold">I</div>
+            <div data-code="KeyO" class="keycap k-1 text-sm font-semibold">O</div>
+            <div data-code="KeyP" class="keycap k-1 text-sm font-semibold">P</div>
+            <div data-code="BracketLeft" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">{</span><span>[</span></div>
+            <div data-code="BracketRight" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">}</span><span>]</span></div>
+            <div data-code="Backslash" class="keycap k-1\.5 text-xs"><span class="sub-label text-[10px] text-slate-500">|</span><span>\</span></div>
+          </div>
+
+          <!-- Row 3: ASDF -->
+          <div class="key-row">
+            <div data-code="CapsLock" class="keycap k-1\.75 text-xs font-semibold text-slate-300 justify-center items-start pl-2">Caps Lock</div>
+            <div data-code="KeyA" class="keycap k-1 text-sm font-semibold">A</div>
+            <div data-code="KeyS" class="keycap k-1 text-sm font-semibold">S</div>
+            <div data-code="KeyD" class="keycap k-1 text-sm font-semibold">D</div>
+            <div data-code="KeyF" class="keycap k-1 text-sm font-semibold">F</div>
+            <div data-code="KeyG" class="keycap k-1 text-sm font-semibold">G</div>
+            <div data-code="KeyH" class="keycap k-1 text-sm font-semibold">H</div>
+            <div data-code="KeyJ" class="keycap k-1 text-sm font-semibold">J</div>
+            <div data-code="KeyK" class="keycap k-1 text-sm font-semibold">K</div>
+            <div data-code="KeyL" class="keycap k-1 text-sm font-semibold">L</div>
+            <div data-code="Semicolon" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">:</span><span>;</span></div>
+            <div data-code="Quote" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">"</span><span>'</span></div>
+            <div data-code="Enter" class="keycap k-2\.25 text-xs font-semibold text-slate-300 justify-center items-end pr-3">Enter</div>
+          </div>
+
+          <!-- Row 4: ZXCV -->
+          <div class="key-row">
+            <div data-code="ShiftLeft" class="keycap k-2\.25 text-xs font-semibold text-slate-300 justify-center items-start pl-2">Shift</div>
+            <div data-code="KeyZ" class="keycap k-1 text-sm font-semibold">Z</div>
+            <div data-code="KeyX" class="keycap k-1 text-sm font-semibold">X</div>
+            <div data-code="KeyC" class="keycap k-1 text-sm font-semibold">C</div>
+            <div data-code="KeyV" class="keycap k-1 text-sm font-semibold">V</div>
+            <div data-code="KeyB" class="keycap k-1 text-sm font-semibold">B</div>
+            <div data-code="KeyN" class="keycap k-1 text-sm font-semibold">N</div>
+            <div data-code="KeyM" class="keycap k-1 text-sm font-semibold">M</div>
+            <div data-code="Comma" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">&lt;</span><span>,</span></div>
+            <div data-code="Period" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">&gt;</span><span>.</span></div>
+            <div data-code="Slash" class="keycap k-1 text-xs"><span class="sub-label text-[10px] text-slate-500">?</span><span>/</span></div>
+            <div data-code="ShiftRight" class="keycap k-2 text-xs font-semibold text-slate-300 justify-center items-end pr-2">Shift</div>
+          </div>
+
+          <!-- Row 5: Bottom Modifier Row -->
+          <div class="key-row">
+            <div data-code="ControlLeft" class="keycap k-1\.25 text-xs font-medium text-slate-300">Ctrl</div>
+            <div data-code="MetaLeft" class="keycap k-1\.25 text-xs font-medium text-slate-300"><i class="fa-brands fa-windows text-sm"></i></div>
+            <div data-code="AltLeft" class="keycap k-1\.25 text-xs font-medium text-slate-300">Alt</div>
+            <div data-code="Space" class="keycap k-6\.25 text-xs font-medium text-slate-500">Space</div>
+            <div data-code="AltRight" class="keycap k-1\.25 text-xs font-medium text-slate-300">Alt</div>
+            <div data-code="MetaRight" class="keycap k-1\.25 text-xs font-medium text-slate-300"><i class="fa-brands fa-windows text-sm"></i></div>
+            <div data-code="ContextMenu" class="keycap k-1\.25 text-xs font-medium text-slate-300"><i class="fa-solid fa-bars-staggered text-xs"></i></div>
+            <div data-code="ControlRight" class="keycap k-1\.25 text-xs font-medium text-slate-300">Ctrl</div>
+          </div>
+
         </div>
 
-        <!-- ROW 1: Numbers & Backspace -->
-        <div class="flex gap-1.5">
-          <!-- Main Alphanumeric Block -->
-          <div class="flex gap-1.5">
-            <div data-code="Backquote" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>~</span><span>`</span></div>
-            <div data-code="Digit1" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>!</span><span>1</span></div>
-            <div data-code="Digit2" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>@</span><span>2</span></div>
-            <div data-code="Digit3" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>#</span><span>3</span></div>
-            <div data-code="Digit4" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>$</span><span>4</span></div>
-            <div data-code="Digit5" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>%</span><span>5</span></div>
-            <div data-code="Digit6" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>^</span><span>6</span></div>
-            <div data-code="Digit7" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>&amp;</span><span>7</span></div>
-            <div data-code="Digit8" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>*</span><span>8</span></div>
-            <div data-code="Digit9" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>(</span><span>9</span></div>
-            <div data-code="Digit0" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>)</span><span>0</span></div>
-            <div data-code="Minus" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>_</span><span>-</span></div>
-            <div data-code="Equal" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>+</span><span>=</span></div>
-            <div data-code="Backspace" class="key-cap w-key-2 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-end pr-3 text-xs font-medium text-slate-300 shadow-key cursor-pointer">Backspace</div>
+        <!-- 2. NAVIGATION & ARROW CLUSTER -->
+        <div class="flex flex-col justify-between">
+          
+          <!-- Top Row: PrtSc, ScrLk, Pause -->
+          <div class="key-row">
+            <div data-code="PrintScreen" class="keycap k-1 text-[10px] font-semibold text-slate-400">PrtSc</div>
+            <div data-code="ScrollLock" class="keycap k-1 text-[10px] font-semibold text-slate-400">ScrLk</div>
+            <div data-code="Pause" class="keycap k-1 text-[10px] font-semibold text-slate-400">Pause</div>
           </div>
 
-          <div class="w-4"></div> <!-- Gap -->
-
-          <!-- Navigation Block (Insert, Home, PageUp) -->
-          <div class="flex gap-1.5">
-            <div data-code="Insert" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-[10px] font-semibold text-slate-400 shadow-key cursor-pointer">Ins</div>
-            <div data-code="Home" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-[10px] font-semibold text-slate-400 shadow-key cursor-pointer">Home</div>
-            <div data-code="PageUp" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-[10px] font-semibold text-slate-400 shadow-key cursor-pointer">PgUp</div>
-          </div>
-
-          <div class="w-4"></div> <!-- Gap -->
-
-          <!-- Numpad Top -->
-          <div class="flex gap-1.5">
-            <div data-code="NumLock" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-[10px] font-semibold text-slate-400 shadow-key cursor-pointer">Num</div>
-            <div data-code="NumpadDivide" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">/</div>
-            <div data-code="NumpadMultiply" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">*</div>
-            <div data-code="NumpadSubtract" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">-</div>
-          </div>
-        </div>
-
-        <!-- ROW 2: Tab & QWERTY -->
-        <div class="flex gap-1.5">
-          <div class="flex gap-1.5">
-            <div data-code="Tab" class="key-cap w-key-1\.5 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-start pl-3 text-xs font-medium text-slate-300 shadow-key cursor-pointer">Tab</div>
-            <div data-code="KeyQ" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">Q</div>
-            <div data-code="KeyW" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">W</div>
-            <div data-code="KeyE" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">E</div>
-            <div data-code="KeyR" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">R</div>
-            <div data-code="KeyT" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">T</div>
-            <div data-code="KeyY" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">Y</div>
-            <div data-code="KeyU" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">U</div>
-            <div data-code="KeyI" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">I</div>
-            <div data-code="KeyO" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">O</div>
-            <div data-code="KeyP" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">P</div>
-            <div data-code="BracketLeft" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>{</span><span>[</span></div>
-            <div data-code="BracketRight" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>}</span><span>]</span></div>
-            <div data-code="Backslash" class="key-cap w-key-1\.5 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>|</span><span>\</span></div>
-          </div>
-
-          <div class="w-4"></div> <!-- Gap -->
-
-          <!-- Navigation Block (Delete, End, PageDown) -->
-          <div class="flex gap-1.5">
-            <div data-code="Delete" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-[10px] font-semibold text-slate-400 shadow-key cursor-pointer">Del</div>
-            <div data-code="End" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-[10px] font-semibold text-slate-400 shadow-key cursor-pointer">End</div>
-            <div data-code="PageDown" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-[10px] font-semibold text-slate-400 shadow-key cursor-pointer">PgDn</div>
-          </div>
-
-          <div class="w-4"></div> <!-- Gap -->
-
-          <!-- Numpad Row 2 -->
-          <div class="grid grid-cols-4 gap-1.5">
-            <div data-code="Numpad7" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">7</div>
-            <div data-code="Numpad8" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">8</div>
-            <div data-code="Numpad9" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">9</div>
-            <div data-code="NumpadAdd" class="key-cap w-key-1 h-[calc(var(--unit-size)*2+0.375rem)] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer row-span-2">+</div>
-          </div>
-        </div>
-
-        <!-- ROW 3: CapsLock & ASDF -->
-        <div class="flex gap-1.5">
-          <div class="flex gap-1.5">
-            <div data-code="CapsLock" class="key-cap w-key-1\.75 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-start pl-3 text-xs font-medium text-slate-300 shadow-key cursor-pointer">Caps Lock</div>
-            <div data-code="KeyA" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">A</div>
-            <div data-code="KeyS" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">S</div>
-            <div data-code="KeyD" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">D</div>
-            <div data-code="KeyF" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">F</div>
-            <div data-code="KeyG" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">G</div>
-            <div data-code="KeyH" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">H</div>
-            <div data-code="KeyJ" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">J</div>
-            <div data-code="KeyK" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">K</div>
-            <div data-code="KeyL" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">L</div>
-            <div data-code="Semicolon" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>:</span><span>;</span></div>
-            <div data-code="Quote" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>"</span><span>'</span></div>
-            <div data-code="Enter" class="key-cap w-key-2\.25 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-end pr-3 text-xs font-medium text-slate-300 shadow-key cursor-pointer">Enter</div>
-          </div>
-
-          <div class="w-4"></div> <!-- Gap -->
-
-          <!-- Empty Nav Spacer -->
-          <div class="w-[calc(var(--unit-size)*3+0.75rem)]"></div>
-
-          <div class="w-4"></div> <!-- Gap -->
-
-          <!-- Numpad Row 3 -->
-          <div class="grid grid-cols-3 gap-1.5">
-            <div data-code="Numpad4" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">4</div>
-            <div data-code="Numpad5" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">5</div>
-            <div data-code="Numpad6" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">6</div>
-          </div>
-        </div>
-
-        <!-- ROW 4: Shift & ZXCV -->
-        <div class="flex gap-1.5">
-          <div class="flex gap-1.5">
-            <div data-code="ShiftLeft" class="key-cap w-key-2\.25 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-start pl-3 text-xs font-medium text-slate-300 shadow-key cursor-pointer">Shift</div>
-            <div data-code="KeyZ" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">Z</div>
-            <div data-code="KeyX" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">X</div>
-            <div data-code="KeyC" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">C</div>
-            <div data-code="KeyV" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">V</div>
-            <div data-code="KeyB" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">B</div>
-            <div data-code="KeyN" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">N</div>
-            <div data-code="KeyM" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-sm font-semibold text-slate-200 shadow-key cursor-pointer">M</div>
-            <div data-code="Comma" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>&lt;</span><span>,</span></div>
-            <div data-code="Period" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>&gt;</span><span>.</span></div>
-            <div data-code="Slash" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer"><span>?</span><span>/</span></div>
-            <div data-code="ShiftRight" class="key-cap w-key-2 border border-slate-700 bg-slate-800 h-[calc(var(--unit-size))] rounded-lg flex items-center justify-end pr-3 text-xs font-medium text-slate-300 shadow-key cursor-pointer">Shift</div>
-          </div>
-
-          <div class="w-4"></div> <!-- Gap -->
-
-          <!-- Navigation Arrow Cluster (Up Arrow centered) -->
-          <div class="flex gap-1.5 justify-center items-center w-[calc(var(--unit-size)*3+0.75rem)]">
-            <div class="w-key-1"></div> <!-- Empty spacer -->
-            <div data-code="ArrowUp" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">
-              <i class="fa-solid fa-arrow-up"></i>
+          <!-- Middle Navigation 6-block -->
+          <div class="flex flex-col gap-[var(--key-gap)]">
+            <div class="key-row">
+              <div data-code="Insert" class="keycap k-1 text-[10px] font-semibold text-slate-400">Ins</div>
+              <div data-code="Home" class="keycap k-1 text-[10px] font-semibold text-slate-400">Home</div>
+              <div data-code="PageUp" class="keycap k-1 text-[10px] font-semibold text-slate-400">PgUp</div>
             </div>
-            <div class="w-key-1"></div> <!-- Empty spacer -->
-          </div>
-
-          <div class="w-4"></div> <!-- Gap -->
-
-          <!-- Numpad Row 4 -->
-          <div class="grid grid-cols-4 gap-1.5">
-            <div data-code="Numpad1" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">1</div>
-            <div data-code="Numpad2" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">2</div>
-            <div data-code="Numpad3" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">3</div>
-            <div data-code="NumpadEnter" class="key-cap w-key-1 h-[calc(var(--unit-size)*2+0.375rem)] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-[10px] font-semibold text-slate-300 shadow-key cursor-pointer row-span-2">Enter</div>
-          </div>
-        </div>
-
-        <!-- ROW 5: Bottom Modifier Row & Space -->
-        <div class="flex gap-1.5">
-          <div class="flex gap-1.5">
-            <div data-code="ControlLeft" class="key-cap w-key-1\.25 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer">Ctrl</div>
-            <div data-code="MetaLeft" class="key-cap w-key-1\.25 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer" title="Windows / Cmd Key"><i class="fa-brands fa-windows text-slate-400"></i></div>
-            <div data-code="AltLeft" class="key-cap w-key-1\.25 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer">Alt</div>
-            <div data-code="Space" class="key-cap w-key-6\.25 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-medium text-slate-500 shadow-key cursor-pointer">Spacebar</div>
-            <div data-code="AltRight" class="key-cap w-key-1\.25 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer">Alt</div>
-            <div data-code="MetaRight" class="key-cap w-key-1\.25 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer" title="Windows / Cmd Key"><i class="fa-brands fa-windows text-slate-400"></i></div>
-            <div data-code="ContextMenu" class="key-cap w-key-1\.25 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer" title="Menu Key"><i class="fa-solid fa-bars-staggered text-slate-400"></i></div>
-            <div data-code="ControlRight" class="key-cap w-key-1\.25 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-medium text-slate-300 shadow-key cursor-pointer">Ctrl</div>
-          </div>
-
-          <div class="w-4"></div> <!-- Gap -->
-
-          <!-- Left, Down, Right Arrows -->
-          <div class="flex gap-1.5">
-            <div data-code="ArrowLeft" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">
-              <i class="fa-solid fa-arrow-left"></i>
-            </div>
-            <div data-code="ArrowDown" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">
-              <i class="fa-solid fa-arrow-down"></i>
-            </div>
-            <div data-code="ArrowRight" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">
-              <i class="fa-solid fa-arrow-right"></i>
+            <div class="key-row">
+              <div data-code="Delete" class="keycap k-1 text-[10px] font-semibold text-slate-400">Del</div>
+              <div data-code="End" class="keycap k-1 text-[10px] font-semibold text-slate-400">End</div>
+              <div data-code="PageDown" class="keycap k-1 text-[10px] font-semibold text-slate-400">PgDn</div>
             </div>
           </div>
 
-          <div class="w-4"></div> <!-- Gap -->
-
-          <!-- Numpad 0 & Dot -->
-          <div class="flex gap-1.5">
-            <div data-code="Numpad0" class="key-cap w-key-2 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">0</div>
-            <div data-code="NumpadDecimal" class="key-cap w-key-1 h-[calc(var(--unit-size))] bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-300 shadow-key cursor-pointer">.</div>
+          <!-- Bottom Inverted-T Arrow Cluster -->
+          <div class="flex flex-col gap-[var(--key-gap)]">
+            <div class="key-row justify-center">
+              <div data-code="ArrowUp" class="keycap k-1 text-xs"><i class="fa-solid fa-arrow-up"></i></div>
+            </div>
+            <div class="key-row">
+              <div data-code="ArrowLeft" class="keycap k-1 text-xs"><i class="fa-solid fa-arrow-left"></i></div>
+              <div data-code="ArrowDown" class="keycap k-1 text-xs"><i class="fa-solid fa-arrow-down"></i></div>
+              <div data-code="ArrowRight" class="keycap k-1 text-xs"><i class="fa-solid fa-arrow-right"></i></div>
+            </div>
           </div>
+
+        </div>
+
+        <!-- 3. NUMPAD CLUSTER -->
+        <div class="flex flex-col justify-between">
+          
+          <!-- Numpad Top / Indicator row space -->
+          <div class="key-row">
+            <div data-code="NumLock" class="keycap k-1 text-[10px] font-semibold text-slate-400">Num</div>
+            <div data-code="NumpadDivide" class="keycap k-1 text-xs text-slate-300">/</div>
+            <div data-code="NumpadMultiply" class="keycap k-1 text-xs text-slate-300">*</div>
+            <div data-code="NumpadSubtract" class="keycap k-1 text-xs text-slate-300">-</div>
+          </div>
+
+          <!-- Grid area for Numpad Keys -->
+          <div class="flex gap-[var(--key-gap)]">
+            
+            <!-- Left 3 columns -->
+            <div class="flex flex-col gap-[var(--key-gap)]">
+              <div class="key-row">
+                <div data-code="Numpad7" class="keycap k-1 text-xs font-semibold">7</div>
+                <div data-code="Numpad8" class="keycap k-1 text-xs font-semibold">8</div>
+                <div data-code="Numpad9" class="keycap k-1 text-xs font-semibold">9</div>
+              </div>
+              <div class="key-row">
+                <div data-code="Numpad4" class="keycap k-1 text-xs font-semibold">4</div>
+                <div data-code="Numpad5" class="keycap k-1 text-xs font-semibold">5</div>
+                <div data-code="Numpad6" class="keycap k-1 text-xs font-semibold">6</div>
+              </div>
+              <div class="key-row">
+                <div data-code="Numpad1" class="keycap k-1 text-xs font-semibold">1</div>
+                <div data-code="Numpad2" class="keycap k-1 text-xs font-semibold">2</div>
+                <div data-code="Numpad3" class="keycap k-1 text-xs font-semibold">3</div>
+              </div>
+              <div class="key-row">
+                <div data-code="Numpad0" class="keycap k-2 text-xs font-semibold">0</div>
+                <div data-code="NumpadDecimal" class="keycap k-1 text-xs font-semibold">.</div>
+              </div>
+            </div>
+
+            <!-- Right tall buttons (Plus, Enter) -->
+            <div class="flex flex-col gap-[var(--key-gap)]">
+              <div data-code="NumpadAdd" class="keycap k-1 k-tall text-xs font-semibold">+</div>
+              <div data-code="NumpadEnter" class="keycap k-1 k-tall text-[10px] font-semibold">Enter</div>
+            </div>
+
+          </div>
+
         </div>
 
       </div>
     </div>
 
+    <!-- LOWER PANEL LOGS & TIPS -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
-      <!-- Live Key Log Table -->
-      <div class="lg:col-span-2 bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col h-72">
+      <!-- Event Log Table -->
+      <div class="lg:col-span-2 bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col h-64">
         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
           <div class="flex items-center gap-2">
             <i class="fa-solid fa-list-check text-emerald-400 text-sm"></i>
-            <h3 class="text-sm font-semibold text-slate-200">Real-time Event History</h3>
+            <h3 class="text-sm font-semibold text-slate-200">Real-time Event Log</h3>
           </div>
           <span class="text-xs text-slate-500 font-mono" id="logCounter">0 entries recorded</span>
         </div>
@@ -447,7 +412,7 @@
           <table class="w-full text-left border-collapse text-xs">
             <thead>
               <tr class="text-slate-500 border-b border-slate-800/80 font-mono uppercase text-[10px]">
-                <th class="py-2 px-2">Time</th>
+                <th class="py-2 px-2">Timestamp</th>
                 <th class="py-2 px-2">Key Value</th>
                 <th class="py-2 px-2">Code Identifier</th>
                 <th class="py-2 px-2">KeyCode</th>
@@ -456,10 +421,9 @@
               </tr>
             </thead>
             <tbody id="eventLogBody" class="font-mono divide-y divide-slate-800/50 text-slate-300">
-              <!-- Logs dynamic generation -->
               <tr id="emptyLogPlaceholder">
                 <td colspan="6" class="py-8 text-center text-slate-600 italic">
-                  Press any hardware keyboard button to see detailed DOM event parameters.
+                  Press any hardware key on your keyboard to monitor event signals.
                 </td>
               </tr>
             </tbody>
@@ -467,31 +431,31 @@
         </div>
       </div>
 
-      <!-- Quick Tips & Key Reference Panel -->
+      <!-- Quick Tips -->
       <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
         <div>
           <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
             <i class="fa-solid fa-circle-info text-emerald-400 text-sm"></i>
-            <h3 class="text-sm font-semibold text-slate-200">Diagnostics Guidance</h3>
+            <h3 class="text-sm font-semibold text-slate-200">Key Visual Legend</h3>
           </div>
           <ul class="mt-3 space-y-2.5 text-xs text-slate-400 leading-relaxed">
             <li class="flex items-start gap-2">
-              <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0"></span>
-              <span><strong>Active Press (Bright Green):</strong> Currently down key detected via standard JS `keydown`.</span>
+              <span class="inline-block w-2.5 h-2.5 rounded-sm bg-emerald-500 shadow-sm shadow-emerald-500/50 mt-1 flex-shrink-0"></span>
+              <span><strong>Glowing Green:</strong> Key currently held down.</span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="inline-block w-2 h-2 rounded-full bg-emerald-800 border border-emerald-500/50 mt-1.5 flex-shrink-0"></span>
-              <span><strong>Tested Key (Dark Green):</strong> Verified input path functioning properly.</span>
+              <span class="inline-block w-2.5 h-2.5 rounded-sm bg-emerald-900 border border-emerald-500/50 mt-1 flex-shrink-0"></span>
+              <span><strong>Dark Emerald:</strong> Verified key (pressed & registered).</span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="inline-block w-2 h-2 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></span>
-              <span><strong>Hotkey Intercept:</strong> Browser hotkeys (F1, F5, Tab, Alt+Tab) are trapped to prevent page unload while testing.</span>
+              <span class="inline-block w-2.5 h-2.5 rounded-sm bg-slate-800 border border-slate-700 mt-1 flex-shrink-0"></span>
+              <span><strong>Slate Dark:</strong> Unpressed key pending test.</span>
             </li>
           </ul>
         </div>
 
-        <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
-          <span>Ghosting Check: Multi-key rollover supported</span>
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+          <span>Multi-Key Rollover Active</span>
           <i class="fa-solid fa-microchip text-slate-700"></i>
         </div>
       </div>
@@ -501,7 +465,7 @@
   </main>
 
   <script>
-    // State Variables
+    // System State Variables
     const testedKeys = new Set();
     let totalKeysInLayout = 0;
     let audioContext = null;
@@ -509,7 +473,7 @@
     let preventDefaultEnabled = true;
     let eventCount = 0;
 
-    // DOM Elements
+    // DOM References
     const testedCountEl = document.getElementById('testedCount');
     const testedTotalRatioEl = document.getElementById('testedTotalRatio');
     const progressBarEl = document.getElementById('progressBar');
@@ -523,7 +487,6 @@
     const eventLogBodyEl = document.getElementById('eventLogBody');
     const emptyLogPlaceholder = document.getElementById('emptyLogPlaceholder');
     const logCounterEl = document.getElementById('logCounter');
-    const logScrollContainer = document.getElementById('logScrollContainer');
 
     const soundToggleBtn = document.getElementById('soundToggle');
     const soundIconEl = document.getElementById('soundIcon');
@@ -535,16 +498,16 @@
 
     const resetBtn = document.getElementById('resetBtn');
 
-    // Initialize Keyboard Unit Stats
+    // Initialize Layout & Key Counts
     function initStats() {
-      const allKeys = document.querySelectorAll('.key-cap');
+      const allKeys = document.querySelectorAll('.keycap');
       totalKeysInLayout = allKeys.length;
       testedTotalRatioEl.textContent = `/ ${totalKeysInLayout} keys`;
       updateProgress();
     }
 
-    // Audio Feedback Generator using Web Audio API
-    function playBeep(frequency = 587.33, duration = 0.05) { // D5 note default
+    // Audio Feedback Generator via Web Audio API
+    function playBeep(frequency = 600, duration = 0.05) {
       if (!soundEnabled) return;
       try {
         if (!audioContext) {
@@ -568,20 +531,19 @@
       }
     }
 
-    // Key Location Text Mapper
-    function getLocationName(locationCode) {
-      switch (locationCode) {
+    function getLocationName(loc) {
+      switch (loc) {
         case 0: return 'Standard (0)';
         case 1: return 'Left Modifier (1)';
         case 2: return 'Right Modifier (2)';
         case 3: return 'Numpad (3)';
-        default: return `Custom (${locationCode})`;
+        default: return `Location (${loc})`;
       }
     }
 
+    // Event Handlers
     function handleKeyDown(e) {
       if (preventDefaultEnabled) {
-        // Prevent default actions like Space scroll, Tab focus jump, F1 help, F5 refresh
         e.preventDefault();
       }
 
@@ -589,7 +551,7 @@
       const key = e.key;
       const keyCode = e.keyCode || e.which;
 
-      // Highlight corresponding DOM elements
+      // Find key elements corresponding to event code
       const targetKeys = document.querySelectorAll(`[data-code="${code}"]`);
       
       targetKeys.forEach(keyEl => {
@@ -597,22 +559,21 @@
         keyEl.classList.add('tested');
       });
 
-      // Track key tested
+      // Track registered key code
       if (code && !testedKeys.has(code)) {
         testedKeys.add(code);
         updateProgress();
       }
 
-      // Play Beep Sound
-      playBeep(650, 0.06);
+      playBeep(680, 0.05);
 
-      // Update Dashboard Info Cards
+      // Dashboard Info Update
       activeKeyDisplayEl.textContent = key === " " ? "Spacebar" : key;
       activeKeyTypeEl.textContent = `Location: ${getLocationName(e.location)}`;
       codeDisplayEl.textContent = code || "N/A";
       keyCodeDisplayEl.textContent = `Code: ${keyCode}`;
 
-      // Active Modifiers Check
+      // Check Active Modifiers
       const modifiers = [];
       if (e.ctrlKey) modifiers.push('Ctrl');
       if (e.altKey) modifiers.push('Alt');
@@ -624,12 +585,12 @@
       testStatusBadgeEl.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
       testStatusBadgeEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Receiving Input`;
 
-      // Latency/Time stamp
+      // Timestamp
       const now = new Date();
       const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}.${now.getMilliseconds().toString().padStart(3, '0')}`;
       lastEventTimeEl.textContent = `Timestamp: ${timeStr}`;
 
-      // Append Log
+      // Log Entry
       addLogEntry(timeStr, key, code, keyCode, e.location, e.repeat);
     }
 
@@ -641,17 +602,15 @@
         keyEl.classList.remove('active');
       });
 
-      // Update status badge back to idle if no keys active
       setTimeout(() => {
-        const activeKeys = document.querySelectorAll('.key-cap.active');
+        const activeKeys = document.querySelectorAll('.keycap.active');
         if (activeKeys.length === 0) {
           testStatusBadgeEl.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700";
           testStatusBadgeEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-500"></span> Ready`;
         }
-      }, 100);
+      }, 80);
     }
 
-    // Update Counter & Progress Bar
     function updateProgress() {
       const count = testedKeys.size;
       testedCountEl.textContent = count;
@@ -659,7 +618,6 @@
       progressBarEl.style.width = `${percentage}%`;
     }
 
-    // Add row entry to Event Log Table
     function addLogEntry(timeStr, keyVal, codeVal, keyCodeVal, locationVal, isRepeat) {
       if (emptyLogPlaceholder) {
         emptyLogPlaceholder.style.display = 'none';
@@ -684,13 +642,11 @@
 
       eventLogBodyEl.insertBefore(tr, eventLogBodyEl.firstChild);
 
-      // Keep maximum 50 entries in visual DOM for performance
-      if (eventLogBodyEl.children.length > 51) {
+      if (eventLogBodyEl.children.length > 50) {
         eventLogBodyEl.removeChild(eventLogBodyEl.lastChild);
       }
     }
 
-    // Sanitize string for html rendering
     function escapeHtml(str) {
       return String(str)
         .replace(/&/g, "&amp;")
@@ -700,25 +656,21 @@
         .replace(/'/g, "&#039;");
     }
 
-    // Reset All Highlights & Counters
     function resetTester() {
       testedKeys.clear();
       updateProgress();
 
-      // Clear key UI states
-      const keyCaps = document.querySelectorAll('.key-cap');
+      const keyCaps = document.querySelectorAll('.keycap');
       keyCaps.forEach(key => {
         key.classList.remove('active', 'tested');
       });
 
-      // Clear Top Displays
       activeKeyDisplayEl.innerHTML = `<span class="text-slate-600 font-normal italic text-sm">Press any key...</span>`;
       activeKeyTypeEl.textContent = 'Location: Standard';
       codeDisplayEl.textContent = '--';
       keyCodeDisplayEl.textContent = 'Code: --';
       eventModifierStateEl.textContent = 'Modifiers: None';
 
-      // Clear Logs
       eventLogBodyEl.innerHTML = '';
       if (emptyLogPlaceholder) {
         eventLogBodyEl.appendChild(emptyLogPlaceholder);
@@ -728,21 +680,20 @@
       logCounterEl.textContent = '0 entries recorded';
     }
 
+    // Event Listeners
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
-    // Click / Touch interactions for visual on-screen key buttons
+    // Mouse Press Support for Virtual Keys
     document.getElementById('keyboardContainer').addEventListener('mousedown', (e) => {
-      const keyCap = e.target.closest('.key-cap');
+      const keyCap = e.target.closest('.keycap');
       if (!keyCap) return;
-
       const code = keyCap.getAttribute('data-code');
       if (code) {
-        // Create mock keyboard event object
-        const mockEvent = {
+        handleKeyDown({
           preventDefault: () => {},
           code: code,
-          key: keyCap.innerText.trim() || code,
+          key: code.replace('Key', ''),
           keyCode: 0,
           location: 0,
           ctrlKey: false,
@@ -750,13 +701,12 @@
           shiftKey: false,
           metaKey: false,
           repeat: false
-        };
-        handleKeyDown(mockEvent);
+        });
       }
     });
 
     document.getElementById('keyboardContainer').addEventListener('mouseup', (e) => {
-      const keyCap = e.target.closest('.key-cap');
+      const keyCap = e.target.closest('.keycap');
       if (!keyCap) return;
       const code = keyCap.getAttribute('data-code');
       if (code) {
@@ -764,14 +714,13 @@
       }
     });
 
-    // Toggle Sound Logic
     soundToggleBtn.addEventListener('click', () => {
       soundEnabled = !soundEnabled;
       if (soundEnabled) {
         soundIconEl.className = "fa-solid fa-volume-high text-emerald-400";
         soundStateEl.textContent = "ON";
         soundStateEl.className = "text-emerald-400";
-        playBeep(880, 0.1); // Activation chime
+        playBeep(880, 0.1);
       } else {
         soundIconEl.className = "fa-solid fa-volume-xmark text-slate-400";
         soundStateEl.textContent = "OFF";
@@ -779,7 +728,6 @@
       }
     });
 
-    // Toggle Prevent Default Logic
     preventDefaultToggleBtn.addEventListener('click', () => {
       preventDefaultEnabled = !preventDefaultEnabled;
       if (preventDefaultEnabled) {
@@ -793,10 +741,8 @@
       }
     });
 
-    // Reset Button Event
     resetBtn.addEventListener('click', resetTester);
 
-    // Initial Load Setup
     window.addEventListener('DOMContentLoaded', () => {
       initStats();
     });
