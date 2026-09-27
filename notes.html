@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>My Notes</title>
+
+  <!-- Firebase v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    .app {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      margin-bottom: 15px;
+    }
+
+    #loginBox input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 400px;
+      resize: vertical;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+      line-height: 1.5;
+      font-family: Arial, sans-serif;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: #2563eb;
+    }
+
+    button {
+      border: none;
+      padding: 11px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      margin-right: 6px;
+      margin-top: 8px;
+    }
+
+    #loginBtn,
+    #saveBtn {
+      background: #2563eb;
+      color: white;
+    }
+
+    #reloadBtn {
+      background: #e5e7eb;
+      color: #222;
+    }
+
+    #logoutBtn {
+      background: #dc2626;
+      color: white;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    #log {
+      background: #111827;
+      color: #d1d5db;
+      padding: 12px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 13px;
+    }
+
+    .user-info {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <h1>📝 My Notes</h1>
+    <button id="logoutBtn" class="hidden">Logout</button>
+  </div>
+
+  <!-- Login -->
+  <div id="loginBox" class="card">
+
+    <h2>Login</h2>
+
+    <input
+      type="email"
+      id="email"
+      placeholder="Email"
+      autocomplete="email"
+    >
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Password"
+      autocomplete="current-password"
+    >
+
+    <button id="loginBtn">Login</button>
+
+    <div id="loginStatus"></div>
+
+  </div>
+
+  <!-- Notes App -->
+  <div id="notesApp" class="hidden">
+
+    <div class="card">
+
+      <div class="user-info">
+        Logged in as: <span id="userEmail"></span>
+      </div>
+
+      <textarea
+        id="notes"
+        placeholder="Write your notes here..."
+        disabled
+      ></textarea>
+
+      <br>
+
+      <button id="saveBtn" disabled>
+        💾 Save
+      </button>
+
+      <button id="reloadBtn" disabled>
+        🔄 Reload
+      </button>
+
+      <div id="status">
+        Ready
+      </div>
+
+    </div>
+
+    <div class="card">
+      <strong>Activity</strong>
+      <pre id="log"></pre>
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+  // =========================================================
+  // FIREBASE CONFIG
+  // =========================================================
+
+  const firebaseConfig = {
+
+    apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
+
+    authDomain:
+      "striped-acrobat-342207.firebaseapp.com",
+
+    databaseURL:
+      "https://striped-acrobat-342207-default-rtdb.firebaseio.com",
+
+    projectId:
+      "striped-acrobat-342207",
+
+    storageBucket:
+      "striped-acrobat-342207.appspot.com",
+
+    messagingSenderId:
+      "367114842706",
+
+    appId:
+      "1:367114842706:web:0f6d504163ed3c72ed658b"
+
+  };
+
+
+  // =========================================================
+  // INITIALIZE FIREBASE
+  // =========================================================
+
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+
+  // =========================================================
+  // DATABASE LOCATION
+  // =========================================================
+
+  // Notes will be stored here:
+  //
+  // Firebase Realtime Database
+  //     └── notes1
+  //
+  const notesPath = "notes1";
+
+
+  // =========================================================
+  // ELEMENTS
+  // =========================================================
+
+  const loginBox =
+    document.getElementById("loginBox");
+
+  const notesApp =
+    document.getElementById("notesApp");
+
+  const emailInput =
+    document.getElementById("email");
+
+  const passwordInput =
+    document.getElementById("password");
+
+  const loginBtn =
+    document.getElementById("loginBtn");
+
+  const logoutBtn =
+    document.getElementById("logoutBtn");
+
+  const notes =
+    document.getElementById("notes");
+
+  const saveBtn =
+    document.getElementById("saveBtn");
+
+  const reloadBtn =
+    document.getElementById("reloadBtn");
+
+  const logBox =
+    document.getElementById("log");
+
+  const status =
+    document.getElementById("status");
+
+  const loginStatus =
+    document.getElementById("loginStatus");
+
+  const userEmail =
+    document.getElementById("userEmail");
+
+
+  // =========================================================
+  // LOG FUNCTION
+  // =========================================================
+
+  function log(message) {
+
+    const time =
+      new Date().toLocaleTimeString();
+
+    logBox.textContent +=
+      "[" + time + "] " + message + "\n";
+
+    logBox.scrollTop =
+      logBox.scrollHeight;
+  }
+
+
+  // =========================================================
+  // STATUS
+  // =========================================================
+
+  function setStatus(message) {
+
+    status.textContent = message;
+
+  }
+
+
+  // =========================================================
+  // AUTH STATE
+  // =========================================================
+
+  auth.onAuthStateChanged(async (user) => {
+
+    if (user && user.emailVerified) {
+
+      // User logged in
+      loginBox.classList.add("hidden");
+
+      notesApp.classList.remove("hidden");
+
+      logoutBtn.classList.remove("hidden");
+
+      notes.disabled = false;
+
+      saveBtn.disabled = false;
+
+      reloadBtn.disabled = false;
+
+      userEmail.textContent = user.email;
+
+      log("Logged in as " + user.email);
+
+      await loadNotes();
+
+    }
+
+    else {
+
+      // User not logged in
+      loginBox.classList.remove("hidden");
+
+      notesApp.classList.add("hidden");
+
+      logoutBtn.classList.add("hidden");
+
+      notes.disabled = true;
+
+      saveBtn.disabled = true;
+
+      reloadBtn.disabled = true;
+
+      if (user && !user.emailVerified) {
+
+        loginStatus.textContent =
+          "Please verify your email before logging in.";
+
+        log("Email is not verified.");
+
+        await auth.signOut();
+
+      }
+      else {
+
+        loginStatus.textContent =
+          "";
+
+      }
+
+    }
+
+  });
+
+
+  // =========================================================
+  // LOGIN
+  // =========================================================
+
+  loginBtn.onclick = async function () {
+
+    const email =
+      emailInput.value.trim();
+
+    const password =
+      passwordInput.value;
+
+    if (!email || !password) {
+
+      loginStatus.textContent =
+        "Please enter email and password.";
+
+      return;
+
+    }
+
+    loginStatus.textContent =
+      "Logging in...";
+
+    try {
+
+      await auth.signInWithEmailAndPassword(
+        email,
+        password
+      );
+
+      loginStatus.textContent =
+        "";
+
+    }
+
+    catch (error) {
+
+      loginStatus.textContent =
+        error.message;
+
+      log(
+        "Login error: " +
+        error.message
+      );
+
+    }
+
+  };
+
+
+  // =========================================================
+  // LOGOUT
+  // =========================================================
+
+  logoutBtn.onclick = async function () {
+
+    try {
+
+      await auth.signOut();
+
+      log("Logged out.");
+
+    }
+
+    catch (error) {
+
+      log(
+        "Logout error: " +
+        error.message
+      );
+
+    }
+
+  };
+
+
+  // =========================================================
+  // LOAD NOTES
+  // =========================================================
+
+  async function loadNotes() {
+
+    setStatus("Loading notes...");
+
+    try {
+
+      const snapshot =
+        await db.ref(notesPath).get();
+
+      if (snapshot.exists()) {
+
+        notes.value =
+          snapshot.val();
+
+        log("Notes loaded successfully.");
+
+        setStatus("Notes loaded.");
+
+      }
+
+      else {
+
+        notes.value = "";
+
+        log("No notes found.");
+
+        setStatus("No saved notes.");
+
+      }
+
+    }
+
+    catch (error) {
+
+      log(
+        "Error loading notes: " +
+        error.message
+      );
+
+      setStatus(
+        "Error loading notes."
+      );
+
+    }
+
+  }
+
+
+  // =========================================================
+  // SAVE NOTES
+  // =========================================================
+
+  saveBtn.onclick = async function () {
+
+    setStatus("Saving...");
+
+    saveBtn.disabled = true;
+
+    try {
+
+      await db
+        .ref(notesPath)
+        .set(notes.value);
+
+      log("Notes saved successfully.");
+
+      setStatus(
+        "Saved at " +
+        new Date().toLocaleTimeString()
+      );
+
+    }
+
+    catch (error) {
+
+      log(
+        "Error saving notes: " +
+        error.message
+      );
+
+      setStatus(
+        "Error saving notes."
+      );
+
+    }
+
+    finally {
+
+      saveBtn.disabled = false;
+
+    }
+
+  };
+
+
+  // =========================================================
+  // RELOAD NOTES
+  // =========================================================
+
+  reloadBtn.onclick = async function () {
+
+    await loadNotes();
+
+  };
+
+
+  // =========================================================
+  // KEYBOARD SHORTCUT
+  // CTRL + S / CMD + S
+  // =========================================================
+
+  notes.addEventListener(
+    "keydown",
+    function (event) {
+
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key === "s"
+      ) {
+
+        event.preventDefault();
+
+        saveBtn.click();
+
+      }
+
+    }
+  );
+
+</script>
+
+</body>
+</html>
