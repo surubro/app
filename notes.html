@@ -2,11 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>My Notes</title>
 
-<!-- Firebase v8 -->
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
@@ -14,545 +13,401 @@
 <style>
 
 * {
-  box-sizing: border-box;
+  box-sizing:border-box;
 }
 
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
-  color: #202124;
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f5f5f5;
+  color:#222;
 }
 
-/* =========================
-   HEADER
-========================= */
+/* LOGIN */
+
+#loginScreen {
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
+
+.loginBox {
+  width:100%;
+  max-width:380px;
+  background:white;
+  padding:30px;
+  border-radius:14px;
+  box-shadow:0 4px 20px rgba(0,0,0,.12);
+}
+
+.loginBox h1 {
+  text-align:center;
+}
+
+.loginBox input {
+  width:100%;
+  padding:13px;
+  margin:7px 0;
+  border:1px solid #ccc;
+  border-radius:8px;
+  font-size:16px;
+}
+
+.loginBox button {
+  width:100%;
+  padding:13px;
+  margin-top:10px;
+  border:0;
+  border-radius:8px;
+  background:#1a73e8;
+  color:white;
+  font-size:16px;
+}
+
+#error {
+  color:#d93025;
+  margin-top:12px;
+  font-size:14px;
+}
+
+/* APP */
+
+#app {
+  display:none;
+}
 
 .header {
-  height: 65px;
-  background: white;
-  border-bottom: 1px solid #ddd;
+  background:white;
+  border-bottom:1px solid #ddd;
+  padding:12px 18px;
 
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
 
-  padding: 0 18px;
-
-  position: sticky;
-  top: 0;
-  z-index: 20;
+  position:sticky;
+  top:0;
+  z-index:10;
 }
 
 .logo {
-  font-size: 21px;
-  font-weight: bold;
+  font-size:21px;
+  font-weight:bold;
 }
 
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.headerRight {
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
 
-.user-email {
-  font-size: 13px;
-  color: #666;
+.userEmail {
+  font-size:13px;
+  color:#666;
 }
 
-button {
-  border: none;
-  border-radius: 8px;
-  padding: 9px 14px;
-  font-size: 14px;
-  cursor: pointer;
+.logout {
+  background:#e53935;
+  color:white;
+  border:0;
+  border-radius:7px;
+  padding:9px 13px;
 }
 
-button:hover {
-  opacity: .9;
-}
-
-.logout-btn {
-  background: #e53935;
-  color: white;
-}
-
-/* =========================
-   LOGIN
-========================= */
-
-#loginScreen {
-  min-height: 100vh;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  padding: 20px;
-}
-
-.login-card {
-  width: 100%;
-  max-width: 400px;
-
-  background: white;
-  padding: 28px;
-
-  border-radius: 14px;
-
-  box-shadow: 0 3px 20px rgba(0,0,0,.10);
-}
-
-.login-card h1 {
-  margin-top: 0;
-  margin-bottom: 8px;
-}
-
-.login-card p {
-  color: #666;
-  margin-bottom: 25px;
-}
-
-.login-card input {
-  width: 100%;
-
-  padding: 13px;
-
-  border: 1px solid #ccc;
-  border-radius: 8px;
-
-  margin-bottom: 12px;
-
-  font-size: 15px;
-}
-
-.login-btn {
-  width: 100%;
-  background: #1a73e8;
-  color: white;
-}
-
-.login-error {
-  color: #d93025;
-  margin-top: 12px;
-  font-size: 14px;
-}
-
-/* =========================
-   APP
-========================= */
-
-#app {
-  display: none;
-}
-
-/* =========================
-   TOOLBAR
-========================= */
+/* TOOLBAR */
 
 .toolbar {
-  max-width: 1200px;
-  margin: auto;
+  max-width:1200px;
+  margin:auto;
+  padding:18px;
 
-  padding: 18px;
-
-  display: flex;
-  gap: 10px;
-
-  flex-wrap: wrap;
+  display:flex;
+  gap:10px;
 }
 
 .search {
-  flex: 1;
-  min-width: 200px;
-
-  padding: 12px 15px;
-
-  border: 1px solid #ccc;
-  border-radius: 10px;
-
-  font-size: 15px;
-
-  background: white;
+  flex:1;
+  padding:12px 16px;
+  border:1px solid #ccc;
+  border-radius:10px;
+  font-size:15px;
 }
 
-.new-note-btn {
-  background: #1a73e8;
-  color: white;
+.newNote,
+.newTodo {
+  border:0;
+  border-radius:9px;
+  padding:11px 16px;
+  color:white;
+  cursor:pointer;
 }
 
-.new-todo-btn {
-  background: #188038;
-  color: white;
+.newNote {
+  background:#1a73e8;
 }
 
-/* =========================
-   NOTES GRID
-========================= */
-
-.notes-container {
-  max-width: 1200px;
-  margin: auto;
-
-  padding: 0 18px 40px;
-
-  display: grid;
-
-  grid-template-columns:
-    repeat(auto-fill, minmax(260px, 1fr));
-
-  gap: 16px;
+.newTodo {
+  background:#188038;
 }
 
-/* =========================
-   NOTE CARD
-========================= */
+/* GRID */
 
-.note-card {
-  border-radius: 12px;
+.notes {
+  max-width:1200px;
+  margin:auto;
+  padding:0 18px 40px;
 
-  border: 1px solid rgba(0,0,0,.12);
-
-  padding: 16px;
-
-  min-height: 160px;
-
-  position: relative;
-
-  transition: .15s;
-
-  word-break: break-word;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:16px;
 }
 
-.note-card:hover {
-  box-shadow: 0 3px 12px rgba(0,0,0,.12);
+/* CARD */
+
+.card {
+  padding:16px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  min-height:150px;
+  position:relative;
+  word-break:break-word;
 }
 
-.note-pinned {
-  border: 2px solid #fbbc04;
+.card:hover {
+  box-shadow:0 3px 12px rgba(0,0,0,.12);
 }
 
-.note-title {
-  font-size: 18px;
-  font-weight: bold;
-
-  margin-bottom: 10px;
-
-  padding-right: 35px;
+.card.pinned {
+  border:2px solid #fbbc04;
 }
 
-.note-content {
-  white-space: pre-wrap;
+.pin {
+  position:absolute;
+  right:8px;
+  top:8px;
 
-  line-height: 1.5;
-
-  font-size: 14px;
-
-  color: #444;
+  background:transparent;
+  border:0;
+  font-size:18px;
+  cursor:pointer;
 }
 
-.note-date {
-  font-size: 11px;
-  color: #777;
-
-  margin-top: 14px;
+.title {
+  font-size:18px;
+  font-weight:bold;
+  padding-right:30px;
+  margin-bottom:10px;
 }
 
-.note-actions {
-  display: flex;
-  gap: 5px;
-
-  margin-top: 14px;
+.content {
+  white-space:pre-wrap;
+  line-height:1.5;
+  color:#444;
 }
 
-.note-actions button {
-  padding: 7px 9px;
-
-  background: rgba(255,255,255,.7);
-
-  border: 1px solid rgba(0,0,0,.12);
+.date {
+  font-size:11px;
+  color:#777;
+  margin-top:12px;
 }
 
-.pin-button {
-  position: absolute;
-
-  right: 12px;
-  top: 12px;
-
-  background: transparent !important;
-
-  border: none !important;
-
-  font-size: 18px;
+.actions {
+  display:flex;
+  gap:6px;
+  margin-top:12px;
 }
 
-/* =========================
-   TODO
-========================= */
-
-.todo-item {
-  display: flex;
-
-  align-items: flex-start;
-
-  gap: 8px;
-
-  margin: 8px 0;
+.actions button {
+  border:1px solid #ccc;
+  background:white;
+  padding:7px 10px;
+  border-radius:7px;
+  cursor:pointer;
 }
 
-.todo-item input {
-  margin-top: 3px;
+/* TODO */
+
+.task {
+  display:flex;
+  gap:8px;
+  margin:8px 0;
 }
 
-.todo-text {
-  flex: 1;
-
-  font-size: 14px;
-
-  line-height: 1.4;
+.task input {
+  width:18px;
+  height:18px;
 }
 
-.todo-completed {
-  text-decoration: line-through;
-
-  color: #777;
+.taskText {
+  flex:1;
 }
 
-/* =========================
-   EMPTY
-========================= */
-
-.empty {
-  max-width: 1200px;
-
-  margin: 60px auto;
-
-  text-align: center;
-
-  color: #777;
-
-  padding: 20px;
+.done {
+  text-decoration:line-through;
+  color:#777;
 }
 
-/* =========================
-   MODAL
-========================= */
+/* MODAL */
 
 .modal {
-  position: fixed;
+  display:none;
 
-  inset: 0;
+  position:fixed;
+  inset:0;
 
-  background: rgba(0,0,0,.45);
+  background:rgba(0,0,0,.45);
 
-  display: none;
+  justify-content:center;
+  align-items:center;
 
-  align-items: center;
-  justify-content: center;
+  padding:20px;
 
-  padding: 20px;
-
-  z-index: 100;
+  z-index:50;
 }
 
-.modal-box {
-  width: 100%;
-  max-width: 600px;
+.modalBox {
+  background:white;
+  width:100%;
+  max-width:600px;
 
-  max-height: 90vh;
+  max-height:90vh;
+  overflow:auto;
 
-  overflow-y: auto;
-
-  background: white;
-
-  border-radius: 14px;
-
-  padding: 20px;
+  border-radius:14px;
+  padding:20px;
 }
 
-.modal-box h2 {
-  margin-top: 0;
+.modalBox input[type=text],
+.modalBox textarea {
+  width:100%;
+  padding:12px;
+  border:1px solid #ccc;
+  border-radius:8px;
+  font-size:15px;
+  margin-bottom:12px;
 }
 
-.modal-box input[type="text"],
-.modal-box textarea {
-  width: 100%;
-
-  border: 1px solid #ccc;
-
-  border-radius: 8px;
-
-  padding: 12px;
-
-  font-size: 15px;
-
-  margin-bottom: 12px;
+.modalBox textarea {
+  min-height:220px;
+  resize:vertical;
 }
 
-.modal-box textarea {
-  min-height: 200px;
-
-  resize: vertical;
+.modalButtons {
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:15px;
 }
 
-.modal-buttons {
-  display: flex;
-
-  justify-content: flex-end;
-
-  gap: 8px;
-
-  margin-top: 15px;
+.save {
+  background:#1a73e8;
+  color:white;
+  border:0;
+  padding:10px 16px;
+  border-radius:8px;
 }
 
-.cancel-btn {
-  background: #eee;
+.cancel {
+  background:#eee;
+  border:0;
+  padding:10px 16px;
+  border-radius:8px;
 }
 
-.save-btn {
-  background: #1a73e8;
+/* TASK EDITOR */
 
-  color: white;
+.taskRow {
+  display:flex;
+  gap:7px;
+  margin-bottom:8px;
 }
 
-/* =========================
-   TODO EDITOR
-========================= */
-
-.task-row {
-  display: flex;
-
-  gap: 7px;
-
-  margin-bottom: 9px;
+.taskRow input {
+  flex:1;
+  margin:0 !important;
 }
 
-.task-row input {
-  flex: 1;
-
-  margin: 0 !important;
+.removeTask {
+  background:#e53935;
+  color:white;
+  border:0;
+  border-radius:7px;
+  width:40px;
 }
 
-.remove-task {
-  background: #e53935;
-
-  color: white;
-
-  padding: 8px 11px;
+.addTask {
+  background:#188038;
+  color:white;
+  border:0;
+  padding:9px 13px;
+  border-radius:7px;
 }
 
-.add-task {
-  background: #188038;
+/* COLORS */
 
-  color: white;
-
-  margin-bottom: 10px;
-}
-
-/* =========================
-   COLORS
-========================= */
-
-.color-picker {
-  display: flex;
-
-  gap: 8px;
-
-  margin: 8px 0 15px;
+.colors {
+  display:flex;
+  gap:8px;
+  margin:10px 0;
 }
 
 .color {
-  width: 27px;
-  height: 27px;
-
-  border-radius: 50%;
-
-  border: 2px solid #777;
-
-  cursor: pointer;
+  width:27px;
+  height:27px;
+  border-radius:50%;
+  border:2px solid #888;
+  cursor:pointer;
 }
 
-.color-white {
-  background: #ffffff;
+.empty {
+  text-align:center;
+  color:#777;
+  padding:50px;
+  grid-column:1/-1;
 }
 
-.color-yellow {
-  background: #fff8b8;
+/* STATUS */
+
+#status {
+  display:none;
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+
+  background:#333;
+  color:white;
+
+  padding:10px 18px;
+  border-radius:20px;
+
+  z-index:100;
 }
 
-.color-green {
-  background: #d7f9df;
-}
-
-.color-blue {
-  background: #dcecff;
-}
-
-.color-pink {
-  background: #ffdce5;
-}
-
-.color-purple {
-  background: #eadcff;
-}
-
-.color-orange {
-  background: #ffe0b2;
-}
-
-/* =========================
-   STATUS
-========================= */
-
-.status {
-  position: fixed;
-
-  bottom: 18px;
-  left: 50%;
-
-  transform: translateX(-50%);
-
-  background: #323232;
-
-  color: white;
-
-  padding: 9px 15px;
-
-  border-radius: 20px;
-
-  font-size: 13px;
-
-  display: none;
-
-  z-index: 200;
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 600px) {
-
-  .header {
-    padding: 0 12px;
-  }
-
-  .user-email {
-    display: none;
-  }
+@media(max-width:600px) {
 
   .toolbar {
-    padding: 12px;
+    flex-wrap:wrap;
   }
 
-  .notes-container {
-    padding: 0 12px 30px;
-    grid-template-columns: 1fr;
+  .search {
+    flex-basis:100%;
   }
 
-  .new-note-btn,
-  .new-todo-btn {
-    flex: 1;
+  .newNote,
+  .newTodo {
+    flex:1;
+  }
+
+  .userEmail {
+    display:none;
+  }
+
+  .notes {
+    grid-template-columns:1fr;
+    padding:0 12px 30px;
   }
 
 }
@@ -564,44 +419,36 @@ button:hover {
 
 
 <!-- =====================================================
-     LOGIN SCREEN
-====================================================== -->
+     LOGIN
+===================================================== -->
 
 <div id="loginScreen">
 
-  <div class="login-card">
+  <div class="loginBox">
 
     <h1>📝 My Notes</h1>
 
     <p>
-      Login to access your Notes and Todo list.
+      Login to continue
     </p>
 
     <input
       type="email"
       id="email"
       placeholder="Email"
-      autocomplete="email"
     >
 
     <input
       type="password"
       id="password"
       placeholder="Password"
-      autocomplete="current-password"
     >
 
-    <button
-      class="login-btn"
-      id="loginBtn"
-    >
+    <button id="loginBtn">
       Login
     </button>
 
-    <div
-      class="login-error"
-      id="loginError"
-    ></div>
+    <div id="error"></div>
 
   </div>
 
@@ -609,28 +456,26 @@ button:hover {
 
 
 <!-- =====================================================
-     MAIN APP
-====================================================== -->
+     APP
+===================================================== -->
 
 <div id="app">
 
-  <!-- HEADER -->
-
-  <header class="header">
+  <div class="header">
 
     <div class="logo">
       📝 My Notes
     </div>
 
-    <div class="header-right">
+    <div class="headerRight">
 
       <span
-        class="user-email"
+        class="userEmail"
         id="userEmail"
       ></span>
 
       <button
-        class="logout-btn"
+        class="logout"
         id="logoutBtn"
       >
         Logout
@@ -638,30 +483,27 @@ button:hover {
 
     </div>
 
-  </header>
+  </div>
 
-
-  <!-- TOOLBAR -->
 
   <div class="toolbar">
 
     <input
-      type="search"
-      id="searchInput"
       class="search"
+      id="search"
       placeholder="🔍 Search notes..."
     >
 
     <button
-      class="new-note-btn"
-      id="newNoteBtn"
+      class="newNote"
+      id="newNote"
     >
       + Note
     </button>
 
     <button
-      class="new-todo-btn"
-      id="newTodoBtn"
+      class="newTodo"
+      id="newTodo"
     >
       ☑ Todo
     </button>
@@ -669,35 +511,24 @@ button:hover {
   </div>
 
 
-  <!-- NOTES -->
-
   <div
-    class="notes-container"
-    id="notesContainer"
+    class="notes"
+    id="notes"
   ></div>
-
-  <div
-    class="empty"
-    id="emptyMessage"
-    style="display:none;"
-  >
-    <h2>No notes yet</h2>
-    <p>Create your first note or Todo.</p>
-  </div>
 
 </div>
 
 
 <!-- =====================================================
      NOTE MODAL
-====================================================== -->
+===================================================== -->
 
 <div
   class="modal"
   id="noteModal"
 >
 
-  <div class="modal-box">
+  <div class="modalBox">
 
     <h2 id="noteModalTitle">
       New Note
@@ -714,61 +545,52 @@ button:hover {
       placeholder="Write your note..."
     ></textarea>
 
-    <label>
-      Note color
-    </label>
 
-    <div class="color-picker">
+    <div class="colors">
 
-      <div
-        class="color color-white"
-        data-color="#ffffff"
-      ></div>
+      <div class="color"
+           style="background:#fff"
+           data-color="#ffffff"></div>
 
-      <div
-        class="color color-yellow"
-        data-color="#fff8b8"
-      ></div>
+      <div class="color"
+           style="background:#fff8b8"
+           data-color="#fff8b8"></div>
 
-      <div
-        class="color color-green"
-        data-color="#d7f9df"
-      ></div>
+      <div class="color"
+           style="background:#d7f9df"
+           data-color="#d7f9df"></div>
 
-      <div
-        class="color color-blue"
-        data-color="#dcecff"
-      ></div>
+      <div class="color"
+           style="background:#dcecff"
+           data-color="#dcecff"></div>
 
-      <div
-        class="color color-pink"
-        data-color="#ffdce5"
-      ></div>
+      <div class="color"
+           style="background:#ffdce5"
+           data-color="#ffdce5"></div>
 
-      <div
-        class="color color-purple"
-        data-color="#eadcff"
-      ></div>
+      <div class="color"
+           style="background:#eadcff"
+           data-color="#eadcff"></div>
 
-      <div
-        class="color color-orange"
-        data-color="#ffe0b2"
-      ></div>
+      <div class="color"
+           style="background:#ffe0b2"
+           data-color="#ffe0b2"></div>
 
     </div>
 
-    <div class="modal-buttons">
+
+    <div class="modalButtons">
 
       <button
-        class="cancel-btn"
-        id="cancelNoteBtn"
+        class="cancel"
+        id="cancelNote"
       >
         Cancel
       </button>
 
       <button
-        class="save-btn"
-        id="saveNoteBtn"
+        class="save"
+        id="saveNote"
       >
         Save
       </button>
@@ -782,14 +604,14 @@ button:hover {
 
 <!-- =====================================================
      TODO MODAL
-====================================================== -->
+===================================================== -->
 
 <div
   class="modal"
   id="todoModal"
 >
 
-  <div class="modal-box">
+  <div class="modalBox">
 
     <h2>
       ☑ Todo List
@@ -798,69 +620,60 @@ button:hover {
     <input
       type="text"
       id="todoTitle"
-      placeholder="Todo list title"
+      placeholder="Todo title"
     >
 
     <div id="taskEditor"></div>
 
     <button
-      class="add-task"
-      id="addTaskBtn"
+      class="addTask"
+      id="addTask"
     >
       + Add Task
     </button>
 
-    <div class="color-picker">
 
-      <div
-        class="color color-white"
-        data-todo-color="#ffffff"
-      ></div>
+    <div class="colors">
 
-      <div
-        class="color color-yellow"
-        data-todo-color="#fff8b8"
-      ></div>
+      <div class="color"
+           style="background:#fff"
+           data-todo-color="#ffffff"></div>
 
-      <div
-        class="color color-green"
-        data-todo-color="#d7f9df"
-      ></div>
+      <div class="color"
+           style="background:#fff8b8"
+           data-todo-color="#fff8b8"></div>
 
-      <div
-        class="color color-blue"
-        data-todo-color="#dcecff"
-      ></div>
+      <div class="color"
+           style="background:#d7f9df"
+           data-todo-color="#d7f9df"></div>
 
-      <div
-        class="color color-pink"
-        data-todo-color="#ffdce5"
-      ></div>
+      <div class="color"
+           style="background:#dcecff"
+           data-todo-color="#dcecff"></div>
 
-      <div
-        class="color color-purple"
-        data-todo-color="#eadcff"
-      ></div>
+      <div class="color"
+           style="background:#ffdce5"
+           data-todo-color="#ffdce5"></div>
 
-      <div
-        class="color color-orange"
-        data-todo-color="#ffe0b2"
-      ></div>
+      <div class="color"
+           style="background:#eadcff"
+           data-todo-color="#eadcff"></div>
 
     </div>
 
-    <div class="modal-buttons">
+
+    <div class="modalButtons">
 
       <button
-        class="cancel-btn"
-        id="cancelTodoBtn"
+        class="cancel"
+        id="cancelTodo"
       >
         Cancel
       </button>
 
       <button
-        class="save-btn"
-        id="saveTodoBtn"
+        class="save"
+        id="saveTodo"
       >
         Save Todo
       </button>
@@ -872,19 +685,14 @@ button:hover {
 </div>
 
 
-<!-- STATUS -->
-
-<div
-  class="status"
-  id="status"
-></div>
+<div id="status"></div>
 
 
 <script>
 
-/* =========================================================
-   FIREBASE CONFIG
-========================================================= */
+/* =====================================================
+   FIREBASE
+===================================================== */
 
 const firebaseConfig = {
 
@@ -912,234 +720,117 @@ const firebaseConfig = {
 };
 
 
-/* =========================================================
-   FIREBASE INITIALIZE
-========================================================= */
-
 firebase.initializeApp(firebaseConfig);
 
-const auth = firebase.auth();
+const auth =
+  firebase.auth();
 
-const db = firebase.database();
+const db =
+  firebase.database();
 
 
 /*
-   Everything for this app is stored under:
+   DATABASE:
 
    notes1
-
-   Example:
-
-   notes1
-      noteID
-         type
-         title
-         content
-         tasks
-         pinned
-         color
-         createdAt
-         updatedAt
 */
 
-const notesRef = db.ref("notes1");
+const notesRef =
+  db.ref("notes1");
 
 
-/* =========================================================
+/* =====================================================
    VARIABLES
-========================================================= */
+===================================================== */
 
-let allNotes = {};
+let notesData = {};
 
-let editingNoteId = null;
+let editId = null;
 
-let selectedNoteColor = "#ffffff";
+let noteColor = "#ffffff";
 
-let selectedTodoColor = "#ffffff";
+let todoColor = "#ffffff";
 
 
-/* =========================================================
+/* =====================================================
    ELEMENTS
-========================================================= */
+===================================================== */
 
 const loginScreen =
-  document.getElementById("loginScreen");
+  document.getElementById(
+    "loginScreen"
+  );
 
 const app =
-  document.getElementById("app");
+  document.getElementById(
+    "app"
+  );
 
 const email =
-  document.getElementById("email");
+  document.getElementById(
+    "email"
+  );
 
 const password =
-  document.getElementById("password");
+  document.getElementById(
+    "password"
+  );
 
-const loginBtn =
-  document.getElementById("loginBtn");
+const errorBox =
+  document.getElementById(
+    "error"
+  );
 
-const loginError =
-  document.getElementById("loginError");
-
-const logoutBtn =
-  document.getElementById("logoutBtn");
-
-const userEmail =
-  document.getElementById("userEmail");
-
-const searchInput =
-  document.getElementById("searchInput");
-
-const notesContainer =
-  document.getElementById("notesContainer");
-
-const emptyMessage =
-  document.getElementById("emptyMessage");
-
-const newNoteBtn =
-  document.getElementById("newNoteBtn");
-
-const newTodoBtn =
-  document.getElementById("newTodoBtn");
-
-const noteModal =
-  document.getElementById("noteModal");
-
-const todoModal =
-  document.getElementById("todoModal");
-
-const noteTitle =
-  document.getElementById("noteTitle");
-
-const noteContent =
-  document.getElementById("noteContent");
-
-const todoTitle =
-  document.getElementById("todoTitle");
-
-const taskEditor =
-  document.getElementById("taskEditor");
-
-const statusBox =
-  document.getElementById("status");
+const notesBox =
+  document.getElementById(
+    "notes"
+  );
 
 
-/* =========================================================
-   STATUS
-========================================================= */
+/* =====================================================
+   AUTH STATE
+===================================================== */
 
-let statusTimer;
+auth.onAuthStateChanged(
+  function(user) {
 
-function showStatus(message) {
-
-  statusBox.textContent = message;
-
-  statusBox.style.display = "block";
-
-  clearTimeout(statusTimer);
-
-  statusTimer = setTimeout(() => {
-
-    statusBox.style.display = "none";
-
-  }, 2000);
-
-}
+    console.log(
+      "Auth state:",
+      user
+    );
 
 
-/* =========================================================
-   AUTH
-========================================================= */
+    if (user) {
 
-auth.onAuthStateChanged(function(user) {
+      /*
+        IMPORTANT:
+        No emailVerified check here.
+        Any Firebase authenticated user
+        can enter the app.
+      */
 
-  if (user && user.emailVerified) {
+      loginScreen.style.display =
+        "none";
 
-    loginScreen.style.display = "none";
+      app.style.display =
+        "block";
 
-    app.style.display = "block";
+      document.getElementById(
+        "userEmail"
+      ).textContent =
+        user.email || "";
 
-    userEmail.textContent = user.email;
-
-    loadNotes();
-
-  }
-
-  else {
-
-    loginScreen.style.display = "flex";
-
-    app.style.display = "none";
-
-  }
-
-});
-
-
-/* =========================================================
-   LOGIN
-========================================================= */
-
-loginBtn.onclick = async function() {
-
-  const userEmailValue =
-    email.value.trim();
-
-  const userPassword =
-    password.value;
-
-  loginError.textContent = "";
-
-  if (!userEmailValue || !userPassword) {
-
-    loginError.textContent =
-      "Enter email and password.";
-
-    return;
-
-  }
-
-  try {
-
-    const result =
-      await auth.signInWithEmailAndPassword(
-        userEmailValue,
-        userPassword
-      );
-
-    if (!result.user.emailVerified) {
-
-      loginError.textContent =
-        "Please verify your email first.";
-
-      await auth.signOut();
-
-      return;
+      loadNotes();
 
     }
 
-  }
+    else {
 
-  catch(error) {
+      loginScreen.style.display =
+        "flex";
 
-    loginError.textContent =
-      error.message;
-
-  }
-
-};
-
-
-/* =========================================================
-   ENTER TO LOGIN
-========================================================= */
-
-password.addEventListener(
-  "keydown",
-  function(event) {
-
-    if (event.key === "Enter") {
-
-      loginBtn.click();
+      app.style.display =
+        "none";
 
     }
 
@@ -1147,277 +838,1388 @@ password.addEventListener(
 );
 
 
-/* =========================================================
-   LOGOUT
-========================================================= */
+/* =====================================================
+   LOGIN
+===================================================== */
 
-logoutBtn.onclick = async function() {
+document.getElementById(
+  "loginBtn"
+).onclick = async function() {
 
-  await auth.signOut();
+  errorBox.textContent =
+    "Logging in...";
+
+
+  const userEmail =
+    email.value.trim();
+
+  const userPassword =
+    password.value;
+
+
+  if (!userEmail) {
+
+    errorBox.textContent =
+      "Enter your email.";
+
+    return;
+
+  }
+
+  if (!userPassword) {
+
+    errorBox.textContent =
+      "Enter your password.";
+
+    return;
+
+  }
+
+
+  try {
+
+    await auth.signInWithEmailAndPassword(
+      userEmail,
+      userPassword
+    );
+
+
+    errorBox.textContent =
+      "";
+
+  }
+
+  catch(error) {
+
+    console.error(error);
+
+
+    /*
+       Firebase gives useful errors
+       such as:
+
+       auth/user-not-found
+       auth/wrong-password
+       auth/invalid-email
+       auth/too-many-requests
+    */
+
+    errorBox.textContent =
+      firebaseError(error);
+
+  }
 
 };
 
 
-/* =========================================================
-   LOAD ALL NOTES
-========================================================= */
+/* =====================================================
+   FIREBASE ERROR
+===================================================== */
+
+function firebaseError(error) {
+
+  switch(error.code) {
+
+    case "auth/user-not-found":
+      return "User not found.";
+
+    case "auth/wrong-password":
+      return "Incorrect password.";
+
+    case "auth/invalid-email":
+      return "Invalid email address.";
+
+    case "auth/user-disabled":
+      return "This account has been disabled.";
+
+    case "auth/too-many-requests":
+      return "Too many attempts. Try again later.";
+
+    case "auth/network-request-failed":
+      return "Network error. Check your internet.";
+
+    case "auth/invalid-credential":
+      return "Invalid email or password.";
+
+    default:
+      return error.message;
+
+  }
+
+}
+
+
+/* =====================================================
+   ENTER KEY LOGIN
+===================================================== */
+
+password.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (
+      event.key === "Enter"
+    ) {
+
+      document.getElementById(
+        "loginBtn"
+      ).click();
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+document.getElementById(
+  "logoutBtn"
+).onclick = function() {
+
+  auth.signOut();
+
+};
+
+
+/* =====================================================
+   LOAD NOTES
+===================================================== */
 
 function loadNotes() {
 
-  notesRef.on("value", function(snapshot) {
+  notesRef.on(
+    "value",
+    function(snapshot) {
 
-    allNotes =
-      snapshot.val() || {};
+      notesData =
+        snapshot.val() || {};
 
-    renderNotes();
+      renderNotes();
+
+    },
+    function(error) {
+
+      console.error(error);
+
+      showStatus(
+        "Database error: " +
+        error.message
+      );
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   RENDER
+===================================================== */
+
+function renderNotes() {
+
+  notesBox.innerHTML =
+    "";
+
+
+  const search =
+    document.getElementById(
+      "search"
+    ).value
+    .toLowerCase()
+    .trim();
+
+
+  const list =
+    Object.entries(notesData)
+      .filter(function(entry) {
+
+        const note =
+          entry[1];
+
+        const text =
+          (
+            (note.title || "") +
+            " " +
+            (note.content || "") +
+            " " +
+            getTasks(note)
+          )
+          .toLowerCase();
+
+        return (
+          !search ||
+          text.includes(search)
+        );
+
+      })
+      .sort(function(a,b) {
+
+        if (
+          a[1].pinned &&
+          !b[1].pinned
+        ) {
+
+          return -1;
+
+        }
+
+        if (
+          !a[1].pinned &&
+          b[1].pinned
+        ) {
+
+          return 1;
+
+        }
+
+        return (
+          (b[1].updatedAt || 0) -
+          (a[1].updatedAt || 0)
+        );
+
+      });
+
+
+  if (!list.length) {
+
+    notesBox.innerHTML =
+      '<div class="empty">' +
+      '<h2>📝</h2>' +
+      '<p>No notes found.</p>' +
+      '</div>';
+
+    return;
+
+  }
+
+
+  list.forEach(function(entry) {
+
+    const id =
+      entry[0];
+
+    const note =
+      entry[1];
+
+
+    const card =
+      document.createElement(
+        "div"
+      );
+
+    card.className =
+      "card";
+
+
+    if (note.pinned) {
+
+      card.classList.add(
+        "pinned"
+      );
+
+    }
+
+
+    card.style.background =
+      note.color ||
+      "#ffffff";
+
+
+    /* PIN */
+
+    const pin =
+      document.createElement(
+        "button"
+      );
+
+    pin.className =
+      "pin";
+
+    pin.textContent =
+      note.pinned
+        ? "📌"
+        : "📍";
+
+    pin.onclick =
+      function() {
+
+        togglePin(
+          id,
+          note
+        );
+
+      };
+
+    card.appendChild(pin);
+
+
+    /* TITLE */
+
+    const title =
+      document.createElement(
+        "div"
+      );
+
+    title.className =
+      "title";
+
+    title.textContent =
+      note.title ||
+      (
+        note.type === "todo"
+          ? "Todo"
+          : "Untitled"
+      );
+
+    card.appendChild(title);
+
+
+    /* CONTENT */
+
+    if (
+      note.type === "todo"
+    ) {
+
+      renderTodo(
+        card,
+        id,
+        note
+      );
+
+    }
+
+    else {
+
+      const content =
+        document.createElement(
+          "div"
+        );
+
+      content.className =
+        "content";
+
+      content.textContent =
+        note.content || "";
+
+      card.appendChild(
+        content
+      );
+
+    }
+
+
+    /* DATE */
+
+    const date =
+      document.createElement(
+        "div"
+      );
+
+    date.className =
+      "date";
+
+    date.textContent =
+      formatDate(
+        note.updatedAt
+      );
+
+    card.appendChild(date);
+
+
+    /* ACTIONS */
+
+    const actions =
+      document.createElement(
+        "div"
+      );
+
+    actions.className =
+      "actions";
+
+
+    const edit =
+      document.createElement(
+        "button"
+      );
+
+    edit.textContent =
+      "✏️ Edit";
+
+    edit.onclick =
+      function() {
+
+        if (
+          note.type === "todo"
+        ) {
+
+          openTodo(
+            id,
+            note
+          );
+
+        }
+
+        else {
+
+          openNote(
+            id,
+            note
+          );
+
+        }
+
+      };
+
+
+    const del =
+      document.createElement(
+        "button"
+      );
+
+    del.textContent =
+      "🗑 Delete";
+
+    del.onclick =
+      function() {
+
+        deleteNote(id);
+
+      };
+
+
+    actions.appendChild(
+      edit
+    );
+
+    actions.appendChild(
+      del
+    );
+
+    card.appendChild(
+      actions
+    );
+
+
+    notesBox.appendChild(
+      card
+    );
 
   });
 
 }
 
 
-/* =========================================================
-   RENDER NOTES
-========================================================= */
+/* =====================================================
+   TODO DISPLAY
+===================================================== */
 
-function renderNotes() {
+function renderTodo(
+  card,
+  noteId,
+  note
+) {
 
-  notesContainer.innerHTML = "";
-
-  const search =
-    searchInput.value
-      .trim()
-      .toLowerCase();
-
-
-  let notesArray =
-    Object.entries(allNotes);
+  if (!note.tasks) {
+    return;
+  }
 
 
-  /*
-     Pinned notes first
-  */
+  Object.entries(
+    note.tasks
+  ).forEach(
+    function(entry) {
 
-  notesArray.sort(function(a, b) {
+      const taskId =
+        entry[0];
 
-    const noteA = a[1];
+      const task =
+        entry[1];
 
-    const noteB = b[1];
 
-    if (noteA.pinned && !noteB.pinned) {
-      return -1;
+      const row =
+        document.createElement(
+          "div"
+        );
+
+      row.className =
+        "task";
+
+
+      const checkbox =
+        document.createElement(
+          "input"
+        );
+
+      checkbox.type =
+        "checkbox";
+
+      checkbox.checked =
+        !!task.completed;
+
+
+      checkbox.onchange =
+        function() {
+
+          toggleTask(
+            noteId,
+            taskId,
+            checkbox.checked
+          );
+
+        };
+
+
+      const text =
+        document.createElement(
+          "div"
+        );
+
+      text.className =
+        "taskText";
+
+      text.textContent =
+        task.text || "";
+
+
+      if (task.completed) {
+
+        text.classList.add(
+          "done"
+        );
+
+      }
+
+
+      row.appendChild(
+        checkbox
+      );
+
+      row.appendChild(
+        text
+      );
+
+      card.appendChild(
+        row
+      );
+
     }
+  );
 
-    if (!noteA.pinned && noteB.pinned) {
-      return 1;
-    }
+}
 
-    return (
-      (noteB.updatedAt || 0) -
-      (noteA.updatedAt || 0)
+
+/* =====================================================
+   GET TASKS FOR SEARCH
+===================================================== */
+
+function getTasks(note) {
+
+  if (!note.tasks) {
+    return "";
+  }
+
+  return Object.values(
+    note.tasks
+  )
+  .map(
+    task =>
+      task.text || ""
+  )
+  .join(" ");
+
+}
+
+
+/* =====================================================
+   NEW NOTE
+===================================================== */
+
+document.getElementById(
+  "newNote"
+).onclick = function() {
+
+  openNote(
+    null,
+    null
+  );
+
+};
+
+
+/* =====================================================
+   OPEN NOTE
+===================================================== */
+
+function openNote(
+  id,
+  note
+) {
+
+  editId =
+    id;
+
+
+  document.getElementById(
+    "noteModalTitle"
+  ).textContent =
+    id
+      ? "Edit Note"
+      : "New Note";
+
+
+  document.getElementById(
+    "noteTitle"
+  ).value =
+    note
+      ? note.title || ""
+      : "";
+
+
+  document.getElementById(
+    "noteContent"
+  ).value =
+    note
+      ? note.content || ""
+      : "";
+
+
+  noteColor =
+    note
+      ? note.color || "#ffffff"
+      : "#ffffff";
+
+
+  document.getElementById(
+    "noteModal"
+  ).style.display =
+    "flex";
+
+}
+
+
+/* =====================================================
+   SAVE NOTE
+===================================================== */
+
+document.getElementById(
+  "saveNote"
+).onclick = async function() {
+
+  const title =
+    document.getElementById(
+      "noteTitle"
+    ).value.trim();
+
+  const content =
+    document.getElementById(
+      "noteContent"
+    ).value;
+
+
+  if (
+    !title &&
+    !content.trim()
+  ) {
+
+    showStatus(
+      "Write something first."
     );
 
-  });
+    return;
+
+  }
 
 
-  let displayed = 0;
+  const id =
+    editId ||
+    notesRef.push().key;
 
 
-  notesArray.forEach(function(entry) {
-
-    const id = entry[0];
-
-    const note = entry[1];
+  const old =
+    notesData[id] || {};
 
 
-    const searchableText =
-      (
-        (note.title || "") +
-        " " +
-        (note.content || "") +
-        " " +
-        getTaskSearchText(note)
-      ).toLowerCase();
+  try {
+
+    await notesRef
+      .child(id)
+      .set({
+
+        type:
+          "note",
+
+        title:
+          title,
+
+        content:
+          content,
+
+        color:
+          noteColor,
+
+        pinned:
+          !!old.pinned,
+
+        createdAt:
+          old.createdAt ||
+          Date.now(),
+
+        updatedAt:
+          Date.now()
+
+      });
+
+
+    document.getElementById(
+      "noteModal"
+    ).style.display =
+      "none";
+
+
+    showStatus(
+      "Note saved."
+    );
+
+  }
+
+  catch(error) {
+
+    showStatus(
+      error.message
+    );
+
+  }
+
+};
+
+
+/* =====================================================
+   NOTE COLORS
+===================================================== */
+
+document.querySelectorAll(
+  "[data-color]"
+).forEach(
+  function(element) {
+
+    element.onclick =
+      function() {
+
+        noteColor =
+          element.dataset.color;
+
+      };
+
+  }
+);
+
+
+/* =====================================================
+   CANCEL NOTE
+===================================================== */
+
+document.getElementById(
+  "cancelNote"
+).onclick =
+  function() {
+
+    document.getElementById(
+      "noteModal"
+    ).style.display =
+      "none";
+
+  };
+
+
+/* =====================================================
+   NEW TODO
+===================================================== */
+
+document.getElementById(
+  "newTodo"
+).onclick =
+  function() {
+
+    openTodo(
+      null,
+      null
+    );
+
+  };
+
+
+/* =====================================================
+   OPEN TODO
+===================================================== */
+
+function openTodo(
+  id,
+  note
+) {
+
+  editId =
+    id;
+
+
+  document.getElementById(
+    "todoTitle"
+  ).value =
+    note
+      ? note.title || ""
+      : "";
+
+
+  todoColor =
+    note
+      ? note.color || "#ffffff"
+      : "#ffffff";
+
+
+  const editor =
+    document.getElementById(
+      "taskEditor"
+    );
+
+  editor.innerHTML =
+    "";
+
+
+  if (
+    note &&
+    note.tasks
+  ) {
+
+    Object.values(
+      note.tasks
+    ).forEach(
+      function(task) {
+
+        addTask(
+          task.text || ""
+        );
+
+      }
+    );
+
+  }
+
+
+  if (!editor.children.length) {
+
+    addTask("");
+
+  }
+
+
+  document.getElementById(
+    "todoModal"
+  ).style.display =
+    "flex";
+
+}
+
+
+/* =====================================================
+   ADD TASK
+===================================================== */
+
+function addTask(
+  text = ""
+) {
+
+  const editor =
+    document.getElementById(
+      "taskEditor"
+    );
+
+
+  const row =
+    document.createElement(
+      "div"
+    );
+
+  row.className =
+    "taskRow";
+
+
+  const input =
+    document.createElement(
+      "input"
+    );
+
+  input.type =
+    "text";
+
+  input.placeholder =
+    "Task";
+
+  input.value =
+    text;
+
+
+  const remove =
+    document.createElement(
+      "button"
+    );
+
+  remove.className =
+    "removeTask";
+
+  remove.textContent =
+    "×";
+
+
+  remove.onclick =
+    function() {
+
+      row.remove();
+
+    };
+
+
+  row.appendChild(
+    input
+  );
+
+  row.appendChild(
+    remove
+  );
+
+
+  editor.appendChild(
+    row
+  );
+
+}
+
+
+document.getElementById(
+  "addTask"
+).onclick =
+  function() {
+
+    addTask("");
+
+  };
+
+
+/* =====================================================
+   TODO COLORS
+===================================================== */
+
+document.querySelectorAll(
+  "[data-todo-color]"
+).forEach(
+  function(element) {
+
+    element.onclick =
+      function() {
+
+        todoColor =
+          element.dataset.todoColor;
+
+      };
+
+  }
+);
+
+
+/* =====================================================
+   SAVE TODO
+===================================================== */
+
+document.getElementById(
+  "saveTodo"
+).onclick =
+  async function() {
+
+    const title =
+      document.getElementById(
+        "todoTitle"
+      ).value.trim();
+
+
+    const inputs =
+      document.querySelectorAll(
+        "#taskEditor input[type=text]"
+      );
+
+
+    const tasks = {};
+
+
+    inputs.forEach(
+      function(input) {
+
+        const text =
+          input.value.trim();
+
+
+        if (!text) {
+          return;
+        }
+
+
+        const taskId =
+          notesRef.push().key;
+
+
+        tasks[taskId] = {
+
+          text:
+            text,
+
+          completed:
+            false
+
+        };
+
+      }
+    );
 
 
     if (
-      search &&
-      !searchableText.includes(search)
+      !title &&
+      !Object.keys(tasks).length
     ) {
+
+      showStatus(
+        "Add a title or task."
+      );
 
       return;
 
     }
 
 
-    displayed++;
-
-    const card =
-      createNoteCard(id, note);
-
-    notesContainer.appendChild(card);
-
-  });
+    const id =
+      editId ||
+      notesRef.push().key;
 
 
-  if (displayed === 0) {
-
-    emptyMessage.style.display = "block";
-
-  }
-
-  else {
-
-    emptyMessage.style.display = "none";
-
-  }
-
-}
+    const old =
+      notesData[id] || {};
 
 
-/* =========================================================
-   TASK SEARCH TEXT
-========================================================= */
+    /*
+       Preserve completed status
+       when editing.
+    */
 
-function getTaskSearchText(note) {
+    if (old.tasks) {
 
-  if (!note.tasks) {
-    return "";
-  }
-
-  return Object.values(note.tasks)
-    .map(task => task.text || "")
-    .join(" ");
-
-}
+      const oldTasks =
+        Object.values(
+          old.tasks
+        );
 
 
-/* =========================================================
-   CREATE NOTE CARD
-========================================================= */
+      Object.values(
+        tasks
+      ).forEach(
+        function(task) {
 
-function createNoteCard(id, note) {
+          const oldTask =
+            oldTasks.find(
+              function(item) {
 
-  const card =
-    document.createElement("div");
+                return (
+                  item.text ===
+                  task.text
+                );
 
-  card.className = "note-card";
-
-  if (note.pinned) {
-
-    card.classList.add("note-pinned");
-
-  }
-
-  card.style.background =
-    note.color || "#ffffff";
+              }
+            );
 
 
-  /* PIN */
+          if (oldTask) {
 
-  const pin =
-    document.createElement("button");
+            task.completed =
+              !!oldTask.completed;
 
-  pin.className = "pin-button";
+          }
 
-  pin.innerHTML =
-    note.pinned ? "📌" : "📍";
+        }
+      );
 
-  pin.title =
-    note.pinned
-      ? "Unpin"
-      : "Pin";
+    }
 
-  pin.onclick = function(event) {
 
-    event.stopPropagation();
+    try {
 
-    togglePin(id, note);
+      await notesRef
+        .child(id)
+        .set({
+
+          type:
+            "todo",
+
+          title:
+            title,
+
+          tasks:
+            tasks,
+
+          color:
+            todoColor,
+
+          pinned:
+            !!old.pinned,
+
+          createdAt:
+            old.createdAt ||
+            Date.now(),
+
+          updatedAt:
+            Date.now()
+
+        });
+
+
+      document.getElementById(
+        "todoModal"
+      ).style.display =
+        "none";
+
+
+      showStatus(
+        "Todo saved."
+      );
+
+    }
+
+    catch(error) {
+
+      showStatus(
+        error.message
+      );
+
+    }
 
   };
 
-  card.appendChild(pin);
+
+/* =====================================================
+   CANCEL TODO
+===================================================== */
+
+document.getElementById(
+  "cancelTodo"
+).onclick =
+  function() {
+
+    document.getElementById(
+      "todoModal"
+    ).style.display =
+      "none";
+
+  };
 
 
-  /* TITLE */
+/* =====================================================
+   DELETE
+===================================================== */
 
-  const title =
-    document.createElement("div");
+async function deleteNote(id) {
 
-  title.className =
-    "note-title";
+  const note =
+    notesData[id];
 
-  title.textContent =
+
+  const name =
     note.title ||
-    (
-      note.type === "todo"
-        ? "Todo"
-        : "Untitled"
-    );
-
-  card.appendChild(title);
+    "this note";
 
 
-  /* CONTENT */
+  if (
+    !confirm(
+      'Delete "' +
+      name +
+      '"?'
+    )
+  ) {
 
-  if (note.type === "todo") {
-
-    renderTodoCard(
-      card,
-      id,
-      note
-    );
-
-  }
-
-  else {
-
-    const content =
-      document.createElement("div");
-
-    content.className =
-      "note-content";
-
-    content.textContent =
-      note.content || "";
-
-    card.appendChild(content);
+    return;
 
   }
 
 
-  /* DATE */
+  try {
 
-  const date =
-    document.createElement("div");
-
-  date.className =
-    "note-date";
-
-  date.textContent =
-    formatDate(note.updatedAt);
-
-  card.appendChild(date);
+    await notesRef
+      .child(id)
+      .remove();
 
 
-  /* ACTIONS */
+    showStatus(
+      "Deleted."
+    );
 
-  const actions =
-    document.createElement("div");
+  }
 
-  actions.className =
-    "note-actions";
+  catch(error) {
+
+    showStatus(
+      error.message
+    );
+
+  }
+
+}
 
 
-  const edit =
-    document.createElement("button");
+/* =====================================================
+   PIN
+===================================================== */
 
-  edit.textContent = "✏️ Edit";
+async function togglePin(
+  id,
+  note
+) {
 
-  edit.onclick = function() {
+  try {
 
-    if (note.type === "todo") {
+    await notesRef
+      .child(id)
+      .update({
 
-      openTodoEditor(id, note);
+        pinned:
+          !note.pinned,
 
-    
+        updatedAt:
+          Date.now()
+
+      });
+
+  }
+
+  catch(error) {
+
+    showStatus(
+      error.message
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   TODO CHECKBOX
+===================================================== */
+
+async function toggleTask(
+  noteId,
+  taskId,
+  checked
+) {
+
+  try {
+
+    await notesRef
+      .child(noteId)
+      .child("tasks")
+      .child(taskId)
+      .update({
+
+        completed:
+          checked
+
+      });
+
+
+    await notesRef
+      .child(noteId)
+      .update({
+
+        updatedAt:
+          Date.now()
+
+      });
+
+  }
+
+  catch(error) {
+
+    showStatus(
+      error.message
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+document.getElementById(
+  "search"
+).addEventListener(
+  "input",
+  renderNotes
+);
+
+
+/* =====================================================
+   DATE
+===================================================== */
+
+function formatDate(
+  timestamp
+) {
+
+  if (!timestamp) {
+    return "";
+  }
+
+
+  return new Date(
+    timestamp
+  ).toLocaleString();
+
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+function showStatus(
+  message
+) {
+
+  const box =
+    document.getElementById(
+      "status"
+    );
+
+
+  box.textContent =
+    message;
+
+  box.style.display =
+    "block";
+
+
+  setTimeout(
+    function() {
+
+      box.style.display =
+        "none";
+
+    },
+    2500
+  );
+
+}
+
+</script>
+
+</body>
+</html>
