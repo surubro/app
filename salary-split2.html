@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Planner · Auto-saved</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: #f1f4f9;
+            margin: 0;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+        }
+        .budget-card {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            padding: 2rem 1.8rem 2.2rem;
+        }
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin: 0 0 0.25rem 0;
+            color: #0b1c2f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        h1 span {
+            background: #d0e2ff;
+            font-size: 1rem;
+            padding: 0.2rem 0.9rem;
+            border-radius: 40px;
+            font-weight: 500;
+            color: #1e4e8b;
+        }
+        .save-status {
+            font-size: 0.8rem;
+            color: #1e7e34;
+            background: #e6f4ea;
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .save-status.show {
+            opacity: 1;
+        }
+        .income-section {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8faff;
+            padding: 0.75rem 1.2rem;
+            border-radius: 18px;
+            margin: 1rem 0 1.8rem;
+            border: 1px solid #e2e9f5;
+            gap: 0.8rem;
+        }
+        .income-label {
+            font-weight: 500;
+            color: #334866;
+            font-size: 1rem;
+        }
+        .income-input-wrap {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 1px solid #d3e0f0;
+            border-radius: 14px;
+            padding: 0.15rem 0.9rem;
+            transition: 0.15s;
+        }
+        .income-input-wrap:focus-within {
+            border-color: #7ea6dd;
+            box-shadow: 0 2px 10px rgba(0, 70, 150, 0.08);
+        }
+        .income-input-wrap::before {
+            content: '₹';
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #58749c;
+            margin-right: 4px;
+        }
+        #incomeInput {
+            border: none;
+            background: transparent;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0f2b4b;
+            width: 130px;
+            text-align: right;
+            padding: 0.4rem 0;
+            outline: none;
+            font-family: inherit;
+        }
+        #incomeInput::-webkit-outer-spin-button,
+        #incomeInput::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        #incomeInput[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.2rem 0 1.8rem;
+        }
+        th {
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            color: #6d7f99;
+            padding: 0.6rem 0.4rem 0.6rem 0.8rem;
+            border-bottom: 1px solid #d9e1ec;
+        }
+        td {
+            padding: 0.4rem 0.4rem 0.4rem 0.8rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #edf2f9;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .category-input, .amount-input {
+            width: 100%;
+            border: 1px solid transparent;
+            background: transparent;
+            padding: 0.65rem 0.5rem;
+            font-size: 1rem;
+            border-radius: 12px;
+            transition: 0.15s;
+            font-weight: 500;
+            color: #13273e;
+            font-family: inherit;
+        }
+        .amount-input {
+            text-align: right;
+            font-weight: 600;
+            padding-right: 0.8rem;
+            background: #f9fcff;
+        }
+        .category-input:focus, .amount-input:focus {
+            border-color: #b6cae0;
+            background: #ffffff;
+            outline: none;
+            box-shadow: 0 2px 10px rgba(0, 70, 150, 0.08);
+        }
+        .delete-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            line-height: 1;
+            cursor: pointer;
+            color: #9aaec5;
+            padding: 0.4rem 0.5rem;
+            border-radius: 10px;
+            transition: 0.15s;
+            width: 2.2rem;
+            text-align: center;
+        }
+        .delete-btn:hover {
+            background: #ffe9e9;
+            color: #c03a3a;
+        }
+        .add-row-btn {
+            background: #eef4ff;
+            border: 1px dashed #b7cef0;
+            border-radius: 16px;
+            padding: 0.8rem 1.4rem;
+            font-weight: 500;
+            color: #1c4d8a;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            margin-top: 0.2rem;
+            transition: 0.15s;
+            font-family: inherit;
+        }
+        .add-row-btn:hover {
+            background: #e2ecfe;
+            border-color: #7ea6dd;
+        }
+        .summary-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            background: #f4f9ff;
+            border-radius: 22px;
+            padding: 1.4rem 1.6rem;
+            margin: 1.6rem 0 0.6rem;
+            border: 1px solid #dae7fa;
+        }
+        .summary-item {
+            flex: 1 1 150px;
+        }
+        .summary-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 600;
+            color: #5d738f;
+        }
+        .summary-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0b1c2f;
+            line-height: 1.2;
+            margin-top: 0.2rem;
+        }
+        .summary-number.positive {
+            color: #1e7e34;
+        }
+        .summary-number.negative {
+            color: #b13e3e;
+        }
+        .summary-number::before {
+            content: '₹';
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-right: 2px;
+            color: #617b9b;
+        }
+        .fixed-note {
+            font-size: 0.9rem;
+            color: #5d738f;
+            margin-top: 0.5rem;
+            border-top: 1px solid #dbe6f5;
+            padding-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            align-items: center;
+        }
+        .reset-btn {
+            background: none;
+            border: 1px solid #cbd8ea;
+            border-radius: 30px;
+            padding: 0.3rem 1rem;
+            font-size: 0.8rem;
+            color: #4b6382;
+            cursor: pointer;
+            transition: 0.1s;
+            font-family: inherit;
+        }
+        .reset-btn:hover {
+            background: #e9f0fa;
+            border-color: #9fb7d4;
+        }
+        .footnote {
+            font-size: 0.8rem;
+            color: #7a8da6;
+            margin-top: 1.2rem;
+            text-align: center;
+        }
+        @media (max-width: 550px) {
+            .budget-card { padding: 1.5rem 1rem; }
+            .summary-number { font-size: 1.5rem; }
+            .delete-btn { font-size: 1rem; width: 1.8rem; }
+            h1 { font-size: 1.5rem; }
+            #incomeInput { font-size: 1.1rem; width: 100px; }
+        }
+    </style>
+</head>
+<body>
+<div class="budget-card">
+    <h1>
+        Monthly budget
+        <span>editable</span>
+        <span class="save-status" id="saveStatus">✓ Saved</span>
+    </h1>
+    <div class="income-section">
+        <span class="income-label">Monthly income</span>
+        <div class="income-input-wrap">
+            <input type="number" id="incomeInput" value="14000" min="0" step="100" aria-label="Monthly income in rupees">
+        </div>
+    </div>
+
+    <table id="budgetTable">
+        <thead>
+            <tr>
+                <th style="width: 45%;">Category</th>
+                <th style="width: 35%; text-align: right;">Amount (₹)</th>
+                <th style="width: 20%; text-align: center;"> </th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- rows populated by JavaScript -->
+        </tbody>
+    </table>
+
+    <button class="add-row-btn" id="addRowBtn">
+        <span style="font-size: 1.3rem; line-height: 1;">+</span> Add new category
+    </button>
+
+    <div class="summary-grid">
+        <div class="summary-item">
+            <div class="summary-label">Total expenses</div>
+            <div class="summary-number" id="totalExpenses">0</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Remaining / savings</div>
+            <div class="summary-number positive" id="remainingAmount">0</div>
+        </div>
+    </div>
+
+    <div class="fixed-note">
+        <span>✎ Auto-saved in this browser · salary, categories & amounts</span>
+        <button class="reset-btn" id="resetBtn">↻ Reset to default</button>
+    </div>
+    <div class="footnote">
+        Your data stays even after refresh · stored locally on this device
+    </div>
+</div>
+
+<script>
+    (function(){
+        const STORAGE_KEY = 'budgetPlannerData_v1';
+
+        const DEFAULT_INCOME = 14000;
+        const DEFAULT_ITEMS = [
+            { category: 'Travel', amount: 400 },
+            { category: 'Phone recharge', amount: 250 },
+            { category: 'WiFi', amount: 500 },
+            { category: 'Subscriptions', amount: 300 },
+            { category: 'Groceries', amount: 4000 },
+            { category: 'Electricity/Water/Gas', amount: 600 },
+            { category: 'Health/Medical', amount: 450 },
+            { category: 'Personal/Household', amount: 600 },
+            { category: 'Savings/Emergency', amount: 4000 },
+            { category: 'Fun/Miscellaneous', amount: 1200 },
+            { category: 'Buffer', amount: 1700 }
+        ];
+
+        const tableBody = document.getElementById('tableBody');
+        const totalExpensesEl = document.getElementById('totalExpenses');
+        const remainingAmountEl = document.getElementById('remainingAmount');
+        const incomeInput = document.getElementById('incomeInput');
+        const saveStatusEl = document.getElementById('saveStatus');
+
+        let saveTimeout = null;
+
+        // ---- helpers ----
+        function formatCurrency(value) {
+            return Number(value).toLocaleString('en-IN');
+        }
+
+        function getIncome() {
+            const val = parseFloat(incomeInput.value);
+            return isNaN(val) ? 0 : val;
+        }
+
+        // ---- collect current state from DOM ----
+        function collectState() {
+            const rows = tableBody.querySelectorAll('tr');
+            const items = [];
+            rows.forEach(row => {
+                const catInput = row.querySelector('.category-input');
+                const amtInput = row.querySelector('.amount-input');
+                if (catInput && amtInput) {
+                    items.push({
+                        category: catInput.value,
+                        amount: parseFloat(amtInput.value) || 0
+                    });
+                }
+            });
+            return {
+                income: getIncome(),
+                items: items
+            };
+        }
+
+        // ---- save to localStorage with debounce ----
+        function saveState() {
+            try {
+                const state = collectState();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                showSavedIndicator();
+            } catch (e) {
+                console.warn('Could not save budget:', e);
+            }
+        }
+
+        function saveStateDebounced() {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveState, 400);
+        }
+
+        function showSavedIndicator() {
+            saveStatusEl.classList.add('show');
+            setTimeout(() => {
+                saveStatusEl.classList.remove('show');
+            }, 1200);
+        }
+
+        // ---- load from localStorage (or fallback to defaults) ----
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && Array.isArray(parsed.items)) {
+                        return parsed;
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not load budget:', e);
+            }
+            // fallback to defaults
+            return {
+                income: DEFAULT_INCOME,
+                items: DEFAULT_ITEMS.map(i => ({ ...i }))
+            };
+        }
+
+        // ---- summary ----
+        function updateSummary() {
+            const rows = tableBody.querySelectorAll('tr');
+            let total = 0;
+
+            rows.forEach(row => {
+                const amountInput = row.querySelector('.amount-input');
+                if (amountInput) {
+                    total += parseFloat(amountInput.value) || 0;
+                }
+            });
+
+            const income = getIncome();
+            const remaining = income - total;
+
+            totalExpensesEl.textContent = formatCurrency(total);
+            remainingAmountEl.textContent = formatCurrency(remaining);
+
+            remainingAmountEl.classList.remove('positive', 'negative');
+            remainingAmountEl.classList.add(remaining >= 0 ? 'positive' : 'negative');
+        }
+
+        // ---- create a row ----
+        function createRow(category = '', amount = 0) {
+            const tr = document.createElement('tr');
+
+            const tdCat = document.createElement('td');
+            const catInput = document.createElement('input');
+            catInput.type = 'text';
+            catInput.className = 'category-input';
+            catInput.value = category;
+            catInput.placeholder = 'Category name';
+            catInput.setAttribute('aria-label', 'Category');
+            tdCat.appendChild(catInput);
+
+            const tdAmt = document.createElement('td');
+            const amtInput = document.createElement('input');
+            amtInput.type = 'number';
+            amtInput.className = 'amount-input';
+            amtInput.value = amount;
+            amtInput.min = '0';
+            amtInput.step = 'any';
+            amtInput.placeholder = '0';
+            amtInput.setAttribute('aria-label', 'Amount in rupees');
+            tdAmt.appendChild(amtInput);
+
+            const tdDel = document.createElement('td');
+            tdDel.style.textAlign = 'center';
+            const delBtn = document.createElement('button');
+            delBtn.className = 'delete-btn';
+            delBtn.innerHTML = '✕';
+            delBtn.setAttribute('aria-label', 'Delete row');
+            delBtn.title = 'Delete this row';
+            tdDel.appendChild(delBtn);
+
+            tr.appendChild(tdCat);
+            tr.appendChild(tdAmt);
+            tr.appendChild(tdDel);
+
+            // listeners
+            catInput.addEventListener('input', saveStateDebounced);
+            amtInput.addEventListener('input', function() {
+                updateSummary();
+                saveStateDebounced();
+            });
+
+            delBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                tr.remove();
+                updateSummary();
+                saveState();
+            });
+
+            return tr;
+        }
+
+        // ---- render a state ----
+        function renderState(state) {
+            tableBody.innerHTML = '';
+            incomeInput.value = state.income != null ? state.income : DEFAULT_INCOME;
+            state.items.forEach(item => {
+                tableBody.appendChild(createRow(item.category || '', item.amount || 0));
+            });
+            updateSummary();
+        }
+
+        // ---- reset to default ----
+        function resetToDefault() {
+            const defaultState = {
+                income: DEFAULT_INCOME,
+                items: DEFAULT_ITEMS.map(i => ({ ...i }))
+            };
+            renderState(defaultState);
+            saveState();
+        }
+
+        // ---- add new row ----
+        function addNewRow() {
+            const newRow = createRow('', 0);
+            tableBody.appendChild(newRow);
+            const catInput = newRow.querySelector('.category-input');
+            if (catInput) catInput.focus();
+            updateSummary();
+            saveState();
+        }
+
+        // ---- init ----
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedState = loadState();
+            renderState(savedState);
+
+            document.getElementById('addRowBtn').addEventListener('click', addNewRow);
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                if (confirm('Reset budget to default? Your saved data will be replaced.')) {
+                    resetToDefault();
+                }
+            });
+
+            incomeInput.addEventListener('input', function() {
+                updateSummary();
+                saveStateDebounced();
+            });
+
+            incomeInput.addEventListener('blur', function() {
+                let val = parseFloat(incomeInput.value);
+                if (isNaN(val) || val < 0) {
+                    incomeInput.value = 0;
+                }
+                updateSummary();
+                saveState();
+            });
+        });
+    })();
+</script>
+</body>
+</html>
