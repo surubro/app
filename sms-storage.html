@@ -2,50 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Phone SMS · Copy Enabled</title>
+  <title>Phone SMS · Copy en</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, virtual-keyboard=interactive-widget" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    /* ----- RESET & GLOBAL ----- */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       height: 100%;
       font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-      background: #eaeff1;
+      background: #f0f2f5; /* match chat bg so no white flash */
     }
+    body { display: flex; flex-direction: column; }
+    .hidden { display: none !important; }
 
-    body {
+    /* Boot loader — shown until auth state is known */
+    #bootScreen {
+      flex: 1;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #f0f2f5;
+      color: #64748b;
+      font-size: 14px;
     }
 
-    .hidden {
-      display: none !important;
-    }
-
-    /* ----- LOGIN PAGE (centered card) ----- */
+    /* ---------- LOGIN ---------- */
     #loginScreen {
       flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: white;
+      background: #f0f2f5; /* match chat bg — no flash */
       text-align: center;
       padding: 20px;
     }
-
-    #loginScreen h2 {
-      margin-bottom: 24px;
-      color: #1e293b;
-      font-weight: 500;
-    }
-
+    #loginScreen h2 { margin-bottom: 24px; color: #1e293b; font-weight: 500; }
     #loginScreen input {
       padding: 12px 16px;
       font-size: 16px;
@@ -55,46 +47,36 @@
       width: 280px;
       max-width: 90%;
       outline: none;
-      background: #f9fbfd;
-      transition: border 0.2s, box-shadow 0.2s;
+      background: #ffffff;
+      transition: border .2s, box-shadow .2s;
     }
-
     #loginScreen input:focus {
       border-color: #007bff;
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+      box-shadow: 0 0 0 3px rgba(0,123,255,.15);
     }
-
     #loginScreen button {
       padding: 12px 32px;
       font-size: 15px;
       font-weight: 500;
       background: #007bff;
       border: none;
-      color: white;
+      color: #fff;
       border-radius: 40px;
       cursor: pointer;
       margin-top: 16px;
       width: 280px;
       max-width: 90%;
-      transition: background 0.15s;
     }
+    #loginScreen button:hover { background: #0069d9; }
 
-    #loginScreen button:hover {
-      background: #0069d9;
-    }
-
-    /* ----- CHAT UI (flex column, left/right layout) ----- */
+    /* ---------- CHAT ---------- */
     #chatUI {
       display: flex;
       flex-direction: column;
       height: 100dvh;
       width: 100%;
-      position: relative;
       background: #f0f2f5;
-      /* default: narrow / mobile */
     }
-
-    /* On larger screens (desktop/tablet) we switch to a left-side layout */
     @media (min-width: 768px) {
       #chatUI {
         max-width: 600px;
@@ -102,24 +84,18 @@
         border-left: 1px solid #d0d7dd;
         border-right: 1px solid #d0d7dd;
         background: #f8fafc;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.03);
       }
     }
-
-    /* chat box – flexible area */
     .chat-box {
       flex: 1 1 auto;
       overflow-y: auto;
-      padding: 16px 14px 12px 14px;
+      padding: 16px 14px 12px;
       background: #f0f2f5;
       display: flex;
       flex-direction: column;
       gap: 2px;
     }
-
-    /* message bubbles */
     .message {
-      position: relative;
       padding: 10px 16px;
       margin: 4px 0;
       border-radius: 20px;
@@ -128,46 +104,33 @@
       font-size: 15px;
       line-height: 1.4;
       cursor: text;
-      transition: opacity 0.1s;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
       user-select: text;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
     }
-
-    .message:active {
-      opacity: 0.9;
-    }
-
     .sent {
       align-self: flex-end;
       background: #dcf8c6;
       color: #1e2b1a;
       border-bottom-right-radius: 6px;
-      border-top-right-radius: 20px;
     }
-
     .received {
       align-self: flex-start;
       background: #ffffff;
       color: #1e2b1a;
       border-bottom-left-radius: 6px;
-      border-top-left-radius: 20px;
       border: 1px solid #e2e8f0;
     }
 
-    /* ---- input footer ---- */
+    /* ---------- INPUT ---------- */
     .input-container {
       display: flex;
       align-items: center;
       padding: 10px 14px;
-      background: #ffffff;
+      background: #fff;
       border-top: 1px solid #dce1e6;
       flex-shrink: 0;
       gap: 6px;
-      position: sticky;
-      bottom: 0;
-      width: 100%;
     }
-
     .input-container textarea {
       flex: 1;
       resize: none;
@@ -177,24 +140,18 @@
       border-radius: 30px;
       outline: none;
       height: 48px;
-      min-height: 48px;
-      max-height: 120px;
       background: #f8fafc;
-      transition: border 0.15s, box-shadow 0.15s;
       font-family: inherit;
     }
-
     .input-container textarea:focus {
       border-color: #007bff;
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0,123,255,.1);
+      background: #fff;
     }
-
     .btn-icon {
       background: #007bff;
       border: none;
-      color: white;
-      margin-left: 0;
+      color: #fff;
       border-radius: 50%;
       width: 48px;
       height: 48px;
@@ -204,109 +161,40 @@
       justify-content: center;
       font-size: 20px;
       flex-shrink: 0;
-      transition: background 0.15s, transform 0.1s;
     }
-
-    .btn-icon:hover {
-      background: #0069d9;
-    }
-
-    .btn-icon:active {
-      transform: scale(0.94);
-    }
-
     #logoutBtn {
       background: #6c757d;
-      color: white;
+      color: #fff;
       border: none;
       padding: 10px 14px;
-      margin-left: 6px;
       border-radius: 30px;
       cursor: pointer;
       font-size: 13px;
       font-weight: 500;
-      transition: background 0.15s;
-      white-space: nowrap;
       flex-shrink: 0;
       height: 44px;
-      display: flex;
-      align-items: center;
-    }
-
-    #logoutBtn:hover {
-      background: #5a6268;
-    }
-
-    /* ---- Small adjustments for mobile keyboard / viewport ---- */
-    @media (max-width: 480px) {
-      .message {
-        max-width: 88%;
-        font-size: 14.5px;
-        padding: 8px 14px;
-      }
-
-      .input-container {
-        padding: 8px 10px;
-      }
-
-      .input-container textarea {
-        padding: 10px 14px;
-        font-size: 15px;
-        height: 44px;
-        min-height: 44px;
-      }
-
-      .btn-icon {
-        width: 44px;
-        height: 44px;
-        font-size: 18px;
-      }
-
-      #logoutBtn {
-        padding: 8px 12px;
-        font-size: 12px;
-        height: 40px;
-      }
-    }
-
-    /* ---- Desktop left-side alignment when wider than 1024px ---- */
-    @media (min-width: 1024px) {
-      #chatUI {
-        max-width: 720px;
-        margin: 20px auto;
-        height: calc(100dvh - 40px);
-        border-radius: 28px;
-        overflow: hidden;
-        border: 1px solid #d0d9e2;
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
-      }
-
-      .chat-box {
-        padding: 20px 20px 16px 20px;
-      }
-
-      .input-container {
-        padding: 12px 20px;
-      }
     }
   </style>
 </head>
 <body>
 
-  <!-- LOGIN SCREEN (centered, distinct UI) -->
-  <div id="loginScreen">
+  <!-- 1) Boot screen shown while we check auth (prevents flash) -->
+  <div id="bootScreen">Loading…</div>
+
+  <!-- 2) Login (hidden until we know user is logged out) -->
+  <div id="loginScreen" class="hidden">
     <h2>Welcome Back</h2>
     <input type="email" id="loginEmail" placeholder="Email Address" autocomplete="email">
     <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
     <button id="loginBtn">Sign In</button>
   </div>
 
-  <!-- CHAT UI (left side layout on larger screens) -->
+  <!-- 3) Chat (hidden until we know user is logged in) -->
   <div id="chatUI" class="hidden">
     <div class="chat-box" id="chatBox"></div>
     <div class="input-container">
       <textarea id="messageInput" placeholder="Message..." rows="1"></textarea>
-      <button class="btn-icon" id="sendBtn" aria-label="Send message"><i class="fas fa-paper-plane"></i></button>
+      <button class="btn-icon" id="sendBtn" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
       <button id="logoutBtn">Logout</button>
     </div>
   </div>
@@ -316,7 +204,6 @@
   import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-  // ---------- FIREBASE CONFIG ----------
   const firebaseConfig = {
     apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
     authDomain: "striped-acrobat-342207.firebaseapp.com",
@@ -331,167 +218,132 @@
   const auth = getAuth(app);
   const db = getDatabase(app);
 
-  // ---------- DOM ELEMENTS ----------
-  const loginScreen = document.getElementById("loginScreen");
-  const loginEmail = document.getElementById("loginEmail");
-  const loginPassword = document.getElementById("loginPassword");
-  const chatUI = document.getElementById("chatUI");
-  const chatBox = document.getElementById("chatBox");
+  const bootScreen   = document.getElementById("bootScreen");
+  const loginScreen  = document.getElementById("loginScreen");
+  const chatUI       = document.getElementById("chatUI");
+  const chatBox      = document.getElementById("chatBox");
   const messageInput = document.getElementById("messageInput");
+  const loginEmail   = document.getElementById("loginEmail");
+  const loginPassword= document.getElementById("loginPassword");
 
-  // ---------- HELPERS ----------
-  const saveLocal = (data) => localStorage.setItem("phonesms", JSON.stringify(data));
-  const loadLocal = () => JSON.parse(localStorage.getItem("phonesms") || "{}");
+  let messagesUnsub = null; // detach on logout
 
-  // render messages (with copy & delete via double-click)
+  // Store last known uid so cached messages render on the CORRECT side instantly
+  const saveLocal   = (data) => localStorage.setItem("phonesms", JSON.stringify(data));
+  const loadLocal   = () => JSON.parse(localStorage.getItem("phonesms") || "{}");
+  const saveUid     = (uid)  => localStorage.setItem("phonesms_uid", uid || "");
+  const loadUid     = ()     => localStorage.getItem("phonesms_uid") || null;
+
   function renderMessages(dataObj, uid) {
     chatBox.innerHTML = "";
-    if (!dataObj || Object.keys(dataObj).length === 0) return;
+    const keys = Object.keys(dataObj || {});
+    if (!keys.length) return;
 
-    // sort messages by time (if time exists)
-    const sortedKeys = Object.keys(dataObj).sort((a, b) => {
-      const tA = dataObj[a].time || 0;
-      const tB = dataObj[b].time || 0;
-      return tA - tB;
-    });
-
-    sortedKeys.forEach(key => {
-      const msg = dataObj[key];
-      const msgDiv = document.createElement("div");
-      // If uid is null (cached), treat as received (but we still set correct class from msg.uid)
-      const isSent = (uid && msg.uid === uid);
-      msgDiv.className = `message ${isSent ? 'sent' : 'received'}`;
-      msgDiv.textContent = msg.text || "";
-
-      // Copy on long press / double click? we use double-click to delete (as per original)
-      // But we also want copy to work naturally (selection). For delete:
-      msgDiv.addEventListener('dblclick', (e) => {
-        e.stopPropagation();
-        if (confirm("Delete this message?")) {
-          remove(ref(db, `phonesms/${key}`));
-        }
+    keys
+      .sort((a, b) => (dataObj[a].time || 0) - (dataObj[b].time || 0))
+      .forEach(key => {
+        const msg = dataObj[key];
+        const div = document.createElement("div");
+        const isSent = uid && msg.uid === uid;
+        div.className = `message ${isSent ? "sent" : "received"}`;
+        div.textContent = msg.text || "";
+        div.addEventListener("dblclick", () => {
+          if (confirm("Delete this message?")) {
+            remove(ref(db, `phonesms/${key}`));
+          }
+        });
+        chatBox.appendChild(div);
       });
 
-      // For easy copy, we also keep native text selection, but add a subtle hint on desktop
-      // (no extra UI needed)
-
-      chatBox.appendChild(msgDiv);
-    });
-
-    // scroll to bottom smoothly
-    setTimeout(() => {
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }, 30);
+    requestAnimationFrame(() => { chatBox.scrollTop = chatBox.scrollHeight; });
   }
 
-  // send message
   function sendMessage() {
     const text = messageInput.value.trim();
     if (text && auth.currentUser) {
       push(ref(db, "phonesms"), {
-        text: text,
+        text,
         uid: auth.currentUser.uid,
         time: Date.now()
       });
       messageInput.value = "";
-      messageInput.style.height = 'auto'; // reset height
+      messageInput.style.height = "auto";
     }
   }
 
-  // ---------- EVENT LISTENERS ----------
   document.getElementById("loginBtn").onclick = () => {
     const email = loginEmail.value.trim();
     const password = loginPassword.value;
-    if (!email || !password) {
-      alert("Please enter email and password.");
-      return;
-    }
-    signInWithEmailAndPassword(auth, email, password)
-      .catch(err => alert(err.message));
+    if (!email || !password) return alert("Please enter email and password.");
+    signInWithEmailAndPassword(auth, email, password).catch(e => alert(e.message));
   };
 
   document.getElementById("logoutBtn").onclick = () => {
-    signOut(auth).then(() => {
-      localStorage.removeItem("phonesms");
-      // clear chat box and show login
-      chatBox.innerHTML = "";
-      loginScreen.classList.remove("hidden");
-      chatUI.classList.add("hidden");
-    });
+    signOut(auth);
   };
 
   document.getElementById("sendBtn").onclick = sendMessage;
-
-  messageInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+  messageInput.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+  messageInput.addEventListener("input", function () {
+    this.style.height = "auto";
+    this.style.height = Math.min(this.scrollHeight, 120) + "px";
   });
 
-  // Auto-resize textarea (simple)
-  messageInput.addEventListener("input", function() {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-  });
-
-  // handle visualViewport for keyboard scroll
   if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', () => {
-      setTimeout(() => {
-        chatBox.scrollTop = chatBox.scrollHeight;
-      }, 100);
+    window.visualViewport.addEventListener("resize", () => {
+      requestAnimationFrame(() => { chatBox.scrollTop = chatBox.scrollHeight; });
     });
   }
 
-  // ---------- LOAD CACHED MESSAGES (no uid => received style) ----------
-  const cached = loadLocal();
-  if (Object.keys(cached).length > 0) {
-    renderMessages(cached, null);
-  }
-
-  // ---------- AUTH STATE ----------
+  // ------------------------------------------------------------------
+  // AUTH STATE — the single source of truth for which screen to show
+  // ------------------------------------------------------------------
   onAuthStateChanged(auth, user => {
+    // Clean up any previous DB listener
+    if (messagesUnsub) { messagesUnsub(); messagesUnsub = null; }
+
     if (user) {
-      // logged in
+      // ---- LOGGED IN ----
+      saveUid(user.uid);
+
+      // Show chat immediately, but render cached messages using the REAL uid
+      bootScreen.classList.add("hidden");
       loginScreen.classList.add("hidden");
       chatUI.classList.remove("hidden");
 
-      // clear any previous listeners? we simply set new onValue
+      // 1) First paint: cached messages with the correct uid → no left/right jump
+      const cached = loadLocal();
+      if (Object.keys(cached).length) {
+        renderMessages(cached, user.uid);
+      }
+
+      // 2) Then attach live listener
       const messagesRef = ref(db, "phonesms");
-      onValue(messagesRef, (snapshot) => {
+      const unsub = onValue(messagesRef, snapshot => {
         const data = snapshot.val() || {};
         saveLocal(data);
         renderMessages(data, user.uid);
-      }, (error) => {
-        console.error("DB error:", error);
-      });
+      }, err => console.error("DB error:", err));
+      messagesUnsub = unsub;
 
-      // focus input (optional)
-      setTimeout(() => {
-        messageInput.focus();
-      }, 200);
+      setTimeout(() => messageInput.focus(), 150);
 
     } else {
-      // logged out
-      loginScreen.classList.remove("hidden");
+      // ---- LOGGED OUT ----
+      saveUid("");
+      localStorage.removeItem("phonesms");
+
+      chatBox.innerHTML = "";
       chatUI.classList.add("hidden");
-      // clear local cache on logout (already done in logout handler)
-      // but if session expires we also clear
-      // localStorage.removeItem("phonesms"); // optional
+      loginScreen.classList.remove("hidden");
+      bootScreen.classList.add("hidden");
+
+      loginEmail.value = "";
+      loginPassword.value = "";
     }
   });
-
-  // optional: clear local cache on page unload? not needed
-  // just keep
-
-  // ---------- EXTRA: ensure input is visible on mobile keyboard ----------
-  messageInput.addEventListener('focus', () => {
-    setTimeout(() => {
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }, 300);
-  });
-
 </script>
 </body>
 </html>
