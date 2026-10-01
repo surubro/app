@@ -298,6 +298,10 @@ th {
     background: #1565c0;
 }
 
+.save-confirm-btn {
+    background: #2e7d32;
+}
+
 @media (max-width: 600px) {
     .app {
         padding: 10px;
@@ -525,7 +529,7 @@ th {
 
         <div class="form-buttons">
 
-            <button id="saveButton" onclick="saveRecord()">
+            <button id="saveButton" onclick="requestSave()">
                 Save Monthly Record
             </button>
 
@@ -574,6 +578,52 @@ th {
                 </tbody>
 
             </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SAVE CONFIRMATION MODAL -->
+<div id="saveModal" class="modal">
+
+    <div class="modal-box">
+
+        <h3>Confirm Save</h3>
+
+        <p>
+            To save this monthly record, type
+            <span class="warning">SAVE</span>
+            in capital letters.
+        </p>
+
+        <input
+            type="text"
+            id="saveConfirmInput"
+            placeholder="Type SAVE"
+            autocomplete="off"
+            oninput="checkSaveConfirmation()"
+        >
+
+        <div class="modal-buttons">
+
+            <button
+                id="saveConfirmButton"
+                class="save-confirm-btn"
+                onclick="confirmSave()"
+                disabled
+            >
+                Confirm Save
+            </button>
+
+            <button
+                class="cancel-btn"
+                onclick="cancelSaveConfirmation()"
+            >
+                Cancel
+            </button>
 
         </div>
 
@@ -719,6 +769,7 @@ let editRecordId = null;
 let deleteRecordId = null;
 let editConfirmRecordId = null;
 let listenerStarted = false;
+let pendingSaveRecord = null;
 
 
 /* ================= YEAR DROPDOWN ================= */
@@ -926,751 +977,4 @@ function updatePreview() {
         money(savings);
 
     document.getElementById("previewRemaining").textContent =
-        money(remaining);
-
-    document.getElementById("previewPercent").textContent =
-        percentage.toFixed(2) + "%";
-
-}
-
-
-/* ================= SAVE ================= */
-
-function saveRecord() {
-
-    const year =
-        Number(document.getElementById("year").value);
-
-    const month =
-        document.getElementById("month").value;
-
-    const gross =
-        Number(document.getElementById("gross").value) || 0;
-
-    const deduction =
-        Number(document.getElementById("deduction").value) || 0;
-
-    const pf =
-        Number(document.getElementById("pf").value) || 0;
-
-    const savings =
-        Number(document.getElementById("savings").value) || 0;
-
-
-    if (gross < 0 || deduction < 0 || pf < 0 || savings < 0) {
-
-        alert("Amounts cannot be negative.");
-
-        return;
-    }
-
-
-    const net =
-        gross - deduction;
-
-    if (net < 0) {
-
-        alert("Total deduction cannot be greater than gross salary.");
-
-        return;
-    }
-
-
-    if (savings > net) {
-
-        alert("Savings cannot be greater than Net In-Hand.");
-
-        return;
-    }
-
-
-    /* Check duplicate only when adding */
-
-    if (!editRecordId) {
-
-        let duplicate = false;
-
-        Object.keys(allRecords).forEach(function(id) {
-
-            const record = allRecords[id];
-
-            if (
-                Number(record.year) === year &&
-                record.month === month
-            ) {
-                duplicate = true;
-            }
-
-        });
-
-        if (duplicate) {
-
-            alert(
-                "A record for " +
-                month +
-                " " +
-                year +
-                " already exists."
-            );
-
-            return;
-        }
-
-    }
-
-
-    const record = {
-
-        year: year,
-        month: month,
-        gross: gross,
-        deduction: deduction,
-        pf: pf,
-        savings: savings,
-        updatedAt:
-            firebase.database.ServerValue.TIMESTAMP
-
-    };
-
-
-    const button =
-        document.getElementById("saveButton");
-
-    button.disabled = true;
-    button.textContent = editRecordId
-        ? "Updating..."
-        : "Saving...";
-
-
-    let operation;
-
-
-    if (editRecordId) {
-
-        operation =
-            recordsRef
-                .child(editRecordId)
-                .update(record);
-
-    } else {
-
-        operation =
-            recordsRef
-                .push(record);
-
-    }
-
-
-    operation
-        .then(function() {
-
-            alert(
-                editRecordId
-                    ? "Monthly record updated successfully."
-                    : "Monthly record saved successfully."
-            );
-
-            resetForm();
-
-        })
-        .catch(function(error) {
-
-            console.error(error);
-
-            alert(
-                "Could not save record: " +
-                error.message
-            );
-
-        })
-        .finally(function() {
-
-            button.disabled = false;
-
-            button.textContent =
-                editRecordId
-                    ? "Update Monthly Record"
-                    : "Save Monthly Record";
-
-        });
-
-}
-
-
-/* ================= RENDER ================= */
-
-function renderRecords() {
-
-    const table =
-        document.getElementById("recordsTable");
-
-    table.innerHTML = "";
-
-
-    let totalGross = 0;
-    let totalDeduction = 0;
-    let totalPF = 0;
-    let totalNet = 0;
-    let totalSavings = 0;
-    let totalRemaining = 0;
-
-
-    const records = Object.entries(allRecords);
-
-
-    records.sort(function(a, b) {
-
-        const A = a[1];
-        const B = b[1];
-
-        if (Number(A.year) !== Number(B.year)) {
-            return Number(B.year) - Number(A.year);
-        }
-
-        return monthNumber(B.month) - monthNumber(A.month);
-
-    });
-
-
-    if (records.length === 0) {
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="9" class="empty">
-                    No records found
-                </td>
-            </tr>
-        `;
-
-    }
-
-
-    records.forEach(function([id, record]) {
-
-        const gross =
-            Number(record.gross) || 0;
-
-        const deduction =
-            Number(record.deduction) || 0;
-
-        const pf =
-            Number(record.pf) || 0;
-
-        const savings =
-            Number(record.savings) || 0;
-
-        const net =
-            gross - deduction;
-
-        const remaining =
-            net - savings;
-
-        const percentage =
-            net > 0
-                ? (savings / net) * 100
-                : 0;
-
-
-        totalGross += gross;
-        totalDeduction += deduction;
-        totalPF += pf;
-        totalNet += net;
-        totalSavings += savings;
-        totalRemaining += remaining;
-
-
-        const row =
-            document.createElement("tr");
-
-
-        row.innerHTML = `
-
-            <td>
-                ${escapeHtml(record.month)}
-                ${escapeHtml(String(record.year))}
-            </td>
-
-            <td>${money(gross)}</td>
-
-            <td>${money(deduction)}</td>
-
-            <td>${money(pf)}</td>
-
-            <td>${money(net)}</td>
-
-            <td>${money(savings)}</td>
-
-            <td>${money(remaining)}</td>
-
-            <td>${percentage.toFixed(2)}%</td>
-
-            <td>
-
-                <button
-                    class="action-btn edit-btn"
-                    onclick="requestEdit('${id}')"
-                >
-                    Edit
-                </button>
-
-                <button
-                    class="action-btn delete-btn"
-                    onclick="requestDelete('${id}')"
-                >
-                    Delete
-                </button>
-
-            </td>
-
-        `;
-
-
-        table.appendChild(row);
-
-    });
-
-
-    document.getElementById("totalGross").textContent =
-        money(totalGross);
-
-    document.getElementById("totalDeduction").textContent =
-        money(totalDeduction);
-
-    document.getElementById("totalPF").textContent =
-        money(totalPF);
-
-    document.getElementById("totalNet").textContent =
-        money(totalNet);
-
-    document.getElementById("totalSavings").textContent =
-        money(totalSavings);
-
-    document.getElementById("totalRemaining").textContent =
-        money(totalRemaining);
-
-}
-
-
-/* ================= MONTH NUMBER ================= */
-
-function monthNumber(month) {
-
-    const months = {
-
-        January: 1,
-        February: 2,
-        March: 3,
-        April: 4,
-        May: 5,
-        June: 6,
-        July: 7,
-        August: 8,
-        September: 9,
-        October: 10,
-        November: 11,
-        December: 12
-
-    };
-
-    return months[month] || 0;
-
-}
-
-
-/* ================= EDIT CONFIRMATION ================= */
-
-function requestEdit(id) {
-
-    if (!allRecords[id]) {
-
-        alert("Record not found.");
-
-        return;
-    }
-
-
-    editConfirmRecordId = id;
-
-
-    const input =
-        document.getElementById("editConfirmInput");
-
-    const button =
-        document.getElementById("editConfirmButton");
-
-
-    input.value = "";
-
-    button.disabled = true;
-
-
-    document
-        .getElementById("editModal")
-        .classList.add("show");
-
-
-    setTimeout(function() {
-
-        input.focus();
-
-    }, 100);
-
-}
-
-
-function checkEditConfirmation() {
-
-    const input =
-        document.getElementById("editConfirmInput");
-
-    const button =
-        document.getElementById("editConfirmButton");
-
-
-    button.disabled =
-        input.value === "EDIT"
-            ? false
-            : true;
-
-}
-
-
-function confirmEdit() {
-
-    const input =
-        document.getElementById("editConfirmInput");
-
-
-    if (input.value !== "EDIT") {
-
-        alert("Please type EDIT in capital letters.");
-
-        return;
-    }
-
-
-    if (!editConfirmRecordId) {
-
-        return;
-    }
-
-
-    const record =
-        allRecords[editConfirmRecordId];
-
-
-    if (!record) {
-
-        alert("Record not found.");
-
-        cancelEditConfirmation();
-
-        return;
-    }
-
-
-    editRecordId =
-        editConfirmRecordId;
-
-
-    document.getElementById("year").value =
-        record.year;
-
-    document.getElementById("month").value =
-        record.month;
-
-    document.getElementById("gross").value =
-        record.gross || 0;
-
-    document.getElementById("deduction").value =
-        record.deduction || 0;
-
-    document.getElementById("pf").value =
-        record.pf || 0;
-
-    document.getElementById("savings").value =
-        record.savings || 0;
-
-
-    document.getElementById("formTitle").textContent =
-        "Edit Monthly Record";
-
-
-    document.getElementById("saveButton").textContent =
-        "Update Monthly Record";
-
-
-    document
-        .getElementById("cancelEditButton")
-        .classList.remove("hidden");
-
-
-    cancelEditConfirmation();
-
-    updatePreview();
-
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-
-}
-
-
-function cancelEditConfirmation() {
-
-    editConfirmRecordId = null;
-
-    const modal =
-        document.getElementById("editModal");
-
-    modal.classList.remove("show");
-
-    document.getElementById("editConfirmInput").value = "";
-
-    document.getElementById("editConfirmButton").disabled = true;
-
-}
-
-
-/* ================= CANCEL EDIT ================= */
-
-function cancelEdit() {
-
-    resetForm();
-
-}
-
-
-/* ================= RESET FORM ================= */
-
-function resetForm() {
-
-    editRecordId = null;
-
-    document.getElementById("gross").value = "";
-    document.getElementById("deduction").value = "";
-    document.getElementById("pf").value = "";
-    document.getElementById("savings").value = "";
-
-    document.getElementById("formTitle").textContent =
-        "Add Monthly Record";
-
-    document.getElementById("saveButton").textContent =
-        "Save Monthly Record";
-
-    document
-        .getElementById("cancelEditButton")
-        .classList.add("hidden");
-
-    updatePreview();
-
-}
-
-
-/* ================= DELETE CONFIRMATION ================= */
-
-function requestDelete(id) {
-
-    if (!allRecords[id]) {
-
-        alert("Record not found.");
-
-        return;
-    }
-
-
-    deleteRecordId = id;
-
-
-    const input =
-        document.getElementById("deleteConfirmInput");
-
-    const button =
-        document.getElementById("deleteConfirmButton");
-
-
-    input.value = "";
-
-    button.disabled = true;
-
-
-    document
-        .getElementById("deleteModal")
-        .classList.add("show");
-
-
-    setTimeout(function() {
-
-        input.focus();
-
-    }, 100);
-
-}
-
-
-function checkDeleteConfirmation() {
-
-    const input =
-        document.getElementById("deleteConfirmInput");
-
-    const button =
-        document.getElementById("deleteConfirmButton");
-
-
-    button.disabled =
-        input.value === "DELETE"
-            ? false
-            : true;
-
-}
-
-
-function confirmDelete() {
-
-    const input =
-        document.getElementById("deleteConfirmInput");
-
-
-    if (input.value !== "DELETE") {
-
-        alert("Please type DELETE in capital letters.");
-
-        return;
-    }
-
-
-    if (!deleteRecordId) {
-
-        return;
-    }
-
-
-    /* Final security check */
-
-    if (
-        document
-            .getElementById("deleteConfirmInput")
-            .value !== "DELETE"
-    ) {
-
-        return;
-    }
-
-
-    const id =
-        deleteRecordId;
-
-
-    const button =
-        document.getElementById("deleteConfirmButton");
-
-
-    button.disabled = true;
-    button.textContent = "Deleting...";
-
-
-    recordsRef
-        .child(id)
-        .remove()
-        .then(function() {
-
-            cancelDelete();
-
-            alert("Monthly record deleted successfully.");
-
-        })
-        .catch(function(error) {
-
-            console.error(error);
-
-            alert(
-                "Could not delete record: " +
-                error.message
-            );
-
-            button.disabled = false;
-            button.textContent = "Delete Record";
-
-        });
-
-}
-
-
-function cancelDelete() {
-
-    deleteRecordId = null;
-
-
-    document
-        .getElementById("deleteModal")
-        .classList.remove("show");
-
-
-    document.getElementById("deleteConfirmInput").value = "";
-
-    document.getElementById("deleteConfirmButton").disabled = true;
-
-    document.getElementById("deleteConfirmButton").textContent =
-        "Delete Record";
-
-}
-
-
-/* ================= ESCAPE HTML ================= */
-
-function escapeHtml(value) {
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-/* ================= ENTER KEY ================= */
-
-document
-    .getElementById("editConfirmInput")
-    .addEventListener("keydown", function(event) {
-
-        if (
-            event.key === "Enter" &&
-            this.value === "EDIT"
-        ) {
-
-            confirmEdit();
-
-        }
-
-    });
-
-
-document
-    .getElementById("deleteConfirmInput")
-    .addEventListener("keydown", function(event) {
-
-        if (
-            event.key === "Enter" &&
-            this.value === "DELETE"
-        ) {
-
-            confirmDelete();
-
-        }
-
-    });
-
-
-/* ================= INITIAL PREVIEW ================= */
-
-updatePreview();
-
-</script>
-
-</body>
-</html>
+  
