@@ -739,26 +739,28 @@ const firebaseConfig = {
     appId: "1:367114842706:web:0f6d504163ed3c72ed658b"
 };
 
-let auth;
-let database;
-let recordsRef;
+let auth = null;
+let database = null;
+let recordsRef = null;
 
-try {
-
-    firebase.initializeApp(firebaseConfig);
-
-    auth = firebase.auth();
-    database = firebase.database();
-
-    recordsRef = database.ref("Salarypfadd/monthlyRecords");
-
-} catch (error) {
-
-    console.error(error);
-
+if (typeof firebase === "undefined") {
     document.getElementById("loginError").textContent =
-        "Firebase initialization failed.";
-
+        "Firebase SDK failed to load. Check your internet connection or ad-blocker.";
+    console.error("Firebase SDK not loaded.");
+} else {
+    try {
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        auth = firebase.auth();
+        database = firebase.database();
+        recordsRef = database.ref("Salarypfadd/monthlyRecords");
+        console.log("Firebase initialized OK");
+    } catch (error) {
+        console.error("Firebase init error:", error);
+        document.getElementById("loginError").textContent =
+            "Firebase initialization failed: " + error.message;
+    }
 }
 
 
@@ -775,20 +777,13 @@ let pendingSaveRecord = null;
 /* ================= YEAR DROPDOWN ================= */
 
 const yearSelect = document.getElementById("year");
-
 const currentYear = new Date().getFullYear();
 
 for (let y = currentYear - 5; y <= currentYear + 5; y++) {
-
     const option = document.createElement("option");
-
     option.value = y;
     option.textContent = y;
-
-    if (y === currentYear) {
-        option.selected = true;
-    }
-
+    if (y === currentYear) option.selected = true;
     yearSelect.appendChild(option);
 }
 
@@ -796,26 +791,20 @@ for (let y = currentYear - 5; y <= currentYear + 5; y++) {
 /* ================= LOGIN ================= */
 
 async function login() {
-
-    const email =
-        document.getElementById("loginEmail").value.trim();
-
-    const password =
-        document.getElementById("loginPassword").value;
-
-    const errorBox =
-        document.getElementById("loginError");
-
-    const button =
-        document.getElementById("loginButton");
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    const errorBox = document.getElementById("loginError");
+    const button = document.getElementById("loginButton");
 
     errorBox.textContent = "";
 
+    if (!auth) {
+        errorBox.textContent = "Firebase Auth is not available. Reload the page.";
+        return;
+    }
+
     if (!email || !password) {
-
-        errorBox.textContent =
-            "Enter email and password.";
-
+        errorBox.textContent = "Enter email and password.";
         return;
     }
 
@@ -823,158 +812,81 @@ async function login() {
     button.textContent = "Logging in...";
 
     try {
-
-        await auth.signInWithEmailAndPassword(
-            email,
-            password
-        );
-
+        const cred = await auth.signInWithEmailAndPassword(email, password);
+        console.log("Logged in as:", cred.user.email);
     } catch (error) {
-
-        console.error(error);
-
+        console.error("Login error:", error.code, error.message);
         let message = "Login failed.";
 
-        if (error.code === "auth/invalid-email") {
-            message = "Invalid email address.";
-        }
-        else if (
-            error.code === "auth/user-not-found" ||
-            error.code === "auth/wrong-password" ||
-            error.code === "auth/invalid-credential"
-        ) {
-            message = "Incorrect email or password.";
-        }
-        else if (error.code === "auth/too-many-requests") {
-            message = "Too many attempts. Try again later.";
+        switch (error.code) {
+            case "auth/invalid-email":
+                message = "Invalid email address.";
+                break;
+            case "auth/user-not-found":
+                message = "No user found with this email.";
+                break;
+            case "auth/wrong-password":
+                message = "Incorrect password.";
+                break;
+            case "auth/invalid-credential":
+                message = "Incorrect email or password.";
+                break;
+            case "auth/too-many-requests":
+                message = "Too many attempts. Try again later.";
+                break;
+            case "auth/network-request-failed":
+                message = "Network error. Check your connection.";
+                break;
+            case "auth/operation-not-allowed":
+                message = "Email/Password sign-in is not enabled in Firebase Console.";
+                break;
+            case "auth/api-key-not-valid":
+            case "auth/api-key-not-valid.-please-pass-a-valid-api-key.":
+                message = "Invalid Firebase API key.";
+                break;
+            default:
+                message = error.message || "Login failed.";
         }
 
         errorBox.textContent = message;
-
     } finally {
-
         button.disabled = false;
         button.textContent = "Login";
-
     }
-
 }
 
 
 /* ================= AUTH STATE ================= */
 
-auth.onAuthStateChanged(function(user) {
+if (auth) {
+    auth.onAuthStateChanged(function (user) {
+        if (user) {
+            document.getElementById("loginScreen").classList.add("hidden");
+            document.getElementById("app").classList.remove("hidden");
 
-    if (user) {
-
-        document
-            .getElementById("loginScreen")
-            .classList.add("hidden");
-
-        document
-            .getElementById("app")
-            .classList.remove("hidden");
-
-        if (!listenerStarted) {
-
-            listenerStarted = true;
-
-            recordsRef.on("value", function(snapshot) {
-
-                allRecords = snapshot.val() || {};
-
-                renderRecords();
-
-            }, function(error) {
-
-                console.error(error);
-
-                alert("Could not load records.");
-
-            });
-
+            if (!listenerStarted) {
+                listenerStarted = true;
+                recordsRef.on("value", function (snapshot) {
+                    allRecords = snapshot.val() || {};
+                    renderRecords();
+                }, function (error) {
+                    console.error("DB read error:", error);
+                    alert("Could not load records: " + error.message);
+                });
+            }
+        } else {
+            document.getElementById("loginScreen").classList.remove("hidden");
+            document.getElementById("app").classList.add("hidden");
         }
-
-    } else {
-
-        document
-            .getElementById("loginScreen")
-            .classList.remove("hidden");
-
-        document
-            .getElementById("app")
-            .classList.add("hidden");
-
-    }
-
-});
+    });
+}
 
 
 /* ================= LOGOUT ================= */
 
 function logout() {
-
-    auth.signOut();
-
+    if (auth) auth.signOut();
 }
 
 
-/* ================= MONEY ================= */
-
-function money(value) {
-
-    return "₹" + Number(value || 0).toLocaleString(
-        "en-IN",
-        {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }
-    );
-
-}
-
-
-/* ================= PREVIEW ================= */
-
-function updatePreview() {
-
-    const gross =
-        Number(document.getElementById("gross").value) || 0;
-
-    const deduction =
-        Number(document.getElementById("deduction").value) || 0;
-
-    const pf =
-        Number(document.getElementById("pf").value) || 0;
-
-    const savings =
-        Number(document.getElementById("savings").value) || 0;
-
-    const net =
-        gross - deduction;
-
-    const remaining =
-        net - savings;
-
-    const percentage =
-        net > 0
-            ? (savings / net) * 100
-            : 0;
-
-    document.getElementById("previewGross").textContent =
-        money(gross);
-
-    document.getElementById("previewDeduction").textContent =
-        money(deduction);
-
-    document.getElementById("previewPF").textContent =
-        money(pf);
-
-    document.getElementById("previewNet").textContent =
-        money(net);
-
-    document.getElementById("previewSavings").textContent =
-        money(savings);
-
-    document.getElementById("previewRemaining").textContent =
-  
+/* ================= M
