@@ -1,19 +1,12 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure Vault</title>
 
-
     <style>
-
         :root {
             --primary: #007bff;
             --danger: #dc3545;
@@ -22,2330 +15,921 @@
             --secondary: #6c757d;
         }
 
-
         * {
             box-sizing: border-box;
         }
 
-
         body {
-
             font-family: 'Segoe UI', sans-serif;
-
             margin: 0;
-
             padding: 20px;
-
             background: #f0f2f5;
-
             color: #333;
-
         }
-
 
         .container {
-
             max-width: 650px;
-
             margin: auto;
-
             background: white;
-
             padding: 25px;
-
             border-radius: 12px;
-
-            box-shadow:
-                0 4px 15px rgba(0,0,0,0.1);
-
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
 
         input {
-
             width: 100%;
-
             padding: 10px;
-
             margin: 5px 0;
-
             border: 1px solid #ddd;
-
             border-radius: 6px;
-
             font-size: 14px;
-
         }
-
 
         input:focus {
-
             outline: none;
-
             border-color: var(--primary);
-
         }
-
 
         .btn {
-
             padding: 10px 14px;
-
             color: white;
-
             border: none;
-
             cursor: pointer;
-
             border-radius: 6px;
-
             font-weight: bold;
-
             margin-top: 8px;
-
         }
 
-
-        .btn-primary {
-            background: var(--primary);
-        }
-
-
-        .btn-danger {
-            background: var(--danger);
-        }
-
-
-        .btn-warning {
-
-            background: var(--warning);
-
-            color: #000;
-
-        }
-
-
-        .btn-success {
-            background: var(--success);
-        }
-
-
-        .btn-secondary {
-            background: var(--secondary);
-        }
-
-
-        .btn-image {
-
-            background: var(--success);
-
-        }
-
+        .btn-primary { background: var(--primary); }
+        .btn-danger { background: var(--danger); }
+        .btn-warning { background: var(--warning); color: #000; }
+        .btn-success { background: var(--success); }
+        .btn-secondary { background: var(--secondary); }
+        .btn-image { background: var(--success); }
 
         .hidden {
             display: none !important;
         }
 
+        /* Copy Button Icon */
+        .btn-copy {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f3f5;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 2px 5px;
+            font-size: 12px;
+            line-height: 1;
+            margin-left: 6px;
+            color: #495057;
+            vertical-align: middle;
+            transition: all 0.15s ease-in-out;
+            user-select: none;
+        }
+
+        .btn-copy:hover {
+            background: #e2e6ea;
+            border-color: #adb5bd;
+        }
+
+        .btn-copy.copied {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
 
         /* =========================
            ADD ENTRY
         ========================= */
-
         .add-entry-header {
-
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
-
             gap: 10px;
-
         }
-
 
         .add-entry-header h2 {
-
             margin: 0;
-
         }
-
 
         #addEntryBtn {
-
             width: 100%;
-
             font-size: 15px;
-
             padding: 13px;
-
         }
-
 
         #entryForm {
-
             margin-top: 15px;
-
             padding: 15px;
-
             background: #f8f9fa;
-
             border: 1px solid #e5e5e5;
-
             border-radius: 10px;
-
         }
-
 
         .form-title {
-
             margin-top: 0;
-
             margin-bottom: 10px;
-
         }
-
 
         .field-group {
-
             display: grid;
-
             grid-template-columns: 1fr 1fr;
-
             gap: 10px;
-
         }
-
 
         .help-text {
-
             font-size: 12px;
-
             color: #777;
-
             margin: 3px 0 8px;
-
         }
-
 
         /* =========================
            SEARCH
         ========================= */
-
         .search-container {
-
             position: relative;
-
             margin: 15px 0;
-
         }
-
 
         #searchInput {
-
             margin: 0;
-
             padding-right: 40px;
-
         }
-
 
         #clearSearch {
-
             position: absolute;
-
             right: 12px;
-
             top: 7px;
-
             font-size: 22px;
-
             color: #777;
-
             cursor: pointer;
-
             display: none;
-
         }
-
 
         #searchInfo {
-
             font-size: 12px;
-
             color: #777;
-
             margin-bottom: 10px;
-
         }
-
 
         /* =========================
            ENTRY CARD
         ========================= */
-
         .entry-card {
-
             background: white;
-
             border: 1px solid #e5e5e5;
-
             padding: 15px;
-
             margin-top: 12px;
-
             border-radius: 9px;
-
         }
-
 
         .entry-header {
-
             font-weight: bold;
-
             color: var(--primary);
-
             border-bottom: 1px solid #eee;
-
             margin-bottom: 10px;
-
             padding-bottom: 7px;
-
             font-size: 17px;
-
             word-break: break-word;
-
         }
-
 
         .details-grid {
-
             display: grid;
-
             grid-template-columns: 1fr 1fr;
-
             gap: 8px;
-
             font-size: 14px;
-
             margin-bottom: 10px;
-
         }
-
 
         .toggle-text {
-
             color: var(--primary);
-
             cursor: pointer;
-
             font-size: 12px;
-
             text-decoration: underline;
-
             margin-left: 5px;
-
+            user-select: none;
         }
-
 
         .entry-buttons {
-
             display: flex;
-
             flex-wrap: wrap;
-
             gap: 5px;
-
         }
-
 
         .entry-buttons .btn {
-
             margin-top: 5px;
-
         }
-
 
         /* =========================
            IMAGE MODAL
         ========================= */
-
         #imageModal {
-
             position: fixed;
-
             inset: 0;
-
             background: rgba(0,0,0,0.88);
-
             display: flex;
-
             justify-content: center;
-
             align-items: center;
-
             z-index: 3000;
-
             padding: 20px;
-
         }
-
 
         #fullImage {
-
             max-width: 90vw;
-
             max-height: 75vh;
-
             object-fit: contain;
-
             border-radius: 10px;
-
             background: white;
-
         }
-
 
         .close-image {
-
             position: absolute;
-
             top: 15px;
-
             right: 20px;
-
             color: white;
-
             font-size: 40px;
-
             cursor: pointer;
-
             line-height: 1;
-
         }
-
 
         .image-navigation {
-
             position: absolute;
-
             bottom: 25px;
-
             left: 0;
-
             right: 0;
-
             display: flex;
-
             justify-content: center;
-
             align-items: center;
-
             gap: 10px;
-
         }
-
 
         .image-navigation button {
-
             border: none;
-
             background: white;
-
             color: #333;
-
             padding: 10px 18px;
-
             border-radius: 6px;
-
             cursor: pointer;
-
             font-weight: bold;
-
         }
-
 
         #imageCounter {
-
             color: white;
-
             font-weight: bold;
-
             background: rgba(0,0,0,0.5);
-
             padding: 8px 12px;
-
             border-radius: 5px;
-
         }
-
 
         #imageError {
-
             position: absolute;
-
             bottom: 85px;
-
             color: white;
-
             background: rgba(220,53,69,0.9);
-
             padding: 8px 12px;
-
             border-radius: 5px;
-
             display: none;
-
         }
-
 
         /* =========================
            EDIT MODAL
         ========================= */
-
         #modalOverlay {
-
             position: fixed;
-
             inset: 0;
-
             background: rgba(0,0,0,0.7);
-
             display: flex;
-
             justify-content: center;
-
             align-items: center;
-
             z-index: 2000;
-
             padding: 15px;
-
         }
-
 
         .modal-content {
-
             background: white;
-
             padding: 20px;
-
             border-radius: 12px;
-
             width: 100%;
-
             max-width: 500px;
-
             max-height: 90vh;
-
             overflow-y: auto;
-
         }
-
 
         .modal-buttons {
-
             display: flex;
-
             gap: 8px;
-
         }
-
 
         .modal-buttons .btn {
-
             flex: 1;
-
         }
-
 
         /* =========================
            MOBILE
         ========================= */
-
         @media (max-width: 600px) {
-
             body {
                 padding: 10px;
             }
-
 
             .container {
                 padding: 15px;
             }
 
-
             .field-group,
             .details-grid {
-
                 grid-template-columns: 1fr;
-
             }
-
 
             .entry-buttons {
-
                 display: grid;
-
                 grid-template-columns: 1fr 1fr;
-
             }
-
 
             .entry-buttons .btn {
-
                 width: 100%;
-
             }
-
         }
-
     </style>
-
 </head>
-
 
 <body>
 
-
 <div class="container">
-
 
     <!-- ==========================================
          LOGIN
     =========================================== -->
-
     <div id="authSection">
-
-        <h2 id="authTitle">
-            Vault Login
-        </h2>
-
-
-        <input
-            type="email"
-            id="email"
-            placeholder="Email"
-        >
-
-
-        <input
-            type="password"
-            id="authPassword"
-            placeholder="Master Password"
-        >
-
-
-        <button
-            id="authBtn"
-            class="btn btn-primary"
-            style="width:100%;"
-        >
-            Login
-        </button>
-
-
-        <p
-            id="toggleAuth"
-            style="
-                text-align:center;
-                cursor:pointer;
-                font-size:14px;
-            "
-        >
-            New? Create Account
-        </p>
-
+        <h2 id="authTitle">Vault Login</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="authPassword" placeholder="Master Password">
+        <button id="authBtn" class="btn btn-primary" style="width:100%;">Login</button>
+        <p id="toggleAuth" style="text-align:center; cursor:pointer; font-size:14px;">New? Create Account</p>
     </div>
-
-
 
     <!-- ==========================================
          APPLICATION
     =========================================== -->
-
-    <div
-        id="appSection"
-        class="hidden"
-    >
-
-
+    <div id="appSection" class="hidden">
         <!-- TOP -->
-
-        <div
-            style="
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                margin-bottom:15px;
-            "
-        >
-
-            <h2 style="margin:0;">
-                Secure Vault
-            </h2>
-
-
-            <button
-                id="logoutBtn"
-                class="btn btn-secondary"
-            >
-                Logout
-            </button>
-
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 style="margin:0;">Secure Vault</h2>
+            <button id="logoutBtn" class="btn btn-secondary">Logout</button>
         </div>
 
+        <!-- ADD NEW ENTRY BUTTON -->
+        <button id="addEntryBtn" class="btn btn-primary">➕ Add New Entry</button>
 
+        <!-- COLLAPSIBLE FORM -->
+        <div id="entryForm" class="hidden">
+            <h3 class="form-title">Add New Entry</h3>
 
-        <!-- ======================================
-             ADD NEW ENTRY BUTTON
-        ======================================= -->
-
-        <button
-            id="addEntryBtn"
-            class="btn btn-primary"
-        >
-            ➕ Add New Entry
-        </button>
-
-
-
-        <!-- ======================================
-             COLLAPSIBLE FORM
-        ======================================= -->
-
-        <div
-            id="entryForm"
-            class="hidden"
-        >
-
-            <h3 class="form-title">
-                Add New Entry
-            </h3>
-
-
-            <!-- NAME -->
-
-            <input
-                type="text"
-                id="accName"
-                placeholder="Account Name (e.g. Gmail)"
-            >
-
-
-            <!-- USER + PASSWORD -->
+            <input type="text" id="accName" placeholder="Account Name (e.g. Gmail)">
 
             <div class="field-group">
-
-                <input
-                    type="text"
-                    id="accUser"
-                    placeholder="Username"
-                >
-
-
-                <input
-                    type="password"
-                    id="accPass"
-                    placeholder="Password"
-                >
-
+                <input type="text" id="accUser" placeholder="Username">
+                <input type="password" id="accPass" placeholder="Password">
             </div>
 
-
-
-            <!-- ==================================
-                 MULTIPLE IMAGES
-            =================================== -->
-
-            <input
-                type="text"
-                id="accImage"
-                placeholder="Images: image1.jpg,image2.jpg"
-            >
-
-
+            <input type="text" id="accImage" placeholder="Images: image1.jpg,image2.jpg">
             <div class="help-text">
-
-                Repository images example:
-                <b>image1.jpg,image2.jpg</b>
-
-                <br>
-
-                Folder example:
-                <b>images/gmail1.jpg,images/gmail2.jpg</b>
-
+                Repository images example: <b>image1.jpg,image2.jpg</b><br>
+                Folder example: <b>images/gmail1.jpg,images/gmail2.jpg</b>
             </div>
-
-
-
-            <!-- EXTRA FIELDS -->
 
             <div class="field-group">
-
-                <input
-                    type="text"
-                    id="e1"
-                    placeholder="Extra Description 1"
-                >
-
-                <input
-                    type="text"
-                    id="e2"
-                    placeholder="Extra Description 2"
-                >
-
+                <input type="text" id="e1" placeholder="Extra Description 1">
+                <input type="text" id="e2" placeholder="Extra Description 2">
             </div>
-
-
             <div class="field-group">
-
-                <input
-                    type="text"
-                    id="e3"
-                    placeholder="Extra Description 3"
-                >
-
-                <input
-                    type="text"
-                    id="e4"
-                    placeholder="Extra Description 4"
-                >
-
+                <input type="text" id="e3" placeholder="Extra Description 3">
+                <input type="text" id="e4" placeholder="Extra Description 4">
             </div>
-
-
             <div class="field-group">
-
-                <input
-                    type="text"
-                    id="e5"
-                    placeholder="Extra Description 5"
-                >
-
-                <input
-                    type="text"
-                    id="e6"
-                    placeholder="Extra Description 6"
-                >
-
+                <input type="text" id="e5" placeholder="Extra Description 5">
+                <input type="text" id="e6" placeholder="Extra Description 6">
             </div>
 
-
-
-            <!-- FORM BUTTONS -->
-
-            <div
-                style="
-                    display:flex;
-                    gap:8px;
-                "
-            >
-
-                <button
-                    id="saveBtn"
-                    class="btn btn-primary"
-                    style="flex:1;"
-                >
-                    Save to Vault
-                </button>
-
-
-                <button
-                    id="cancelAddBtn"
-                    class="btn btn-secondary"
-                    style="flex:1;"
-                >
-                    Cancel
-                </button>
-
+            <div style="display:flex; gap:8px;">
+                <button id="saveBtn" class="btn btn-primary" style="flex:1;">Save to Vault</button>
+                <button id="cancelAddBtn" class="btn btn-secondary" style="flex:1;">Cancel</button>
             </div>
-
         </div>
 
+        <hr style="margin:20px 0; border:0; border-top:1px solid #ddd;">
 
-
-        <hr
-            style="
-                margin:20px 0;
-                border:0;
-                border-top:1px solid #ddd;
-            "
-        >
-
-
-
-        <!-- ======================================
-             SEARCH
-        ======================================= -->
-
-        <h3>
-            Stored Credentials
-        </h3>
-
-
+        <!-- SEARCH -->
+        <h3>Stored Credentials</h3>
         <div class="search-container">
-
-            <input
-                type="search"
-                id="searchInput"
-                placeholder="Search account, username, image or details..."
-                autocomplete="off"
-            >
-
-
-            <span id="clearSearch">
-                ×
-            </span>
-
+            <input type="search" id="searchInput" placeholder="Search account, username, image or details..." autocomplete="off">
+            <span id="clearSearch">×</span>
         </div>
-
-
-        <div id="searchInfo">
-        </div>
-
-
-        <div id="passwordList">
-        </div>
-
+        <div id="searchInfo"></div>
+        <div id="passwordList"></div>
     </div>
 
 </div>
-
-
 
 <!-- ==========================================
      EDIT MODAL
 =========================================== -->
-
-<div
-    id="modalOverlay"
-    class="hidden"
->
-
+<div id="modalOverlay" class="hidden">
     <div class="modal-content">
-
-
-        <h3>
-            Edit Entry
-        </h3>
-
-
-        <input
-            type="hidden"
-            id="editId"
-        >
-
-
-        <input
-            type="text"
-            id="editName"
-            placeholder="Account Name"
-        >
-
+        <h3>Edit Entry</h3>
+        <input type="hidden" id="editId">
+        <input type="text" id="editName" placeholder="Account Name">
 
         <div class="field-group">
-
-            <input
-                type="text"
-                id="editUser"
-                placeholder="Username"
-            >
-
-
-            <input
-                type="text"
-                id="editPass"
-                placeholder="Password"
-            >
-
+            <input type="text" id="editUser" placeholder="Username">
+            <input type="text" id="editPass" placeholder="Password">
         </div>
 
-
-        <!-- MULTIPLE IMAGES -->
-
-        <input
-            type="text"
-            id="editImage"
-            placeholder="Images: image1.jpg,image2.jpg"
-        >
-
-
-        <div class="help-text">
-
-            Example:
-            <b>image1.jpg,image2.jpg</b>
-
-        </div>
-
+        <input type="text" id="editImage" placeholder="Images: image1.jpg,image2.jpg">
+        <div class="help-text">Example: <b>image1.jpg,image2.jpg</b></div>
 
         <div class="field-group">
-
-            <input
-                type="text"
-                id="editE1"
-                placeholder="Extra 1"
-            >
-
-            <input
-                type="text"
-                id="editE2"
-                placeholder="Extra 2"
-            >
-
+            <input type="text" id="editE1" placeholder="Extra 1">
+            <input type="text" id="editE2" placeholder="Extra 2">
         </div>
-
-
         <div class="field-group">
-
-            <input
-                type="text"
-                id="editE3"
-                placeholder="Extra 3"
-            >
-
-            <input
-                type="text"
-                id="editE4"
-                placeholder="Extra 4"
-            >
-
+            <input type="text" id="editE3" placeholder="Extra 3">
+            <input type="text" id="editE4" placeholder="Extra 4">
         </div>
-
-
         <div class="field-group">
-
-            <input
-                type="text"
-                id="editE5"
-                placeholder="Extra 5"
-            >
-
-            <input
-                type="text"
-                id="editE6"
-                placeholder="Extra 6"
-            >
-
+            <input type="text" id="editE5" placeholder="Extra 5">
+            <input type="text" id="editE6" placeholder="Extra 6">
         </div>
-
 
         <div class="modal-buttons">
-
-            <button
-                id="updateBtn"
-                class="btn btn-primary"
-            >
-                Update
-            </button>
-
-
-            <button
-                id="closeModal"
-                class="btn btn-secondary"
-            >
-                Cancel
-            </button>
-
+            <button id="updateBtn" class="btn btn-primary">Update</button>
+            <button id="closeModal" class="btn btn-secondary">Cancel</button>
         </div>
-
     </div>
-
 </div>
-
-
 
 <!-- ==========================================
      IMAGE VIEWER
 =========================================== -->
-
-<div
-    id="imageModal"
-    class="hidden"
->
-
-
-    <span
-        class="close-image"
-        id="closeImageBtn"
-    >
-        ×
-    </span>
-
-
-    <img
-        id="fullImage"
-        src=""
-        alt="Account Image"
-    >
-
-
-    <div id="imageError">
-        Image not found
-    </div>
-
-
+<div id="imageModal" class="hidden">
+    <span class="close-image" id="closeImageBtn">×</span>
+    <img id="fullImage" src="" alt="Account Image">
+    <div id="imageError">Image not found</div>
     <div class="image-navigation">
-
-
-        <button
-            id="prevImageBtn"
-        >
-            ← Previous
-        </button>
-
-
-        <span id="imageCounter">
-            1 / 1
-        </span>
-
-
-        <button
-            id="nextImageBtn"
-        >
-            Next →
-        </button>
-
+        <button id="prevImageBtn">← Previous</button>
+        <span id="imageCounter">1 / 1</span>
+        <button id="nextImageBtn">Next →</button>
     </div>
-
 </div>
 
-
-
 <script type="module">
-
-
     /* ==========================================
        FIREBASE IMPORTS
     =========================================== */
-
-    import {
-        initializeApp
-    }
-    from
-    "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-
-
-    import {
-        getAuth,
-        signInWithEmailAndPassword,
-        createUserWithEmailAndPassword,
-        onAuthStateChanged,
-        signOut
-    }
-    from
-    "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-
-    import {
-        getDatabase,
-        ref,
-        push,
-        onValue,
-        remove,
-        update
-    }
-    from
-    "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+        getAuth, 
+        signInWithEmailAndPassword, 
+        createUserWithEmailAndPassword, 
+        onAuthStateChanged, 
+        signOut 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+        getDatabase, 
+        ref, 
+        push, 
+        onValue, 
+        remove, 
+        update 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     /* ==========================================
        FIREBASE CONFIG
     =========================================== */
-
     const firebaseConfig = {
-
-        apiKey:
-            "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
-
-        authDomain:
-            "striped-acrobat-342207.firebaseapp.com",
-
-        databaseURL:
-            "https://striped-acrobat-342207-default-rtdb.firebaseio.com",
-
-        projectId:
-            "striped-acrobat-342207",
-
-        storageBucket:
-            "striped-acrobat-342207.appspot.com",
-
-        messagingSenderId:
-            "367114842706",
-
-        appId:
-            "1:367114842706:web:0f6d504163ed3c72ed658b"
-
+        apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
+        authDomain: "striped-acrobat-342207.firebaseapp.com",
+        databaseURL: "https://striped-acrobat-342207-default-rtdb.firebaseio.com",
+        projectId: "striped-acrobat-342207",
+        storageBucket: "striped-acrobat-342207.appspot.com",
+        messagingSenderId: "367114842706",
+        appId: "1:367114842706:web:0f6d504163ed3c72ed658b"
     };
 
-
-    const app =
-        initializeApp(firebaseConfig);
-
-
-    const auth =
-        getAuth(app);
-
-
-    const db =
-        getDatabase(app);
-
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
     let currentUser = null;
-
     let allData = {};
-
-
 
     /* ==========================================
        IMAGE VARIABLES
     =========================================== */
-
     let currentImages = [];
-
     let currentImageIndex = 0;
 
+    /* ==========================================
+       COPY TO CLIPBOARD HELPER
+    =========================================== */
+    window.copyToClipboard = function(text, btnElement) {
+        if (!text) return;
+        
+        const fallbackCopy = (str) => {
+            const temp = document.createElement("textarea");
+            temp.value = str;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand("copy");
+            document.body.removeChild(temp);
+        };
 
+        const executeFeedback = () => {
+            if (!btnElement) return;
+            const originalHTML = btnElement.innerHTML;
+            btnElement.innerHTML = '✔';
+            btnElement.classList.add('copied');
+            setTimeout(() => {
+                btnElement.innerHTML = originalHTML;
+                btnElement.classList.remove('copied');
+            }, 1200);
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text)
+                .then(executeFeedback)
+                .catch(() => {
+                    fallbackCopy(text);
+                    executeFeedback();
+                });
+        } else {
+            fallbackCopy(text);
+            executeFeedback();
+        }
+    };
+
+    function createCopyBtn(textToCopy, titleText = "Copy") {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn-copy';
+        btn.title = titleText;
+        btn.innerHTML = '📋';
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            window.copyToClipboard(textToCopy, btn);
+        };
+        return btn;
+    }
 
     /* ==========================================
        ADD ENTRY COLLAPSE
     =========================================== */
-
-    const addEntryBtn =
-        document.getElementById(
-            'addEntryBtn'
-        );
-
-
-    const entryForm =
-        document.getElementById(
-            'entryForm'
-        );
-
-
-    const cancelAddBtn =
-        document.getElementById(
-            'cancelAddBtn'
-        );
-
+    const addEntryBtn = document.getElementById('addEntryBtn');
+    const entryForm = document.getElementById('entryForm');
+    const cancelAddBtn = document.getElementById('cancelAddBtn');
 
     addEntryBtn.onclick = () => {
-
-
-        const isHidden =
-            entryForm.classList
-                .contains('hidden');
-
-
+        const isHidden = entryForm.classList.contains('hidden');
         if (isHidden) {
-
-            entryForm
-                .classList
-                .remove('hidden');
-
-            addEntryBtn.textContent =
-                '➖ Close Add Entry';
-
-        }
-        else {
-
+            entryForm.classList.remove('hidden');
+            addEntryBtn.textContent = '➖ Close Add Entry';
+        } else {
             closeAddEntryForm();
-
         }
-
     };
-
-
 
     cancelAddBtn.onclick = () => {
-
         closeAddEntryForm();
-
     };
 
-
-
     function closeAddEntryForm() {
-
-        entryForm
-            .classList
-            .add('hidden');
-
-        addEntryBtn.textContent =
-            '➕ Add New Entry';
-
+        entryForm.classList.add('hidden');
+        addEntryBtn.textContent = '➕ Add New Entry';
     }
-
-
 
     /* ==========================================
        AUTH STATE
     =========================================== */
+    onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+        document.getElementById('authSection').classList.toggle('hidden', !!user);
+        document.getElementById('appSection').classList.toggle('hidden', !user);
 
-    onAuthStateChanged(
-        auth,
-        (user) => {
-
-
-            currentUser = user;
-
-
-            document
-                .getElementById(
-                    'authSection'
-                )
-                .classList
-                .toggle(
-                    'hidden',
-                    !!user
-                );
-
-
-            document
-                .getElementById(
-                    'appSection'
-                )
-                .classList
-                .toggle(
-                    'hidden',
-                    !user
-                );
-
-
-            if (user) {
-
-                loadData(
-                    user.uid
-                );
-
-            }
-
+        if (user) {
+            loadData(user.uid);
         }
-    );
-
-
+    });
 
     /* ==========================================
        SAVE ENTRY
     =========================================== */
+    document.getElementById('saveBtn').onclick = () => {
+        if (!currentUser) return;
 
-    document
-        .getElementById('saveBtn')
-        .onclick = () => {
+        const name = document.getElementById('accName').value.trim();
+        if (!name) {
+            alert('Please enter Account Name.');
+            return;
+        }
 
-
-            if (!currentUser) {
-                return;
-            }
-
-
-            const name =
-                document
-                    .getElementById(
-                        'accName'
-                    )
-                    .value
-                    .trim();
-
-
-            if (!name) {
-
-                alert(
-                    'Please enter Account Name.'
-                );
-
-                return;
-
-            }
-
-
-            const data = {
-
-                name:
-                    name,
-
-                user:
-                    document
-                        .getElementById(
-                            'accUser'
-                        )
-                        .value
-                        .trim(),
-
-                pass:
-                    document
-                        .getElementById(
-                            'accPass'
-                        )
-                        .value,
-
-                /*
-                    Store multiple image
-                    filenames as comma-separated text.
-
-                    Example:
-
-                    image1.jpg,image2.jpg
-                */
-
-                image:
-                    document
-                        .getElementById(
-                            'accImage'
-                        )
-                        .value
-                        .trim(),
-
-                e1:
-                    document
-                        .getElementById(
-                            'e1'
-                        )
-                        .value,
-
-                e2:
-                    document
-                        .getElementById(
-                            'e2'
-                        )
-                        .value,
-
-                e3:
-                    document
-                        .getElementById(
-                            'e3'
-                        )
-                        .value,
-
-                e4:
-                    document
-                        .getElementById(
-                            'e4'
-                        )
-                        .value,
-
-                e5:
-                    document
-                        .getElementById(
-                            'e5'
-                        )
-                        .value,
-
-                e6:
-                    document
-                        .getElementById(
-                            'e6'
-                        )
-                        .value
-
-            };
-
-
-            push(
-                ref(
-                    db,
-                    `users/${currentUser.uid}`
-                ),
-                data
-            )
-            .then(
-                () => {
-
-
-                    clearAddForm();
-
-
-                    closeAddEntryForm();
-
-
-                    alert(
-                        'Entry saved successfully.'
-                    );
-
-                }
-            )
-            .catch(
-                error => {
-
-                    alert(
-                        error.message
-                    );
-
-                }
-            );
-
+        const data = {
+            name: name,
+            user: document.getElementById('accUser').value.trim(),
+            pass: document.getElementById('accPass').value,
+            image: document.getElementById('accImage').value.trim(),
+            e1: document.getElementById('e1').value,
+            e2: document.getElementById('e2').value,
+            e3: document.getElementById('e3').value,
+            e4: document.getElementById('e4').value,
+            e5: document.getElementById('e5').value,
+            e6: document.getElementById('e6').value
         };
 
-
+        push(ref(db, `users/${currentUser.uid}`), data)
+            .then(() => {
+                clearAddForm();
+                closeAddEntryForm();
+                alert('Entry saved successfully.');
+            })
+            .catch(error => {
+                alert(error.message);
+            });
+    };
 
     /* ==========================================
        CLEAR ADD FORM
     =========================================== */
-
     function clearAddForm() {
-
-        [
-            'accName',
-            'accUser',
-            'accPass',
-            'accImage',
-            'e1',
-            'e2',
-            'e3',
-            'e4',
-            'e5',
-            'e6'
-        ]
-        .forEach(
-            id => {
-
-                document
-                    .getElementById(id)
-                    .value = '';
-
-            }
-        );
-
+        ['accName', 'accUser', 'accPass', 'accImage', 'e1', 'e2', 'e3', 'e4', 'e5', 'e6'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
     }
-
-
 
     /* ==========================================
        LOAD DATA
     =========================================== */
-
     function loadData(uid) {
-
-
-        onValue(
-            ref(
-                db,
-                `users/${uid}`
-            ),
-            snapshot => {
-
-
-                allData =
-                    snapshot.val() || {};
-
-
-                renderData();
-
-            }
-        );
-
+        onValue(ref(db, `users/${uid}`), snapshot => {
+            allData = snapshot.val() || {};
+            renderData();
+        });
     }
-
-
 
     /* ==========================================
        SEARCH
     =========================================== */
-
-    document
-        .getElementById(
-            'searchInput'
-        )
-        .addEventListener(
-            'input',
-            () => {
-
-                updateSearchButton();
-
-                renderData();
-
-            }
-        );
-
-
+    document.getElementById('searchInput').addEventListener('input', () => {
+        updateSearchButton();
+        renderData();
+    });
 
     function updateSearchButton() {
-
-        const value =
-            document
-                .getElementById(
-                    'searchInput'
-                )
-                .value
-                .trim();
-
-
-        document
-            .getElementById(
-                'clearSearch'
-            )
-            .style
-            .display =
-                value
-                    ? 'block'
-                    : 'none';
-
+        const value = document.getElementById('searchInput').value.trim();
+        document.getElementById('clearSearch').style.display = value ? 'block' : 'none';
     }
 
-
-
-    document
-        .getElementById(
-            'clearSearch'
-        )
-        .onclick = () => {
-
-
-            document
-                .getElementById(
-                    'searchInput'
-                )
-                .value = '';
-
-
-            updateSearchButton();
-
-
-            renderData();
-
-        };
-
-
+    document.getElementById('clearSearch').onclick = () => {
+        document.getElementById('searchInput').value = '';
+        updateSearchButton();
+        renderData();
+    };
 
     /* ==========================================
        RENDER DATA
     =========================================== */
-
     function renderData() {
-
-
-        const list =
-            document
-                .getElementById(
-                    'passwordList'
-                );
-
-
+        const list = document.getElementById('passwordList');
         list.innerHTML = '';
 
-
-        const search =
-            document
-                .getElementById(
-                    'searchInput'
-                )
-                .value
-                .toLowerCase()
-                .trim();
-
-
+        const search = document.getElementById('searchInput').value.toLowerCase().trim();
         let count = 0;
 
-
-        for (
-            const id in allData
-        ) {
-
-
-            const item =
-                allData[id];
-
-
+        for (const id in allData) {
+            const item = allData[id];
             const searchableText = [
-
                 item.name || '',
-
                 item.user || '',
-
                 item.image || '',
-
                 item.e1 || '',
-
                 item.e2 || '',
-
                 item.e3 || '',
-
                 item.e4 || '',
-
                 item.e5 || '',
-
                 item.e6 || ''
+            ].join(' ').toLowerCase();
 
-            ]
-            .join(' ')
-            .toLowerCase();
-
-
-            if (
-                search &&
-                !searchableText
-                    .includes(search)
-            ) {
-
+            if (search && !searchableText.includes(search)) {
                 continue;
-
             }
-
 
             count++;
 
+            /* CARD */
+            const card = document.createElement('div');
+            card.className = 'entry-card';
 
+            /* HEADER */
+            const header = document.createElement('div');
+            header.className = 'entry-header';
+            header.textContent = item.name || 'Unnamed';
+            card.appendChild(header);
 
-            /* ==================================
-               CARD
-            =================================== */
+            /* DETAILS */
+            const details = document.createElement('div');
+            details.className = 'details-grid';
 
-            const card =
-                document
-                    .createElement(
-                        'div'
-                    );
+            /* USER DIV WITH COPY BUTTON */
+            const userDiv = document.createElement('div');
+            userDiv.innerHTML = '<strong>User:</strong> ';
+            
+            const userSpan = document.createElement('span');
+            userSpan.textContent = item.user || '-';
+            userDiv.appendChild(userSpan);
 
+            if (item.user && item.user.trim()) {
+                userDiv.appendChild(createCopyBtn(item.user, "Copy Username"));
+            }
+            details.appendChild(userDiv);
 
-            card.className =
-                'entry-card';
+            /* PASSWORD DIV WITH TOGGLE & COPY BUTTON */
+            const passDiv = document.createElement('div');
+            const passStrong = document.createElement('strong');
+            passStrong.textContent = 'Pass: ';
+            passDiv.appendChild(passStrong);
 
+            const passSpan = document.createElement('span');
+            passSpan.textContent = '••••••';
+            passDiv.appendChild(passSpan);
 
-
-            /* ==================================
-               NAME
-            =================================== */
-
-            const header =
-                document
-                    .createElement(
-                        'div'
-                    );
-
-
-            header.className =
-                'entry-header';
-
-
-            header.textContent =
-                item.name ||
-                'Unnamed';
-
-
-            card.appendChild(
-                header
-            );
-
-
-
-            /* ==================================
-               DETAILS
-            =================================== */
-
-            const details =
-                document
-                    .createElement(
-                        'div'
-                    );
-
-
-            details.className =
-                'details-grid';
-
-
-
-            /* USER */
-
-            const userDiv =
-                document
-                    .createElement(
-                        'div'
-                    );
-
-
-            userDiv.innerHTML =
-                '<strong>User:</strong> ' +
-                escapeHTML(
-                    item.user || '-'
-                );
-
-
-            details.appendChild(
-                userDiv
-            );
-
-
-
-            /* PASSWORD */
-
-            const passDiv =
-                document
-                    .createElement(
-                        'div'
-                    );
-
-
-            const passStrong =
-                document
-                    .createElement(
-                        'strong'
-                    );
-
-
-            passStrong.textContent =
-                'Pass:';
-
-
-            const passSpan =
-                document
-                    .createElement(
-                        'span'
-                    );
-
-
-            passSpan.textContent =
-                '••••••';
-
-
-            const toggle =
-                document
-                    .createElement(
-                        'span'
-                    );
-
-
-            toggle.className =
-                'toggle-text';
-
-
-            toggle.textContent =
-                'Show';
-
+            const toggle = document.createElement('span');
+            toggle.className = 'toggle-text';
+            toggle.textContent = 'Show';
 
             toggle.onclick = () => {
-
-
-                if (
-                    passSpan.textContent ===
-                    '••••••'
-                ) {
-
-                    passSpan.textContent =
-                        item.pass || '';
-
-                    toggle.textContent =
-                        'Hide';
-
+                if (passSpan.textContent === '••••••') {
+                    passSpan.textContent = item.pass || '';
+                    toggle.textContent = 'Hide';
+                } else {
+                    passSpan.textContent = '••••••';
+                    toggle.textContent = 'Show';
                 }
-                else {
-
-                    passSpan.textContent =
-                        '••••••';
-
-                    toggle.textContent =
-                        'Show';
-
-                }
-
             };
+            passDiv.appendChild(toggle);
 
+            if (item.pass) {
+                passDiv.appendChild(createCopyBtn(item.pass, "Copy Password"));
+            }
+            details.appendChild(passDiv);
 
-            passDiv.appendChild(
-                passStrong
-            );
+            card.appendChild(details);
 
-
-            passDiv.appendChild(
-                document
-                    .createTextNode(
-                        ' '
-                    )
-            );
-
-
-            passDiv.appendChild(
-                passSpan
-            );
-
-
-            passDiv.appendChild(
-                toggle
-            );
-
-
-            details.appendChild(
-                passDiv
-            );
-
-
-            card.appendChild(
-                details
-            );
-
-
-
-            /* ==================================
-               EXTRA FIELDS
-            =================================== */
-
-            const extras =
-                document
-                    .createElement(
-                        'div'
-                    );
-
-
-            extras.className =
-                'details-grid';
-
-
-            extras.style =
-                `
+            /* EXTRA FIELDS */
+            const extras = document.createElement('div');
+            extras.className = 'details-grid';
+            extras.style = `
                 color:#666;
                 border-top:1px dashed #eee;
                 padding-top:8px;
-                `;
-
-
-            const extraFields = [
-
-                ['E1', item.e1],
-
-                ['E2', item.e2],
-
-                ['E3', item.e3],
-
-                ['E4', item.e4],
-
-                ['E5', item.e5],
-
-                ['E6', item.e6]
-
-            ];
-
-
-            extraFields.forEach(
-                ([label, value]) => {
-
-
-                    const div =
-                        document
-                            .createElement(
-                                'div'
-                            );
-
-
-                    div.innerHTML =
-                        '<strong>' +
-                        label +
-                        ':</strong> ' +
-                        escapeHTML(
-                            value || '-'
-                        );
-
-
-                    extras.appendChild(
-                        div
-                    );
-
-                }
-            );
-
-
-            card.appendChild(
-                extras
-            );
-
-
-
-            /* ==================================
-               BUTTONS
-            =================================== */
-
-            const buttons =
-                document
-                    .createElement(
-                        'div'
-                    );
-
-
-            buttons.className =
-                'entry-buttons';
-
-
-
-            /* IMAGE BUTTON */
-
-            if (
-                item.image &&
-                item.image.trim()
-            ) {
-
-
-                const imageButton =
-                    document
-                        .createElement(
-                            'button'
-                        );
-
-
-                imageButton.className =
-                    'btn btn-image';
-
-
-                const images =
-                    getImageList(
-                        item.image
-                    );
-
-
-                imageButton.textContent =
-                    `🖼️ Show Images (${images.length})`;
-
-
-                imageButton.onclick =
-                    () => {
-
-                        window.showImages(
-                            images
-                        );
-
-                    };
-
-
-                buttons.appendChild(
-                    imageButton
-                );
-
-            }
-
-
-
-            /* EDIT */
-
-            const editButton =
-                document
-                    .createElement(
-                        'button'
-                    );
-
-
-            editButton.className =
-                'btn btn-warning';
-
-
-            editButton.textContent =
-                'Edit';
-
-
-            editButton.onclick =
-                () => {
-
-                    window.openEditModal(
-                        id
-                    );
-
-                };
-
-
-            buttons.appendChild(
-                editButton
-            );
-
-
-
-            /* DELETE */
-
-            const deleteButton =
-                document
-                    .createElement(
-                        'button'
-                    );
-
-
-            deleteButton.className =
-                'btn btn-danger';
-
-
-            deleteButton.textContent =
-                'Delete';
-
-
-            deleteButton.onclick =
-                () => {
-
-                    window.deleteItem(
-                        id
-                    );
-
-                };
-
-
-            buttons.appendChild(
-                deleteButton
-            );
-
-
-            card.appendChild(
-                buttons
-            );
-
-
-            list.appendChild(
-                card
-            );
-
-        }
-
-
-
-        /* SEARCH INFO */
-
-        document
-            .getElementById(
-                'searchInfo'
-            )
-            .textContent =
-                search
-                    ? `${count} result(s) found`
-                    : `${count} stored entr${count === 1 ? 'y' : 'ies'}`;
-
-
-        if (
-            count === 0 &&
-            search
-        ) {
-
-            list.innerHTML = `
-
-                <div
-                    style="
-                        text-align:center;
-                        padding:25px;
-                        color:#777;
-                    "
-                >
-                    No matching entries found.
-                </div>
-
             `;
 
+            const extraFields = [
+                ['E1', item.e1],
+                ['E2', item.e2],
+                ['E3', item.e3],
+                ['E4', item.e4],
+                ['E5', item.e5],
+                ['E6', item.e6]
+            ];
+
+            extraFields.forEach(([label, value]) => {
+                const div = document.createElement('div');
+                div.innerHTML = '<strong>' + label + ':</strong> ';
+                const valSpan = document.createElement('span');
+                valSpan.textContent = value || '-';
+                div.appendChild(valSpan);
+
+                if (value && value.trim()) {
+                    div.appendChild(createCopyBtn(value, `Copy ${label}`));
+                }
+                extras.appendChild(div);
+            });
+
+            card.appendChild(extras);
+
+            /* BUTTONS */
+            const buttons = document.createElement('div');
+            buttons.className = 'entry-buttons';
+
+            /* IMAGE BUTTON */
+            if (item.image && item.image.trim()) {
+                const imageButton = document.createElement('button');
+                imageButton.className = 'btn btn-image';
+                const images = getImageList(item.image);
+                imageButton.textContent = `🖼️ Show Images (${images.length})`;
+                imageButton.onclick = () => {
+                    window.showImages(images);
+                };
+                buttons.appendChild(imageButton);
+            }
+
+            /* EDIT */
+            const editButton = document.createElement('button');
+            editButton.className = 'btn btn-warning';
+            editButton.textContent = 'Edit';
+            editButton.onclick = () => {
+                window.openEditModal(id);
+            };
+            buttons.appendChild(editButton);
+
+            /* DELETE */
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'btn btn-danger';
+            deleteButton.textContent = 'Delete';
+            deleteButton.onclick = () => {
+                window.deleteItem(id);
+            };
+            buttons.appendChild(deleteButton);
+
+            card.appendChild(buttons);
+            list.appendChild(card);
         }
 
+        /* SEARCH INFO */
+        document.getElementById('searchInfo').textContent = search
+            ? `${count} result(s) found`
+            : `${count} stored entr${count === 1 ? 'y' : 'ies'}`;
+
+        if (count === 0 && search) {
+            list.innerHTML = `
+                <div style="text-align:center; padding:25px; color:#777;">
+                    No matching entries found.
+                </div>
+            `;
+        }
     }
-
-
 
     /* ==========================================
        GET IMAGE LIST
     =========================================== */
-
     function getImageList(imageValue) {
-
-
-        if (
-            !imageValue
-        ) {
-
-            return [];
-
-        }
-
-
-        /*
-            Supports:
-
-            image1.jpg,image2.jpg
-
-            and:
-
-            image1.jpg, image2.jpg
-        */
-
+        if (!imageValue) return [];
         return imageValue
             .split(',')
-            .map(
-                image =>
-                    image.trim()
-            )
-            .filter(
-                image =>
-                    image.length > 0
-            );
-
+            .map(image => image.trim())
+            .filter(image => image.length > 0);
     }
-
-
 
     /* ==========================================
        SHOW MULTIPLE IMAGES
     =========================================== */
-
-    window.showImages =
-        (images) => {
-
-
-            if (
-                !images ||
-                images.length === 0
-            ) {
-
-                return;
-
-            }
-
-
-            currentImages =
-                images;
-
-
-            currentImageIndex =
-                0;
-
-
-            showCurrentImage();
-
-        };
-
-
+    window.showImages = (images) => {
+        if (!images || images.length === 0) return;
+        currentImages = images;
+        currentImageIndex = 0;
+        showCurrentImage();
+    };
 
     /* ==========================================
        SHOW CURRENT IMAGE
     =========================================== */
-
     function showCurrentImage() {
+        if (currentImages.length === 0) return;
 
-
-        if (
-            currentImages.length === 0
-        ) {
-
-            return;
-
-        }
-
-
-        const image =
-            document
-                .getElementById(
-                    'fullImage'
-                );
-
-
-        const modal =
-            document
-                .getElementById(
-                    'imageModal'
-                );
-
-
-        const error =
-            document
-                .getElementById(
-                    'imageError'
-                );
-
-
-        const counter =
-            document
-                .getElementById(
-                    'imageCounter'
-                );
-
-
-        const previous =
-            document
-                .getElementById(
-                    'prevImageBtn'
-                );
-
-
-        const next =
-            document
-                .getElementById(
-                    'nextImageBtn'
-                );
-
-
-        /*
-            Completely reset old image state.
-        */
+        const image = document.getElementById('fullImage');
+        const modal = document.getElementById('imageModal');
+        const error = document.getElementById('imageError');
+        const counter = document.getElementById('imageCounter');
+        const previous = document.getElementById('prevImageBtn');
+        const next = document.getElementById('nextImageBtn');
 
         image.onload = null;
-
         image.onerror = null;
-
         image.src = '';
 
+        error.style.display = 'none';
 
-        error.style.display =
-            'none';
+        const imageName = currentImages[currentImageIndex];
+        const imagePath = './' + imageName;
 
+        counter.textContent = `${currentImageIndex + 1} / ${currentImages.length}`;
 
-        const imageName =
-            currentImages[
-                currentImageIndex
-            ];
-
-
-        const imagePath =
-            './' + imageName;
-
-
-        counter.textContent =
-            `${currentImageIndex + 1} / ${currentImages.length}`;
-
-
-        previous.style.display =
-            currentImages.length > 1
-                ? 'block'
-                : 'none';
-
-
-        next.style.display =
-            currentImages.length > 1
-                ? 'block'
-                : 'none';
-
-
-
-        /*
-            IMAGE SUCCESS
-        */
+        previous.style.display = currentImages.length > 1 ? 'block' : 'none';
+        next.style.display = currentImages.length > 1 ? 'block' : 'none';
 
         image.onload = () => {
-
-            error.style.display =
-                'none';
-
-            modal
-                .classList
-                .remove('hidden');
-
+            error.style.display = 'none';
+            modal.classList.remove('hidden');
         };
 
-
-
-        /*
-            IMAGE NOT FOUND
-
-            IMPORTANT:
-            No repeated alert.
-
-            The modal closes and the
-            error message is shown once.
-        */
-
         image.onerror = () => {
-
-
             image.onload = null;
-
             image.onerror = null;
-
-
             image.src = '';
-
-
-            modal
-                .classList
-                .add('hidden');
-
-
-            error.style.display =
-                'none';
-
+            modal.classList.add('hidden');
+            error.style.display = 'none';
 
             alert(
                 'Image not found:\n\n' +
@@ -2354,729 +938,122 @@
                 'Check the filename and repository path.'
             );
 
-
-            /*
-                Clear everything after OK.
-            */
-
             currentImages = [];
-
             currentImageIndex = 0;
-
-
-            counter.textContent =
-                '1 / 1';
-
+            counter.textContent = '1 / 1';
         };
 
-
-        /*
-            Start loading.
-        */
-
-        image.src =
-            imagePath;
-
+        image.src = imagePath;
     }
-
-
 
     /* ==========================================
        NEXT IMAGE
     =========================================== */
-
-    document
-        .getElementById(
-            'nextImageBtn'
-        )
-        .onclick = () => {
-
-
-            if (
-                currentImages.length <= 1
-            ) {
-
-                return;
-
-            }
-
-
-            currentImageIndex++;
-
-
-            if (
-                currentImageIndex >=
-                currentImages.length
-            ) {
-
-                currentImageIndex = 0;
-
-            }
-
-
-            showCurrentImage();
-
-        };
-
-
+    document.getElementById('nextImageBtn').onclick = () => {
+        if (currentImages.length <= 1) return;
+        currentImageIndex++;
+        if (currentImageIndex >= currentImages.length) {
+            currentImageIndex = 0;
+        }
+        showCurrentImage();
+    };
 
     /* ==========================================
        PREVIOUS IMAGE
     =========================================== */
-
-    document
-        .getElementById(
-            'prevImageBtn'
-        )
-        .onclick = () => {
-
-
-            if (
-                currentImages.length <= 1
-            ) {
-
-                return;
-
-            }
-
-
-            currentImageIndex--;
-
-
-            if (
-                currentImageIndex < 0
-            ) {
-
-                currentImageIndex =
-                    currentImages.length - 1;
-
-            }
-
-
-            showCurrentImage();
-
-        };
-
-
+    document.getElementById('prevImageBtn').onclick = () => {
+        if (currentImages.length <= 1) return;
+        currentImageIndex--;
+        if (currentImageIndex < 0) {
+            currentImageIndex = currentImages.length - 1;
+        }
+        showCurrentImage();
+    };
 
     /* ==========================================
        CLOSE IMAGE
     =========================================== */
-
     function closeImageViewer() {
-
-
-        const modal =
-            document
-                .getElementById(
-                    'imageModal'
-                );
-
-
-        const image =
-            document
-                .getElementById(
-                    'fullImage'
-                );
-
+        const modal = document.getElementById('imageModal');
+        const image = document.getElementById('fullImage');
 
         image.onload = null;
-
         image.onerror = null;
-
         image.src = '';
 
-
-        modal
-            .classList
-            .add('hidden');
-
-
+        modal.classList.add('hidden');
         currentImages = [];
-
         currentImageIndex = 0;
-
     }
 
+    document.getElementById('closeImageBtn').onclick = closeImageViewer;
 
-    document
-        .getElementById(
-            'closeImageBtn'
-        )
-        .onclick =
-            closeImageViewer;
-
-
-
-    /* ==========================================
-       CLICK IMAGE BACKGROUND TO CLOSE
-    =========================================== */
-
-    document
-        .getElementById(
-            'imageModal'
-        )
-        .onclick =
-            (event) => {
-
-
-                if (
-                    event.target.id ===
-                    'imageModal'
-                ) {
-
-                    closeImageViewer();
-
-                }
-
-            };
-
-
+    document.getElementById('imageModal').onclick = (event) => {
+        if (event.target.id === 'imageModal') {
+            closeImageViewer();
+        }
+    };
 
     /* ==========================================
        EDIT MODAL
     ========================================== */
+    window.openEditModal = (id) => {
+        const item = allData[id];
+        if (!item) return;
 
-    window.openEditModal =
-        (id) => {
+        document.getElementById('editId').value = id;
+        document.getElementById('editName').value = item.name || '';
+        document.getElementById('editUser').value = item.user || '';
+        document.getElementById('editPass').value = item.pass || '';
+        document.getElementById('editImage').value = item.image || '';
+        document.getElementById('editE1').value = item.e1 || '';
+        document.getElementById('editE2').value = item.e2 || '';
+        document.getElementById('editE3').value = item.e3 || '';
+        document.getElementById('editE4').value = item.e4 || '';
+        document.getElementById('editE5').value = item.e5 || '';
+        document.getElementById('editE6').value = item.e6 || '';
 
-
-            const item =
-                allData[id];
-
-
-            if (!item) {
-
-                return;
-
-            }
-
-
-            document
-                .getElementById(
-                    'editId'
-                )
-                .value = id;
-
-
-            document
-                .getElementById(
-                    'editName'
-                )
-                .value =
-                    item.name || '';
-
-
-            document
-                .getElementById(
-                    'editUser'
-                )
-                .value =
-                    item.user || '';
-
-
-            document
-                .getElementById(
-                    'editPass'
-                )
-                .value =
-                    item.pass || '';
-
-
-            document
-                .getElementById(
-                    'editImage'
-                )
-                .value =
-                    item.image || '';
-
-
-            document
-                .getElementById(
-                    'editE1'
-                )
-                .value =
-                    item.e1 || '';
-
-
-            document
-                .getElementById(
-                    'editE2'
-                )
-                .value =
-                    item.e2 || '';
-
-
-            document
-                .getElementById(
-                    'editE3'
-                )
-                .value =
-                    item.e3 || '';
-
-
-            document
-                .getElementById(
-                    'editE4'
-                )
-                .value =
-                    item.e4 || '';
-
-
-            document
-                .getElementById(
-                    'editE5'
-                )
-                .value =
-                    item.e5 || '';
-
-
-            document
-                .getElementById(
-                    'editE6'
-                )
-                .value =
-                    item.e6 || '';
-
-
-            document
-                .getElementById(
-                    'modalOverlay'
-                )
-                .classList
-                .remove('hidden');
-
-        };
-
-
+        document.getElementById('modalOverlay').classList.remove('hidden');
+    };
 
     /* ==========================================
        UPDATE
     =========================================== */
+    document.getElementById('updateBtn').onclick = () => {
+        if (!currentUser) return;
 
-    document
-        .getElementById(
-            'updateBtn'
-        )
-        .onclick = () => {
-
-
-            if (!currentUser) {
-
-                return;
-
-            }
-
-
-            const id =
-                document
-                    .getElementById(
-                        'editId'
-                    )
-                    .value;
-
-
-            const updatedData = {
-
-                name:
-                    document
-                        .getElementById(
-                            'editName'
-                        )
-                        .value
-                        .trim(),
-
-                user:
-                    document
-                        .getElementById(
-                            'editUser'
-                        )
-                        .value
-                        .trim(),
-
-                pass:
-                    document
-                        .getElementById(
-                            'editPass'
-                        )
-                        .value,
-
-                image:
-                    document
-                        .getElementById(
-                            'editImage'
-                        )
-                        .value
-                        .trim(),
-
-                e1:
-                    document
-                        .getElementById(
-                            'editE1'
-                        )
-                        .value,
-
-                e2:
-                    document
-                        .getElementById(
-                            'editE2'
-                        )
-                        .value,
-
-                e3:
-                    document
-                        .getElementById(
-                            'editE3'
-                        )
-                        .value,
-
-                e4:
-                    document
-                        .getElementById(
-                            'editE4'
-                        )
-                        .value,
-
-                e5:
-                    document
-                        .getElementById(
-                            'editE5'
-                        )
-                        .value,
-
-                e6:
-                    document
-                        .getElementById(
-                            'editE6'
-                        )
-                        .value
-
-            };
-
-
-            update(
-                ref(
-                    db,
-                    `users/${currentUser.uid}/${id}`
-                ),
-                updatedData
-            )
-            .then(
-                () => {
-
-                    document
-                        .getElementById(
-                            'modalOverlay'
-                        )
-                        .classList
-                        .add('hidden');
-
-                }
-            )
-            .catch(
-                error => {
-
-                    alert(
-                        error.message
-                    );
-
-                }
-            );
-
+        const id = document.getElementById('editId').value;
+        const updatedData = {
+            name: document.getElementById('editName').value.trim(),
+            user: document.getElementById('editUser').value.trim(),
+            pass: document.getElementById('editPass').value,
+            image: document.getElementById('editImage').value.trim(),
+            e1: document.getElementById('editE1').value,
+            e2: document.getElementById('editE2').value,
+            e3: document.getElementById('editE3').value,
+            e4: document.getElementById('editE4').value,
+            e5: document.getElementById('editE5').value,
+            e6: document.getElementById('editE6').value
         };
 
-
+        update(ref(db, `users/${currentUser.uid}/${id}`), updatedData)
+            .then(() => {
+                document.getElementById('modalOverlay').classList.add('hidden');
+            })
+            .catch(error => {
+                alert(error.message);
+            });
+    };
 
     /* ==========================================
        CLOSE EDIT MODAL
     =========================================== */
-
-    document
-        .getElementById(
-            'closeModal'
-        )
-        .onclick = () => {
-
-
-            document
-                .getElementById(
-                    'modalOverlay'
-                )
-                .classList
-                .add('hidden');
-
-        };
-
-
+    document.getElementById('closeModal').onclick = () => {
+        document.getElementById('modalOverlay').classList.add('hidden');
+    };
 
     /* ==========================================
        DELETE
     =========================================== */
-
-    window.deleteItem =
-        (id) => {
-
-
-            if (!currentUser) {
-
-                return;
-
-            }
-
-
-            if (
-                confirm(
-                    'Delete this entry?'
-                )
-            ) {
-
-
-                remove(
-                    ref(
-                        db,
-                        `users/${currentUser.uid}/${id}`
-                    )
-                )
-                .catch(
-                    error => {
-
-                        alert(
-                            error.message
-                        );
-
-                    }
-                );
-
-            }
-
-        };
-
-
-
-    /* ==========================================
-       LOGOUT
-    =========================================== */
-
-    document
-        .getElementById(
-            'logoutBtn'
-        )
-        .onclick = () => {
-
-            signOut(auth);
-
-        };
-
-
-
-    /* ==========================================
-       LOGIN / SIGNUP SWITCH
-    =========================================== */
-
-    let isLogin = true;
-
-
-    document
-        .getElementById(
-            'toggleAuth'
-        )
-        .onclick = () => {
-
-
-            isLogin =
-                !isLogin;
-
-
-            document
-                .getElementById(
-                    'authTitle'
-                )
-                .textContent =
-                    isLogin
-                        ? 'Vault Login'
-                        : 'Create Account';
-
-
-            document
-                .getElementById(
-                    'authBtn'
-                )
-                .textContent =
-                    isLogin
-                        ? 'Login'
-                        : 'Sign Up';
-
-
-            document
-                .getElementById(
-                    'toggleAuth'
-                )
-                .textContent =
-                    isLogin
-                        ? 'New? Create Account'
-                        : 'Already have an account? Login';
-
-        };
-
-
-
-    /* ==========================================
-       LOGIN / SIGNUP
-    =========================================== */
-
-    document
-        .getElementById(
-            'authBtn'
-        )
-        .onclick = () => {
-
-
-            const email =
-                document
-                    .getElementById(
-                        'email'
-                    )
-                    .value
-                    .trim();
-
-
-            const password =
-                document
-                    .getElementById(
-                        'authPassword'
-                    )
-                    .value;
-
-
-            if (
-                !email ||
-                !password
-            ) {
-
-                alert(
-                    'Please enter email and password.'
-                );
-
-                return;
-
-            }
-
-
-            if (isLogin) {
-
-
-                signInWithEmailAndPassword(
-                    auth,
-                    email,
-                    password
-                )
-                .catch(
-                    error => {
-
-                        alert(
-                            error.message
-                        );
-
-                    }
-                );
-
-
-            }
-            else {
-
-
-                createUserWithEmailAndPassword(
-                    auth,
-                    email,
-                    password
-                )
-                .catch(
-                    error => {
-
-                        alert(
-                            error.message
-                        );
-
-                    }
-                );
-
-            }
-
-        };
-
-
-
-    /* ==========================================
-       ESC KEY
-    =========================================== */
-
-    document
-        .addEventListener(
-            'keydown',
-            event => {
-
-
-                if (
-                    event.key === 'Escape'
-                ) {
-
-
-                    closeImageViewer();
-
-
-                    document
-                        .getElementById(
-                            'modalOverlay'
-                        )
-                        .classList
-                        .add('hidden');
-
-                }
-
-            }
-        );
-
-
-
-    /* ==========================================
-       HTML ESCAPE
-    =========================================== */
-
-    function escapeHTML(value) {
-
-        return String(value)
-
-            .replace(
-                /&/g,
-                '&amp;'
-            )
-
-            .replace(
-                /</g,
-                '&lt;'
-            )
-
-            .replace(
-                />/g,
-                '&gt;'
-            )
-
-            .replace(
-                /"/g,
-                '&quot;'
-            )
-
-            .replace(
-                /'/g,
-                '&#039;'
-            );
-
-    }
-
-</script>
-
-
-</body>
-
-</html>
-```
+    window.deleteItem = (id) => {
+        if (!currentUser
