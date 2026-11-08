@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure Vault</title>
 
+    <!-- Firebase Compat SDKs (Reliable across all browsers and file protocols) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <style>
         :root {
             --primary: #007bff;
@@ -20,7 +25,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
             background: #f0f2f5;
@@ -34,6 +39,22 @@
             padding: 25px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .status-banner {
+            display: none;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 15px;
+            word-break: break-word;
+        }
+
+        .status-error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
         input {
@@ -71,7 +92,7 @@
             display: none !important;
         }
 
-        /* Copy Button Icon */
+        /* Small Copy Button */
         .btn-copy {
             display: inline-flex;
             align-items: center;
@@ -101,20 +122,7 @@
             color: #155724;
         }
 
-        /* =========================
-           ADD ENTRY
-        ========================= */
-        .add-entry-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .add-entry-header h2 {
-            margin: 0;
-        }
-
+        /* Add Entry */
         #addEntryBtn {
             width: 100%;
             font-size: 15px;
@@ -146,9 +154,7 @@
             margin: 3px 0 8px;
         }
 
-        /* =========================
-           SEARCH
-        ========================= */
+        /* Search */
         .search-container {
             position: relative;
             margin: 15px 0;
@@ -175,9 +181,7 @@
             margin-bottom: 10px;
         }
 
-        /* =========================
-           ENTRY CARD
-        ========================= */
+        /* Entry Cards */
         .entry-card {
             background: white;
             border: 1px solid #e5e5e5;
@@ -223,18 +227,44 @@
             margin-top: 5px;
         }
 
-        /* =========================
-           IMAGE MODAL
-        ========================= */
+        /* Modals */
+        #modalOverlay,
         #imageModal {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.88);
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 15px;
+        }
+
+        #modalOverlay {
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+        }
+
+        #imageModal {
+            background: rgba(0,0,0,0.88);
             z-index: 3000;
+        }
+
+        .modal-content {
+            background: white;
             padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .modal-buttons .btn {
+            flex: 1;
         }
 
         #fullImage {
@@ -294,64 +324,12 @@
             display: none;
         }
 
-        /* =========================
-           EDIT MODAL
-        ========================= */
-        #modalOverlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            padding: 15px;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .modal-buttons .btn {
-            flex: 1;
-        }
-
-        /* =========================
-           MOBILE
-        ========================= */
         @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-
-            .container {
-                padding: 15px;
-            }
-
-            .field-group,
-            .details-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .entry-buttons {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .entry-buttons .btn {
-                width: 100%;
-            }
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            .field-group, .details-grid { grid-template-columns: 1fr; }
+            .entry-buttons { display: grid; grid-template-columns: 1fr 1fr; }
+            .entry-buttons .btn { width: 100%; }
         }
     </style>
 </head>
@@ -360,35 +338,36 @@
 
 <div class="container">
 
+    <!-- Screen Status / Error Indicator -->
+    <div id="statusBanner" class="status-banner"></div>
+
     <!-- ==========================================
-         LOGIN
+         AUTH SECTION
     =========================================== -->
     <div id="authSection">
         <h2 id="authTitle">Vault Login</h2>
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="authPassword" placeholder="Master Password">
-        <button id="authBtn" class="btn btn-primary" style="width:100%;">Login</button>
-        <p id="toggleAuth" style="text-align:center; cursor:pointer; font-size:14px;">New? Create Account</p>
+        <input type="email" id="email" placeholder="Email" autocomplete="username">
+        <input type="password" id="authPassword" placeholder="Master Password" autocomplete="current-password">
+        <button id="authBtn" type="button" class="btn btn-primary" style="width:100%;">Login</button>
+        <p id="toggleAuth" style="text-align:center; cursor:pointer; font-size:14px; margin-top:12px;">New? Create Account</p>
     </div>
 
     <!-- ==========================================
-         APPLICATION
+         MAIN APPLICATION
     =========================================== -->
     <div id="appSection" class="hidden">
-        <!-- TOP -->
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h2 style="margin:0;">Secure Vault</h2>
-            <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+            <button id="logoutBtn" type="button" class="btn btn-secondary">Logout</button>
         </div>
 
-        <!-- ADD NEW ENTRY BUTTON -->
-        <button id="addEntryBtn" class="btn btn-primary">➕ Add New Entry</button>
+        <button id="addEntryBtn" type="button" class="btn btn-primary">➕ Add New Entry</button>
 
-        <!-- COLLAPSIBLE FORM -->
+        <!-- ADD FORM -->
         <div id="entryForm" class="hidden">
             <h3 class="form-title">Add New Entry</h3>
 
-            <input type="text" id="accName" placeholder="Account Name (e.g. Gmail)">
+            <input type="text" id="accName" placeholder="Account Name (e.g. Google)">
 
             <div class="field-group">
                 <input type="text" id="accUser" placeholder="Username">
@@ -397,8 +376,7 @@
 
             <input type="text" id="accImage" placeholder="Images: image1.jpg,image2.jpg">
             <div class="help-text">
-                Repository images example: <b>image1.jpg,image2.jpg</b><br>
-                Folder example: <b>images/gmail1.jpg,images/gmail2.jpg</b>
+                Example: <b>image1.jpg,image2.jpg</b> or <b>images/pic1.jpg</b>
             </div>
 
             <div class="field-group">
@@ -415,8 +393,8 @@
             </div>
 
             <div style="display:flex; gap:8px;">
-                <button id="saveBtn" class="btn btn-primary" style="flex:1;">Save to Vault</button>
-                <button id="cancelAddBtn" class="btn btn-secondary" style="flex:1;">Cancel</button>
+                <button id="saveBtn" type="button" class="btn btn-primary" style="flex:1;">Save to Vault</button>
+                <button id="cancelAddBtn" type="button" class="btn btn-secondary" style="flex:1;">Cancel</button>
             </div>
         </div>
 
@@ -425,7 +403,7 @@
         <!-- SEARCH -->
         <h3>Stored Credentials</h3>
         <div class="search-container">
-            <input type="search" id="searchInput" placeholder="Search account, username, image or details..." autocomplete="off">
+            <input type="search" id="searchInput" placeholder="Search account, username, details..." autocomplete="off">
             <span id="clearSearch">×</span>
         </div>
         <div id="searchInfo"></div>
@@ -434,9 +412,7 @@
 
 </div>
 
-<!-- ==========================================
-     EDIT MODAL
-=========================================== -->
+<!-- EDIT MODAL -->
 <div id="modalOverlay" class="hidden">
     <div class="modal-content">
         <h3>Edit Entry</h3>
@@ -449,7 +425,6 @@
         </div>
 
         <input type="text" id="editImage" placeholder="Images: image1.jpg,image2.jpg">
-        <div class="help-text">Example: <b>image1.jpg,image2.jpg</b></div>
 
         <div class="field-group">
             <input type="text" id="editE1" placeholder="Extra 1">
@@ -465,50 +440,38 @@
         </div>
 
         <div class="modal-buttons">
-            <button id="updateBtn" class="btn btn-primary">Update</button>
-            <button id="closeModal" class="btn btn-secondary">Cancel</button>
+            <button id="updateBtn" type="button" class="btn btn-primary">Update</button>
+            <button id="closeModal" type="button" class="btn btn-secondary">Cancel</button>
         </div>
     </div>
 </div>
 
-<!-- ==========================================
-     IMAGE VIEWER
-=========================================== -->
+<!-- IMAGE VIEWER -->
 <div id="imageModal" class="hidden">
     <span class="close-image" id="closeImageBtn">×</span>
-    <img id="fullImage" src="" alt="Account Image">
+    <img id="fullImage" src="" alt="Viewer">
     <div id="imageError">Image not found</div>
     <div class="image-navigation">
-        <button id="prevImageBtn">← Previous</button>
+        <button id="prevImageBtn" type="button">← Previous</button>
         <span id="imageCounter">1 / 1</span>
-        <button id="nextImageBtn">Next →</button>
+        <button id="nextImageBtn" type="button">Next →</button>
     </div>
 </div>
 
-<script type="module">
-    /* ==========================================
-       FIREBASE IMPORTS
-    =========================================== */
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { 
-        getAuth, 
-        signInWithEmailAndPassword, 
-        createUserWithEmailAndPassword, 
-        onAuthStateChanged, 
-        signOut 
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { 
-        getDatabase, 
-        ref, 
-        push, 
-        onValue, 
-        remove, 
-        update 
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+<script>
+    function displayStatus(msg, isError = true) {
+        const banner = document.getElementById('statusBanner');
+        if (!banner) return;
+        banner.textContent = msg;
+        banner.className = 'status-banner ' + (isError ? 'status-error' : '');
+        banner.style.display = 'block';
+    }
 
-    /* ==========================================
-       FIREBASE CONFIG
-    =========================================== */
+    /* Verify Firebase scripts loaded */
+    if (typeof firebase === 'undefined') {
+        displayStatus("Error: Firebase SDK failed to load. Check your internet connection or ad-blocker.");
+    }
+
     const firebaseConfig = {
         apiKey: "AIzaSyBxbzsSi-dsFPPGDeogz2SaEsW_3OKu-QU",
         authDomain: "striped-acrobat-342207.firebaseapp.com",
@@ -519,25 +482,28 @@
         appId: "1:367114842706:web:0f6d504163ed3c72ed658b"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+    // Initialize Firebase
+    try {
+        firebase.initializeApp(firebaseConfig);
+    } catch (e) {
+        displayStatus("Firebase Init Error: " + e.message);
+    }
+
+    const auth = firebase.auth();
+    const db = firebase.database();
 
     let currentUser = null;
     let allData = {};
+    let isLogin = true;
 
-    /* ==========================================
-       IMAGE VARIABLES
-    =========================================== */
+    // Image variables
     let currentImages = [];
     let currentImageIndex = 0;
 
-    /* ==========================================
-       COPY TO CLIPBOARD HELPER
-    =========================================== */
+    // Clipboard copy
     window.copyToClipboard = function(text, btnElement) {
         if (!text) return;
-        
+
         const fallbackCopy = (str) => {
             const temp = document.createElement("textarea");
             temp.value = str;
@@ -547,27 +513,27 @@
             document.body.removeChild(temp);
         };
 
-        const executeFeedback = () => {
+        const indicateSuccess = () => {
             if (!btnElement) return;
-            const originalHTML = btnElement.innerHTML;
+            const original = btnElement.innerHTML;
             btnElement.innerHTML = '✔';
             btnElement.classList.add('copied');
             setTimeout(() => {
-                btnElement.innerHTML = originalHTML;
+                btnElement.innerHTML = original;
                 btnElement.classList.remove('copied');
             }, 1200);
         };
 
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(text)
-                .then(executeFeedback)
+                .then(indicateSuccess)
                 .catch(() => {
                     fallbackCopy(text);
-                    executeFeedback();
+                    indicateSuccess();
                 });
         } else {
             fallbackCopy(text);
-            executeFeedback();
+            indicateSuccess();
         }
     };
 
@@ -584,9 +550,80 @@
         return btn;
     }
 
-    /* ==========================================
-       ADD ENTRY COLLAPSE
-    =========================================== */
+    // Toggle Login / Sign Up
+    const toggleAuth = document.getElementById('toggleAuth');
+    toggleAuth.onclick = () => {
+        isLogin = !isLogin;
+        document.getElementById('authTitle').textContent = isLogin ? 'Vault Login' : 'Create Account';
+        document.getElementById('authBtn').textContent = isLogin ? 'Login' : 'Sign Up';
+        toggleAuth.textContent = isLogin ? 'New? Create Account' : 'Already have an account? Login';
+        displayStatus('', false);
+    };
+
+    // Auth Button Action
+    document.getElementById('authBtn').onclick = () => {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('authPassword').value;
+
+        if (!email || !password) {
+            alert('Please enter both Email and Password.');
+            return;
+        }
+
+        const authBtn = document.getElementById('authBtn');
+        authBtn.disabled = true;
+        authBtn.textContent = 'Processing...';
+
+        if (isLogin) {
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    displayStatus('', false);
+                })
+                .catch(error => {
+                    authBtn.disabled = false;
+                    authBtn.textContent = 'Login';
+                    displayStatus("Login Error: [" + error.code + "] " + error.message);
+                    alert("Login Failed:\n[" + error.code + "]\n" + error.message);
+                });
+        } else {
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(() => {
+                    displayStatus('', false);
+                    alert('Account created successfully!');
+                })
+                .catch(error => {
+                    authBtn.disabled = false;
+                    authBtn.textContent = 'Sign Up';
+                    displayStatus("Signup Error: [" + error.code + "] " + error.message);
+                    alert("Sign Up Failed:\n[" + error.code + "]\n" + error.message);
+                });
+        }
+    };
+
+    // Auth State Listener
+    auth.onAuthStateChanged((user) => {
+        currentUser = user;
+        const authBtn = document.getElementById('authBtn');
+        authBtn.disabled = false;
+        authBtn.textContent = isLogin ? 'Login' : 'Sign Up';
+
+        document.getElementById('authSection').classList.toggle('hidden', !!user);
+        document.getElementById('appSection').classList.toggle('hidden', !user);
+
+        if (user) {
+            loadData(user.uid);
+        } else {
+            allData = {};
+            renderData();
+        }
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').onclick = () => {
+        auth.signOut();
+    };
+
+    // Add entry toggling
     const addEntryBtn = document.getElementById('addEntryBtn');
     const entryForm = document.getElementById('entryForm');
     const cancelAddBtn = document.getElementById('cancelAddBtn');
@@ -601,37 +638,26 @@
         }
     };
 
-    cancelAddBtn.onclick = () => {
-        closeAddEntryForm();
-    };
+    cancelAddBtn.onclick = closeAddEntryForm;
 
     function closeAddEntryForm() {
         entryForm.classList.add('hidden');
         addEntryBtn.textContent = '➕ Add New Entry';
     }
 
-    /* ==========================================
-       AUTH STATE
-    =========================================== */
-    onAuthStateChanged(auth, (user) => {
-        currentUser = user;
-        document.getElementById('authSection').classList.toggle('hidden', !!user);
-        document.getElementById('appSection').classList.toggle('hidden', !user);
+    function clearAddForm() {
+        ['accName', 'accUser', 'accPass', 'accImage', 'e1', 'e2', 'e3', 'e4', 'e5', 'e6'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+    }
 
-        if (user) {
-            loadData(user.uid);
-        }
-    });
-
-    /* ==========================================
-       SAVE ENTRY
-    =========================================== */
+    // Save Entry
     document.getElementById('saveBtn').onclick = () => {
         if (!currentUser) return;
 
         const name = document.getElementById('accName').value.trim();
         if (!name) {
-            alert('Please enter Account Name.');
+            alert('Please enter an Account Name.');
             return;
         }
 
@@ -648,39 +674,28 @@
             e6: document.getElementById('e6').value
         };
 
-        push(ref(db, `users/${currentUser.uid}`), data)
+        db.ref('users/' + currentUser.uid).push(data)
             .then(() => {
                 clearAddForm();
                 closeAddEntryForm();
                 alert('Entry saved successfully.');
             })
             .catch(error => {
-                alert(error.message);
+                alert('Database Error: ' + error.message);
             });
     };
 
-    /* ==========================================
-       CLEAR ADD FORM
-    =========================================== */
-    function clearAddForm() {
-        ['accName', 'accUser', 'accPass', 'accImage', 'e1', 'e2', 'e3', 'e4', 'e5', 'e6'].forEach(id => {
-            document.getElementById(id).value = '';
-        });
-    }
-
-    /* ==========================================
-       LOAD DATA
-    =========================================== */
+    // Realtime Database sync
     function loadData(uid) {
-        onValue(ref(db, `users/${uid}`), snapshot => {
+        db.ref('users/' + uid).on('value', snapshot => {
             allData = snapshot.val() || {};
             renderData();
+        }, error => {
+            displayStatus("Database Read Error: " + error.message);
         });
     }
 
-    /* ==========================================
-       SEARCH
-    =========================================== */
+    // Search Handlers
     document.getElementById('searchInput').addEventListener('input', () => {
         updateSearchButton();
         renderData();
@@ -697,9 +712,7 @@
         renderData();
     };
 
-    /* ==========================================
-       RENDER DATA
-    =========================================== */
+    // Render Cards
     function renderData() {
         const list = document.getElementById('passwordList');
         list.innerHTML = '';
@@ -727,34 +740,29 @@
 
             count++;
 
-            /* CARD */
             const card = document.createElement('div');
             card.className = 'entry-card';
 
-            /* HEADER */
             const header = document.createElement('div');
             header.className = 'entry-header';
             header.textContent = item.name || 'Unnamed';
             card.appendChild(header);
 
-            /* DETAILS */
             const details = document.createElement('div');
             details.className = 'details-grid';
 
-            /* USER DIV WITH COPY BUTTON */
+            // Username
             const userDiv = document.createElement('div');
             userDiv.innerHTML = '<strong>User:</strong> ';
-            
             const userSpan = document.createElement('span');
             userSpan.textContent = item.user || '-';
             userDiv.appendChild(userSpan);
-
             if (item.user && item.user.trim()) {
                 userDiv.appendChild(createCopyBtn(item.user, "Copy Username"));
             }
             details.appendChild(userDiv);
 
-            /* PASSWORD DIV WITH TOGGLE & COPY BUTTON */
+            // Password with Toggle & Copy
             const passDiv = document.createElement('div');
             const passStrong = document.createElement('strong');
             passStrong.textContent = 'Pass: ';
@@ -767,7 +775,6 @@
             const toggle = document.createElement('span');
             toggle.className = 'toggle-text';
             toggle.textContent = 'Show';
-
             toggle.onclick = () => {
                 if (passSpan.textContent === '••••••') {
                     passSpan.textContent = item.pass || '';
@@ -783,25 +790,17 @@
                 passDiv.appendChild(createCopyBtn(item.pass, "Copy Password"));
             }
             details.appendChild(passDiv);
-
             card.appendChild(details);
 
-            /* EXTRA FIELDS */
+            // Extras
             const extras = document.createElement('div');
             extras.className = 'details-grid';
-            extras.style = `
-                color:#666;
-                border-top:1px dashed #eee;
-                padding-top:8px;
-            `;
+            extras.style = 'color:#666; border-top:1px dashed #eee; padding-top:8px;';
 
             const extraFields = [
-                ['E1', item.e1],
-                ['E2', item.e2],
-                ['E3', item.e3],
-                ['E4', item.e4],
-                ['E5', item.e5],
-                ['E6', item.e6]
+                ['E1', item.e1], ['E2', item.e2],
+                ['E3', item.e3], ['E4', item.e4],
+                ['E5', item.e5], ['E6', item.e6]
             ];
 
             extraFields.forEach(([label, value]) => {
@@ -812,79 +811,59 @@
                 div.appendChild(valSpan);
 
                 if (value && value.trim()) {
-                    div.appendChild(createCopyBtn(value, `Copy ${label}`));
+                    div.appendChild(createCopyBtn(value, 'Copy ' + label));
                 }
                 extras.appendChild(div);
             });
-
             card.appendChild(extras);
 
-            /* BUTTONS */
+            // Actions
             const buttons = document.createElement('div');
             buttons.className = 'entry-buttons';
 
-            /* IMAGE BUTTON */
             if (item.image && item.image.trim()) {
                 const imageButton = document.createElement('button');
+                imageButton.type = 'button';
                 imageButton.className = 'btn btn-image';
                 const images = getImageList(item.image);
-                imageButton.textContent = `🖼️ Show Images (${images.length})`;
-                imageButton.onclick = () => {
-                    window.showImages(images);
-                };
+                imageButton.textContent = '🖼️ Show Images (' + images.length + ')';
+                imageButton.onclick = () => window.showImages(images);
                 buttons.appendChild(imageButton);
             }
 
-            /* EDIT */
             const editButton = document.createElement('button');
+            editButton.type = 'button';
             editButton.className = 'btn btn-warning';
             editButton.textContent = 'Edit';
-            editButton.onclick = () => {
-                window.openEditModal(id);
-            };
+            editButton.onclick = () => window.openEditModal(id);
             buttons.appendChild(editButton);
 
-            /* DELETE */
             const deleteButton = document.createElement('button');
+            deleteButton.type = 'button';
             deleteButton.className = 'btn btn-danger';
             deleteButton.textContent = 'Delete';
-            deleteButton.onclick = () => {
-                window.deleteItem(id);
-            };
+            deleteButton.onclick = () => window.deleteItem(id);
             buttons.appendChild(deleteButton);
 
             card.appendChild(buttons);
             list.appendChild(card);
         }
 
-        /* SEARCH INFO */
         document.getElementById('searchInfo').textContent = search
             ? `${count} result(s) found`
             : `${count} stored entr${count === 1 ? 'y' : 'ies'}`;
 
         if (count === 0 && search) {
-            list.innerHTML = `
-                <div style="text-align:center; padding:25px; color:#777;">
-                    No matching entries found.
-                </div>
-            `;
+            list.innerHTML = '<div style="text-align:center; padding:25px; color:#777;">No matching entries found.</div>';
         }
     }
 
-    /* ==========================================
-       GET IMAGE LIST
-    =========================================== */
     function getImageList(imageValue) {
         if (!imageValue) return [];
-        return imageValue
-            .split(',')
-            .map(image => image.trim())
-            .filter(image => image.length > 0);
+        return imageValue.split(',').map(img => img.trim()).filter(img => img.length > 0);
     }
 
-    /* ==========================================
-       SHOW MULTIPLE IMAGES
-    =========================================== */
+    // Modal & Image Viewer logic
     window.showImages = (images) => {
         if (!images || images.length === 0) return;
         currentImages = images;
@@ -892,9 +871,6 @@
         showCurrentImage();
     };
 
-    /* ==========================================
-       SHOW CURRENT IMAGE
-    =========================================== */
     function showCurrentImage() {
         if (currentImages.length === 0) return;
 
@@ -908,14 +884,12 @@
         image.onload = null;
         image.onerror = null;
         image.src = '';
-
         error.style.display = 'none';
 
         const imageName = currentImages[currentImageIndex];
         const imagePath = './' + imageName;
 
         counter.textContent = `${currentImageIndex + 1} / ${currentImages.length}`;
-
         previous.style.display = currentImages.length > 1 ? 'block' : 'none';
         next.style.display = currentImages.length > 1 ? 'block' : 'none';
 
@@ -925,78 +899,43 @@
         };
 
         image.onerror = () => {
-            image.onload = null;
-            image.onerror = null;
-            image.src = '';
             modal.classList.add('hidden');
-            error.style.display = 'none';
-
-            alert(
-                'Image not found:\n\n' +
-                imagePath +
-                '\n\n' +
-                'Check the filename and repository path.'
-            );
-
+            alert('Image not found:\n\n' + imagePath + '\n\nCheck filename and directory path.');
             currentImages = [];
             currentImageIndex = 0;
-            counter.textContent = '1 / 1';
         };
 
         image.src = imagePath;
     }
 
-    /* ==========================================
-       NEXT IMAGE
-    =========================================== */
     document.getElementById('nextImageBtn').onclick = () => {
         if (currentImages.length <= 1) return;
-        currentImageIndex++;
-        if (currentImageIndex >= currentImages.length) {
-            currentImageIndex = 0;
-        }
+        currentImageIndex = (currentImageIndex + 1) % currentImages.length;
         showCurrentImage();
     };
 
-    /* ==========================================
-       PREVIOUS IMAGE
-    =========================================== */
     document.getElementById('prevImageBtn').onclick = () => {
         if (currentImages.length <= 1) return;
-        currentImageIndex--;
-        if (currentImageIndex < 0) {
-            currentImageIndex = currentImages.length - 1;
-        }
+        currentImageIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
         showCurrentImage();
     };
 
-    /* ==========================================
-       CLOSE IMAGE
-    =========================================== */
     function closeImageViewer() {
-        const modal = document.getElementById('imageModal');
-        const image = document.getElementById('fullImage');
-
-        image.onload = null;
-        image.onerror = null;
-        image.src = '';
-
-        modal.classList.add('hidden');
+        document.getElementById('imageModal').classList.add('hidden');
+        const img = document.getElementById('fullImage');
+        img.onload = null;
+        img.onerror = null;
+        img.src = '';
         currentImages = [];
         currentImageIndex = 0;
     }
 
     document.getElementById('closeImageBtn').onclick = closeImageViewer;
-
-    document.getElementById('imageModal').onclick = (event) => {
-        if (event.target.id === 'imageModal') {
-            closeImageViewer();
-        }
+    document.getElementById('imageModal').onclick = (e) => {
+        if (e.target.id === 'imageModal') closeImageViewer();
     };
 
-    /* ==========================================
-       EDIT MODAL
-    ========================================== */
+    // Edit logic
     window.openEditModal = (id) => {
         const item = allData[id];
         if (!item) return;
@@ -1016,13 +955,10 @@
         document.getElementById('modalOverlay').classList.remove('hidden');
     };
 
-    /* ==========================================
-       UPDATE
-    =========================================== */
     document.getElementById('updateBtn').onclick = () => {
         if (!currentUser) return;
-
         const id = document.getElementById('editId').value;
+
         const updatedData = {
             name: document.getElementById('editName').value.trim(),
             user: document.getElementById('editUser').value.trim(),
@@ -1036,24 +972,35 @@
             e6: document.getElementById('editE6').value
         };
 
-        update(ref(db, `users/${currentUser.uid}/${id}`), updatedData)
+        db.ref('users/' + currentUser.uid + '/' + id).update(updatedData)
             .then(() => {
                 document.getElementById('modalOverlay').classList.add('hidden');
             })
             .catch(error => {
-                alert(error.message);
+                alert('Update Error: ' + error.message);
             });
     };
 
-    /* ==========================================
-       CLOSE EDIT MODAL
-    =========================================== */
     document.getElementById('closeModal').onclick = () => {
         document.getElementById('modalOverlay').classList.add('hidden');
     };
 
-    /* ==========================================
-       DELETE
-    =========================================== */
     window.deleteItem = (id) => {
-        if (!currentUser
+        if (!currentUser) return;
+        if (confirm('Delete this entry?')) {
+            db.ref('users/' + currentUser.uid + '/' + id).remove()
+                .catch(error => alert('Delete Error: ' + error.message));
+        }
+    };
+
+    // Escape listener
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            closeImageViewer();
+            document.getElementById('modalOverlay').classList.add('hidden');
+        }
+    });
+</script>
+
+</body>
+</html>
