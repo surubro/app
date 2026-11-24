@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure Vault</title>
 
-    <!-- Firebase Compat SDKs (Reliable across all browsers and file protocols) -->
+    <!-- Firebase Compat SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -14,10 +14,16 @@
     <style>
         :root {
             --primary: #007bff;
+            --primary-hover: #0062cc;
             --danger: #dc3545;
             --warning: #ffc107;
             --success: #28a745;
             --secondary: #6c757d;
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --border: #e1e4e8;
+            --text: #24292e;
+            --muted: #586069;
         }
 
         * {
@@ -25,26 +31,43 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             margin: 0;
-            padding: 20px;
-            background: #f0f2f5;
-            color: #333;
+            padding: 16px;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.45;
         }
 
+        /* ==========================================
+           ADAPTIVE CONTAINER (DESKTOP VS MOBILE)
+        =========================================== */
         .container {
-            max-width: 650px;
-            margin: auto;
-            background: white;
-            padding: 25px;
+            max-width: 1120px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: max-width 0.25s ease, padding 0.25s ease;
+        }
+
+        /* Forced Mobile View on Desktop */
+        body.force-mobile .container {
+            max-width: 430px;
+            padding: 14px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Forced Desktop View */
+        body.force-desktop .container {
+            max-width: 1120px;
         }
 
         .status-banner {
             display: none;
             padding: 10px 14px;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 13px;
             margin-bottom: 15px;
             word-break: break-word;
@@ -59,16 +82,19 @@
 
         input {
             width: 100%;
-            padding: 10px;
+            padding: 10px 12px;
             margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 6px;
+            border: 1px solid #d1d5da;
+            border-radius: 8px;
             font-size: 14px;
+            background: #fff;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         input:focus {
             outline: none;
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
         }
 
         .btn {
@@ -76,20 +102,235 @@
             color: white;
             border: none;
             cursor: pointer;
-            border-radius: 6px;
-            font-weight: bold;
-            margin-top: 8px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: opacity 0.15s ease, transform 0.05s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
+
+        .btn:hover { opacity: 0.92; }
+        .btn:active { transform: scale(0.98); }
 
         .btn-primary { background: var(--primary); }
         .btn-danger { background: var(--danger); }
-        .btn-warning { background: var(--warning); color: #000; }
+        .btn-warning { background: var(--warning); color: #111; }
         .btn-success { background: var(--success); }
         .btn-secondary { background: var(--secondary); }
-        .btn-image { background: var(--success); }
+        .btn-outline {
+            background: #f6f8fa;
+            color: var(--text);
+            border: 1px solid #d1d5da;
+        }
 
         .hidden {
             display: none !important;
+        }
+
+        /* Auth Box Centered */
+        #authSection {
+            max-width: 400px;
+            margin: 20px auto;
+        }
+
+        /* Top App Header */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .device-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #e7f1ff;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Toolbar: Add Button + Search Bar side-by-side on Desktop */
+        .toolbar {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        #addEntryBtn {
+            padding: 11px 18px;
+            white-space: nowrap;
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+        }
+
+        #searchInput {
+            margin: 0;
+            padding-right: 36px;
+        }
+
+        #clearSearch {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #777;
+            cursor: pointer;
+            display: none;
+            line-height: 1;
+        }
+
+        #searchInfo {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        /* Add Entry Form */
+        #entryForm {
+            margin-bottom: 20px;
+            padding: 18px;
+            background: #f8f9fa;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .form-title {
+            margin: 0 0 12px 0;
+            font-size: 17px;
+        }
+
+        .field-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: var(--muted);
+            margin: 2px 0 8px;
+        }
+
+        /* ==========================================
+           CARDS GRID (DESKTOP MULTI-COLUMN)
+        =========================================== */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            gap: 16px;
+        }
+
+        .entry-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            transition: box-shadow 0.15s ease, border-color 0.15s ease;
+        }
+
+        .entry-card:hover {
+            border-color: #c8d1da;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .entry-header {
+            font-weight: 700;
+            color: var(--primary);
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            font-size: 17px;
+            word-break: break-word;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 13.5px;
+            margin-bottom: 10px;
+        }
+
+        .detail-item {
+            word-break: break-word;
+        }
+
+        .extras-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 10px;
+            font-size: 13px;
+            color: #555;
+            border-top: 1px dashed #e5e5e5;
+            padding-top: 8px;
+            margin-bottom: 10px;
+        }
+
+        /* Links Section inside Card */
+        .links-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+            padding-top: 8px;
+            border-top: 1px dashed #e5e5e5;
+        }
+
+        .link-chip {
+            display: inline-flex;
+            align-items: center;
+            background: #f1f8ff;
+            border: 1px solid #c8e1ff;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12.5px;
+            max-width: 100%;
+        }
+
+        .link-chip a {
+            color: #0366d6;
+            text-decoration: none;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 190px;
+        }
+
+        .link-chip a:hover {
+            text-decoration: underline;
         }
 
         /* Small Copy Button */
@@ -102,110 +343,23 @@
             border-radius: 4px;
             cursor: pointer;
             padding: 2px 5px;
-            font-size: 12px;
+            font-size: 11px;
             line-height: 1;
             margin-left: 6px;
             color: #495057;
             vertical-align: middle;
-            transition: all 0.15s ease-in-out;
+            transition: all 0.15s ease;
             user-select: none;
         }
 
         .btn-copy:hover {
             background: #e2e6ea;
-            border-color: #adb5bd;
         }
 
         .btn-copy.copied {
             background: #d4edda;
             border-color: #c3e6cb;
             color: #155724;
-        }
-
-        /* Add Entry */
-        #addEntryBtn {
-            width: 100%;
-            font-size: 15px;
-            padding: 13px;
-        }
-
-        #entryForm {
-            margin-top: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border: 1px solid #e5e5e5;
-            border-radius: 10px;
-        }
-
-        .form-title {
-            margin-top: 0;
-            margin-bottom: 10px;
-        }
-
-        .field-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .help-text {
-            font-size: 12px;
-            color: #777;
-            margin: 3px 0 8px;
-        }
-
-        /* Search */
-        .search-container {
-            position: relative;
-            margin: 15px 0;
-        }
-
-        #searchInput {
-            margin: 0;
-            padding-right: 40px;
-        }
-
-        #clearSearch {
-            position: absolute;
-            right: 12px;
-            top: 7px;
-            font-size: 22px;
-            color: #777;
-            cursor: pointer;
-            display: none;
-        }
-
-        #searchInfo {
-            font-size: 12px;
-            color: #777;
-            margin-bottom: 10px;
-        }
-
-        /* Entry Cards */
-        .entry-card {
-            background: white;
-            border: 1px solid #e5e5e5;
-            padding: 15px;
-            margin-top: 12px;
-            border-radius: 9px;
-        }
-
-        .entry-header {
-            font-weight: bold;
-            color: var(--primary);
-            border-bottom: 1px solid #eee;
-            margin-bottom: 10px;
-            padding-bottom: 7px;
-            font-size: 17px;
-            word-break: break-word;
-        }
-
-        .details-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            font-size: 14px;
-            margin-bottom: 10px;
         }
 
         .toggle-text {
@@ -220,14 +374,19 @@
         .entry-buttons {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
+            gap: 6px;
+            margin-top: auto;
+            padding-top: 8px;
         }
 
         .entry-buttons .btn {
-            margin-top: 5px;
+            padding: 7px 11px;
+            font-size: 13px;
         }
 
-        /* Modals */
+        /* ==========================================
+           MODALS
+        =========================================== */
         #modalOverlay,
         #imageModal {
             position: fixed;
@@ -239,28 +398,30 @@
         }
 
         #modalOverlay {
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.65);
             z-index: 2000;
         }
 
         #imageModal {
-            background: rgba(0,0,0,0.88);
+            background: rgba(0, 0, 0, 0.9);
             z-index: 3000;
         }
 
         .modal-content {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
+            padding: 22px;
+            border-radius: 14px;
             width: 100%;
-            max-width: 500px;
+            max-width: 520px;
             max-height: 90vh;
             overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
         }
 
         .modal-buttons {
             display: flex;
-            gap: 8px;
+            gap: 10px;
+            margin-top: 12px;
         }
 
         .modal-buttons .btn {
@@ -268,7 +429,7 @@
         }
 
         #fullImage {
-            max-width: 90vw;
+            max-width: 92vw;
             max-height: 75vh;
             object-fit: contain;
             border-radius: 10px;
@@ -280,57 +441,115 @@
             top: 15px;
             right: 20px;
             color: white;
-            font-size: 40px;
+            font-size: 38px;
             cursor: pointer;
             line-height: 1;
         }
 
         .image-navigation {
             position: absolute;
-            bottom: 25px;
+            bottom: 24px;
             left: 0;
             right: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .image-navigation button {
             border: none;
             background: white;
-            color: #333;
-            padding: 10px 18px;
-            border-radius: 6px;
+            color: #222;
+            padding: 10px 16px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
         }
 
         #imageCounter {
             color: white;
-            font-weight: bold;
-            background: rgba(0,0,0,0.5);
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.55);
             padding: 8px 12px;
-            border-radius: 5px;
+            border-radius: 6px;
         }
 
-        #imageError {
-            position: absolute;
-            bottom: 85px;
-            color: white;
-            background: rgba(220,53,69,0.9);
-            padding: 8px 12px;
-            border-radius: 5px;
-            display: none;
+        /* ==========================================
+           SMARTPHONE RESPONSIVE BREAKPOINT (< 768px)
+           & FORCED MOBILE CLASS
+        =========================================== */
+        @media (max-width: 767px) {
+            body {
+                padding: 8px;
+            }
+
+            .container {
+                padding: 14px;
+                border-radius: 10px;
+            }
+
+            input {
+                font-size: 16px; /* Prevents mobile Safari/Chrome auto-zoom */
+                padding: 11px 12px;
+            }
+
+            .toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            #addEntryBtn {
+                width: 100%;
+                padding: 12px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .field-group,
+            .details-grid,
+            .extras-box {
+                grid-template-columns: 1fr;
+            }
+
+            .entry-buttons {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .entry-buttons .btn:first-child:nth-last-child(3) {
+                grid-column: span 2;
+            }
+
+            .entry-buttons .btn {
+                width: 100%;
+                padding: 10px;
+            }
+
+            /* Bottom-sheet modal feel on smartphone */
+            #modalOverlay {
+                align-items: flex-end;
+                padding: 0;
+            }
+
+            .modal-content {
+                border-radius: 18px 18px 0 0;
+                max-height: 88vh;
+                padding: 20px 16px;
+            }
         }
 
-        @media (max-width: 600px) {
-            body { padding: 10px; }
-            .container { padding: 15px; }
-            .field-group, .details-grid { grid-template-columns: 1fr; }
-            .entry-buttons { display: grid; grid-template-columns: 1fr 1fr; }
-            .entry-buttons .btn { width: 100%; }
-        }
+        /* Mirror mobile rules when user manually selects Mobile view on PC */
+        body.force-mobile .toolbar { grid-template-columns: 1fr; }
+        body.force-mobile #addEntryBtn { width: 100%; }
+        body.force-mobile .cards-grid { grid-template-columns: 1fr; gap: 12px; }
+        body.force-mobile .field-group,
+        body.force-mobile .details-grid,
+        body.force-mobile .extras-box { grid-template-columns: 1fr; }
+        body.force-mobile .entry-buttons { display: grid; grid-template-columns: 1fr 1fr; }
+        body.force-mobile .entry-buttons .btn { width: 100%; }
     </style>
 </head>
 
@@ -345,23 +564,37 @@
          AUTH SECTION
     =========================================== -->
     <div id="authSection">
-        <h2 id="authTitle">Vault Login</h2>
+        <h2 id="authTitle" style="margin-top:0;">Vault Login</h2>
         <input type="email" id="email" placeholder="Email" autocomplete="username">
         <input type="password" id="authPassword" placeholder="Master Password" autocomplete="current-password">
-        <button id="authBtn" type="button" class="btn btn-primary" style="width:100%;">Login</button>
-        <p id="toggleAuth" style="text-align:center; cursor:pointer; font-size:14px; margin-top:12px;">New? Create Account</p>
+        <button id="authBtn" type="button" class="btn btn-primary" style="width:100%; margin-top:10px;">Login</button>
+        <p id="toggleAuth" style="text-align:center; cursor:pointer; font-size:14px; margin-top:14px; color:var(--primary);">New? Create Account</p>
     </div>
 
     <!-- ==========================================
          MAIN APPLICATION
     =========================================== -->
     <div id="appSection" class="hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h2 style="margin:0;">Secure Vault</h2>
-            <button id="logoutBtn" type="button" class="btn btn-secondary">Logout</button>
+        <div class="app-header">
+            <div class="header-left">
+                <h2 style="margin:0; font-size:21px;">Secure Vault</h2>
+                <span id="deviceBadge" class="device-badge">Auto</span>
+            </div>
+
+            <div class="header-actions">
+                <button id="viewToggleBtn" type="button" class="btn btn-outline" title="Switch Desktop / Smartphone Look">📱 View: Auto</button>
+                <button id="logoutBtn" type="button" class="btn btn-secondary">Logout</button>
+            </div>
         </div>
 
-        <button id="addEntryBtn" type="button" class="btn btn-primary">➕ Add New Entry</button>
+        <!-- TOOLBAR: ADD + SEARCH -->
+        <div class="toolbar">
+            <button id="addEntryBtn" type="button" class="btn btn-primary">➕ Add New Entry</button>
+            <div class="search-container">
+                <input type="search" id="searchInput" placeholder="Search account, username, links, details..." autocomplete="off">
+                <span id="clearSearch">×</span>
+            </div>
+        </div>
 
         <!-- ADD FORM -->
         <div id="entryForm" class="hidden">
@@ -370,13 +603,18 @@
             <input type="text" id="accName" placeholder="Account Name (e.g. Google)">
 
             <div class="field-group">
-                <input type="text" id="accUser" placeholder="Username">
+                <input type="text" id="accUser" placeholder="Username / Email">
                 <input type="password" id="accPass" placeholder="Password">
             </div>
 
-            <input type="text" id="accImage" placeholder="Images: image1.jpg,image2.jpg">
+            <input type="text" id="accLinks" placeholder="Links: https://example.com, https://login.example.com">
             <div class="help-text">
-                Example: <b>image1.jpg,image2.jpg</b> or <b>images/pic1.jpg</b>
+                Separate multiple links with commas (e.g., <b>https://site.com, dashboard.site.com</b>)
+            </div>
+
+            <input type="text" id="accImage" placeholder="Images: image1.jpg, image2.jpg">
+            <div class="help-text">
+                Example: <b>image1.jpg, image2.jpg</b> or <b>images/pic1.jpg</b>
             </div>
 
             <div class="field-group">
@@ -392,22 +630,15 @@
                 <input type="text" id="e6" placeholder="Extra Description 6">
             </div>
 
-            <div style="display:flex; gap:8px;">
+            <div style="display:flex; gap:10px; margin-top:10px;">
                 <button id="saveBtn" type="button" class="btn btn-primary" style="flex:1;">Save to Vault</button>
                 <button id="cancelAddBtn" type="button" class="btn btn-secondary" style="flex:1;">Cancel</button>
             </div>
         </div>
 
-        <hr style="margin:20px 0; border:0; border-top:1px solid #ddd;">
-
-        <!-- SEARCH -->
-        <h3>Stored Credentials</h3>
-        <div class="search-container">
-            <input type="search" id="searchInput" placeholder="Search account, username, details..." autocomplete="off">
-            <span id="clearSearch">×</span>
-        </div>
+        <!-- RESULTS INFO & CARDS -->
         <div id="searchInfo"></div>
-        <div id="passwordList"></div>
+        <div id="passwordList" class="cards-grid"></div>
     </div>
 
 </div>
@@ -415,7 +646,7 @@
 <!-- EDIT MODAL -->
 <div id="modalOverlay" class="hidden">
     <div class="modal-content">
-        <h3>Edit Entry</h3>
+        <h3 style="margin-top:0;">Edit Entry</h3>
         <input type="hidden" id="editId">
         <input type="text" id="editName" placeholder="Account Name">
 
@@ -424,7 +655,8 @@
             <input type="text" id="editPass" placeholder="Password">
         </div>
 
-        <input type="text" id="editImage" placeholder="Images: image1.jpg,image2.jpg">
+        <input type="text" id="editLinks" placeholder="Links: https://example.com, https://portal.example.com">
+        <input type="text" id="editImage" placeholder="Images: image1.jpg, image2.jpg">
 
         <div class="field-group">
             <input type="text" id="editE1" placeholder="Extra 1">
@@ -450,7 +682,6 @@
 <div id="imageModal" class="hidden">
     <span class="close-image" id="closeImageBtn">×</span>
     <img id="fullImage" src="" alt="Viewer">
-    <div id="imageError">Image not found</div>
     <div class="image-navigation">
         <button id="prevImageBtn" type="button">← Previous</button>
         <span id="imageCounter">1 / 1</span>
@@ -462,12 +693,65 @@
     function displayStatus(msg, isError = true) {
         const banner = document.getElementById('statusBanner');
         if (!banner) return;
+        if (!msg) {
+            banner.style.display = 'none';
+            return;
+        }
         banner.textContent = msg;
         banner.className = 'status-banner ' + (isError ? 'status-error' : '');
         banner.style.display = 'block';
     }
 
-    /* Verify Firebase scripts loaded */
+    /* ==========================================
+       DEVICE DETECTION & VIEW MODE SWITCHER
+    =========================================== */
+    let viewMode = localStorage.getItem('vaultViewMode') || 'auto'; // 'auto' | 'desktop' | 'mobile'
+
+    function detectDeviceType() {
+        const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isNarrow = window.innerWidth < 768;
+        return (isMobileUA || isNarrow) ? 'Smartphone' : 'Desktop';
+    }
+
+    function applyViewMode() {
+        const badge = document.getElementById('deviceBadge');
+        const toggleBtn = document.getElementById('viewToggleBtn');
+        document.body.classList.remove('force-mobile', 'force-desktop');
+
+        const detected = detectDeviceType();
+
+        if (viewMode === 'mobile') {
+            document.body.classList.add('force-mobile');
+            badge.textContent = 'Smartphone';
+            toggleBtn.textContent = '📱 Mobile';
+        } else if (viewMode === 'desktop') {
+            document.body.classList.add('force-desktop');
+            badge.textContent = 'Desktop';
+            toggleBtn.textContent = '🖥️ Desktop';
+        } else {
+            badge.textContent = detected;
+            toggleBtn.textContent = (detected === 'Smartphone' ? '📱' : '🖥️') + ' Auto';
+        }
+    }
+
+    document.getElementById('viewToggleBtn').onclick = () => {
+        if (viewMode === 'auto') viewMode = 'desktop';
+        else if (viewMode === 'desktop') viewMode = 'mobile';
+        else viewMode = 'auto';
+
+        localStorage.setItem('vaultViewMode', viewMode);
+        applyViewMode();
+    };
+
+    window.addEventListener('resize', () => {
+        if (viewMode === 'auto') applyViewMode();
+    });
+
+    applyViewMode();
+
+    /* ==========================================
+       FIREBASE INIT
+    =========================================== */
     if (typeof firebase === 'undefined') {
         displayStatus("Error: Firebase SDK failed to load. Check your internet connection or ad-blocker.");
     }
@@ -482,7 +766,6 @@
         appId: "1:367114842706:web:0f6d504163ed3c72ed658b"
     };
 
-    // Initialize Firebase
     try {
         firebase.initializeApp(firebaseConfig);
     } catch (e) {
@@ -495,12 +778,12 @@
     let currentUser = null;
     let allData = {};
     let isLogin = true;
-
-    // Image variables
     let currentImages = [];
     let currentImageIndex = 0;
 
-    // Clipboard copy
+    /* ==========================================
+       CLIPBOARD & LINK HELPERS
+    =========================================== */
     window.copyToClipboard = function(text, btnElement) {
         if (!text) return;
 
@@ -550,7 +833,22 @@
         return btn;
     }
 
-    // Toggle Login / Sign Up
+    function parseLinks(rawLinks) {
+        if (!rawLinks) return [];
+        return rawLinks
+            .split(',')
+            .map(l => l.trim())
+            .filter(l => l.length > 0)
+            .map(l => {
+                const href = /^https?:\/\//i.test(l) ? l : 'https://' + l;
+                const display = l.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, '');
+                return { href, display: display || l };
+            });
+    }
+
+    /* ==========================================
+       AUTH LOGIC
+    =========================================== */
     const toggleAuth = document.getElementById('toggleAuth');
     toggleAuth.onclick = () => {
         isLogin = !isLogin;
@@ -560,7 +858,6 @@
         displayStatus('', false);
     };
 
-    // Auth Button Action
     document.getElementById('authBtn').onclick = () => {
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('authPassword').value;
@@ -576,14 +873,11 @@
 
         if (isLogin) {
             auth.signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    displayStatus('', false);
-                })
+                .then(() => displayStatus('', false))
                 .catch(error => {
                     authBtn.disabled = false;
                     authBtn.textContent = 'Login';
                     displayStatus("Login Error: [" + error.code + "] " + error.message);
-                    alert("Login Failed:\n[" + error.code + "]\n" + error.message);
                 });
         } else {
             auth.createUserWithEmailAndPassword(email, password)
@@ -595,12 +889,10 @@
                     authBtn.disabled = false;
                     authBtn.textContent = 'Sign Up';
                     displayStatus("Signup Error: [" + error.code + "] " + error.message);
-                    alert("Sign Up Failed:\n[" + error.code + "]\n" + error.message);
                 });
         }
     };
 
-    // Auth State Listener
     auth.onAuthStateChanged((user) => {
         currentUser = user;
         const authBtn = document.getElementById('authBtn');
@@ -618,21 +910,19 @@
         }
     });
 
-    // Logout
-    document.getElementById('logoutBtn').onclick = () => {
-        auth.signOut();
-    };
+    document.getElementById('logoutBtn').onclick = () => auth.signOut();
 
-    // Add entry toggling
+    /* ==========================================
+       ADD / SAVE ENTRY
+    =========================================== */
     const addEntryBtn = document.getElementById('addEntryBtn');
     const entryForm = document.getElementById('entryForm');
     const cancelAddBtn = document.getElementById('cancelAddBtn');
 
     addEntryBtn.onclick = () => {
-        const isHidden = entryForm.classList.contains('hidden');
-        if (isHidden) {
+        if (entryForm.classList.contains('hidden')) {
             entryForm.classList.remove('hidden');
-            addEntryBtn.textContent = '➖ Close Add Entry';
+            addEntryBtn.textContent = '➖ Close Form';
         } else {
             closeAddEntryForm();
         }
@@ -646,12 +936,11 @@
     }
 
     function clearAddForm() {
-        ['accName', 'accUser', 'accPass', 'accImage', 'e1', 'e2', 'e3', 'e4', 'e5', 'e6'].forEach(id => {
+        ['accName', 'accUser', 'accPass', 'accLinks', 'accImage', 'e1', 'e2', 'e3', 'e4', 'e5', 'e6'].forEach(id => {
             document.getElementById(id).value = '';
         });
     }
 
-    // Save Entry
     document.getElementById('saveBtn').onclick = () => {
         if (!currentUser) return;
 
@@ -665,6 +954,7 @@
             name: name,
             user: document.getElementById('accUser').value.trim(),
             pass: document.getElementById('accPass').value,
+            links: document.getElementById('accLinks').value.trim(),
             image: document.getElementById('accImage').value.trim(),
             e1: document.getElementById('e1').value,
             e2: document.getElementById('e2').value,
@@ -678,14 +968,13 @@
             .then(() => {
                 clearAddForm();
                 closeAddEntryForm();
-                alert('Entry saved successfully.');
             })
-            .catch(error => {
-                alert('Database Error: ' + error.message);
-            });
+            .catch(error => alert('Database Error: ' + error.message));
     };
 
-    // Realtime Database sync
+    /* ==========================================
+       LOAD & RENDER DATA
+    =========================================== */
     function loadData(uid) {
         db.ref('users/' + uid).on('value', snapshot => {
             allData = snapshot.val() || {};
@@ -695,7 +984,6 @@
         });
     }
 
-    // Search Handlers
     document.getElementById('searchInput').addEventListener('input', () => {
         updateSearchButton();
         renderData();
@@ -712,7 +1000,6 @@
         renderData();
     };
 
-    // Render Cards
     function renderData() {
         const list = document.getElementById('passwordList');
         list.innerHTML = '';
@@ -725,6 +1012,7 @@
             const searchableText = [
                 item.name || '',
                 item.user || '',
+                item.links || '',
                 item.image || '',
                 item.e1 || '',
                 item.e2 || '',
@@ -743,16 +1031,20 @@
             const card = document.createElement('div');
             card.className = 'entry-card';
 
+            const topSection = document.createElement('div');
+
+            // Header
             const header = document.createElement('div');
             header.className = 'entry-header';
             header.textContent = item.name || 'Unnamed';
-            card.appendChild(header);
+            topSection.appendChild(header);
 
+            // User & Pass
             const details = document.createElement('div');
             details.className = 'details-grid';
 
-            // Username
             const userDiv = document.createElement('div');
+            userDiv.className = 'detail-item';
             userDiv.innerHTML = '<strong>User:</strong> ';
             const userSpan = document.createElement('span');
             userSpan.textContent = item.user || '-';
@@ -762,8 +1054,8 @@
             }
             details.appendChild(userDiv);
 
-            // Password with Toggle & Copy
             const passDiv = document.createElement('div');
+            passDiv.className = 'detail-item';
             const passStrong = document.createElement('strong');
             passStrong.textContent = 'Pass: ';
             passDiv.appendChild(passStrong);
@@ -790,43 +1082,70 @@
                 passDiv.appendChild(createCopyBtn(item.pass, "Copy Password"));
             }
             details.appendChild(passDiv);
-            card.appendChild(details);
+            topSection.appendChild(details);
 
-            // Extras
-            const extras = document.createElement('div');
-            extras.className = 'details-grid';
-            extras.style = 'color:#666; border-top:1px dashed #eee; padding-top:8px;';
+            // Links (Render only if present)
+            const parsedLinks = parseLinks(item.links);
+            if (parsedLinks.length > 0) {
+                const linksBox = document.createElement('div');
+                linksBox.className = 'links-box';
 
+                parsedLinks.forEach(linkObj => {
+                    const chip = document.createElement('div');
+                    chip.className = 'link-chip';
+
+                    const a = document.createElement('a');
+                    a.href = linkObj.href;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.textContent = '🔗 ' + linkObj.display;
+                    a.title = linkObj.href;
+
+                    chip.appendChild(a);
+                    chip.appendChild(createCopyBtn(linkObj.href, 'Copy Link'));
+                    linksBox.appendChild(chip);
+                });
+
+                topSection.appendChild(linksBox);
+            }
+
+            // Extras (Render only filled extras to keep cards clean)
             const extraFields = [
                 ['E1', item.e1], ['E2', item.e2],
                 ['E3', item.e3], ['E4', item.e4],
                 ['E5', item.e5], ['E6', item.e6]
-            ];
+            ].filter(([, val]) => val && val.trim().length > 0);
 
-            extraFields.forEach(([label, value]) => {
-                const div = document.createElement('div');
-                div.innerHTML = '<strong>' + label + ':</strong> ';
-                const valSpan = document.createElement('span');
-                valSpan.textContent = value || '-';
-                div.appendChild(valSpan);
+            if (extraFields.length > 0) {
+                const extras = document.createElement('div');
+                extras.className = 'extras-box';
 
-                if (value && value.trim()) {
+                extraFields.forEach(([label, value]) => {
+                    const div = document.createElement('div');
+                    div.className = 'detail-item';
+                    div.innerHTML = '<strong>' + label + ':</strong> ';
+                    const valSpan = document.createElement('span');
+                    valSpan.textContent = value;
+                    div.appendChild(valSpan);
                     div.appendChild(createCopyBtn(value, 'Copy ' + label));
-                }
-                extras.appendChild(div);
-            });
-            card.appendChild(extras);
+                    extras.appendChild(div);
+                });
 
-            // Actions
+                topSection.appendChild(extras);
+            }
+
+            card.appendChild(topSection);
+
+            // Action Buttons
             const buttons = document.createElement('div');
             buttons.className = 'entry-buttons';
 
             if (item.image && item.image.trim()) {
                 const imageButton = document.createElement('button');
                 imageButton.type = 'button';
-                imageButton.className = 'btn btn-image';
+                imageButton.className = 'btn btn-success';
                 const images = getImageList(item.image);
-                imageButton.textContent = '🖼️ Show Images (' + images.length + ')';
+                imageButton.textContent = '🖼️ Images (' + images.length + ')';
                 imageButton.onclick = () => window.showImages(images);
                 buttons.appendChild(imageButton);
             }
@@ -834,14 +1153,14 @@
             const editButton = document.createElement('button');
             editButton.type = 'button';
             editButton.className = 'btn btn-warning';
-            editButton.textContent = 'Edit';
+            editButton.textContent = '✏️ Edit';
             editButton.onclick = () => window.openEditModal(id);
             buttons.appendChild(editButton);
 
             const deleteButton = document.createElement('button');
             deleteButton.type = 'button';
             deleteButton.className = 'btn btn-danger';
-            deleteButton.textContent = 'Delete';
+            deleteButton.textContent = '🗑️ Delete';
             deleteButton.onclick = () => window.deleteItem(id);
             buttons.appendChild(deleteButton);
 
@@ -854,7 +1173,7 @@
             : `${count} stored entr${count === 1 ? 'y' : 'ies'}`;
 
         if (count === 0 && search) {
-            list.innerHTML = '<div style="text-align:center; padding:25px; color:#777;">No matching entries found.</div>';
+            list.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px; color:#777;">No matching entries found.</div>';
         }
     }
 
@@ -863,7 +1182,9 @@
         return imageValue.split(',').map(img => img.trim()).filter(img => img.length > 0);
     }
 
-    // Modal & Image Viewer logic
+    /* ==========================================
+       IMAGE VIEWER
+    =========================================== */
     window.showImages = (images) => {
         if (!images || images.length === 0) return;
         currentImages = images;
@@ -876,7 +1197,6 @@
 
         const image = document.getElementById('fullImage');
         const modal = document.getElementById('imageModal');
-        const error = document.getElementById('imageError');
         const counter = document.getElementById('imageCounter');
         const previous = document.getElementById('prevImageBtn');
         const next = document.getElementById('nextImageBtn');
@@ -884,20 +1204,15 @@
         image.onload = null;
         image.onerror = null;
         image.src = '';
-        error.style.display = 'none';
 
         const imageName = currentImages[currentImageIndex];
-        const imagePath = './' + imageName;
+        const imagePath = /^https?:\/\//i.test(imageName) ? imageName : './' + imageName;
 
         counter.textContent = `${currentImageIndex + 1} / ${currentImages.length}`;
         previous.style.display = currentImages.length > 1 ? 'block' : 'none';
         next.style.display = currentImages.length > 1 ? 'block' : 'none';
 
-        image.onload = () => {
-            error.style.display = 'none';
-            modal.classList.remove('hidden');
-        };
-
+        image.onload = () => modal.classList.remove('hidden');
         image.onerror = () => {
             modal.classList.add('hidden');
             alert('Image not found:\n\n' + imagePath + '\n\nCheck filename and directory path.');
@@ -935,7 +1250,9 @@
         if (e.target.id === 'imageModal') closeImageViewer();
     };
 
-    // Edit logic
+    /* ==========================================
+       EDIT & DELETE
+    =========================================== */
     window.openEditModal = (id) => {
         const item = allData[id];
         if (!item) return;
@@ -944,6 +1261,7 @@
         document.getElementById('editName').value = item.name || '';
         document.getElementById('editUser').value = item.user || '';
         document.getElementById('editPass').value = item.pass || '';
+        document.getElementById('editLinks').value = item.links || '';
         document.getElementById('editImage').value = item.image || '';
         document.getElementById('editE1').value = item.e1 || '';
         document.getElementById('editE2').value = item.e2 || '';
@@ -963,6 +1281,7 @@
             name: document.getElementById('editName').value.trim(),
             user: document.getElementById('editUser').value.trim(),
             pass: document.getElementById('editPass').value,
+            links: document.getElementById('editLinks').value.trim(),
             image: document.getElementById('editImage').value.trim(),
             e1: document.getElementById('editE1').value,
             e2: document.getElementById('editE2').value,
@@ -973,12 +1292,8 @@
         };
 
         db.ref('users/' + currentUser.uid + '/' + id).update(updatedData)
-            .then(() => {
-                document.getElementById('modalOverlay').classList.add('hidden');
-            })
-            .catch(error => {
-                alert('Update Error: ' + error.message);
-            });
+            .then(() => document.getElementById('modalOverlay').classList.add('hidden'))
+            .catch(error => alert('Update Error: ' + error.message));
     };
 
     document.getElementById('closeModal').onclick = () => {
@@ -993,7 +1308,6 @@
         }
     };
 
-    // Escape listener
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape') {
             closeImageViewer();
